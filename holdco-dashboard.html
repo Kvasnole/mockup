@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EVE Revenue OS — HoldCo Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.9/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8f9fb; color: #0f172a; }
+    button { font-family: inherit; }
+    canvas { max-width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+    // ─── CHART.JS WRAPPER ──────────────────────────────────────────────
+    function ChartBox({ config, height }) {
+      const canvasRef = useRef(null);
+      const chartRef = useRef(null);
+      useEffect(() => {
+        if (chartRef.current) chartRef.current.destroy();
+        const ctx = canvasRef.current.getContext('2d');
+        chartRef.current = new Chart(ctx, config);
+        return () => { if (chartRef.current) chartRef.current.destroy(); };
+      }, [JSON.stringify(config)]);
+      return <canvas ref={canvasRef} height={height || 220} />;
+    }
+
+    // ─── SVG ICONS ─────────────────────────────────────────────────────
+    const Ic = ({ paths, size=16, color="currentColor", style:s }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, verticalAlign:"middle", ...s }}>{paths}</svg>
+    );
+    const IcBarChart = (p) => <Ic {...p} paths={<><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></>} />;
+    const IcTarget = (p) => <Ic {...p} paths={<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>} />;
+    const IcTrendUp = (p) => <Ic {...p} paths={<><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></>} />;
+    const IcTrendDown = (p) => <Ic {...p} paths={<><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></>} />;
+    const IcArrowUp = (p) => <Ic {...p} paths={<><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></>} />;
+    const IcArrowDown = (p) => <Ic {...p} paths={<><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 7 17 17 7 17"/></>} />;
+    const IcChevDown = (p) => <Ic {...p} paths={<polyline points="6 9 12 15 18 9"/>} />;
+    const IcChevRight = (p) => <Ic {...p} paths={<polyline points="9 18 15 12 9 6"/>} />;
+    const IcAlert = (p) => <Ic {...p} paths={<><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} />;
+    const IcCheck = (p) => <Ic {...p} paths={<><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />;
+    const IcBuilding = (p) => <Ic {...p} paths={<><path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/><path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/><path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></>} />;
+    const IcUsers = (p) => <Ic {...p} paths={<><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></>} />;
+    const IcRefresh = (p) => <Ic {...p} paths={<><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></>} />;
+    const IcDollar = (p) => <Ic {...p} paths={<><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></>} />;
+    const IcActivity = (p) => <Ic {...p} paths={<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>} />;
+    const IcShield = (p) => <Ic {...p} paths={<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>} />;
+    const IcClock = (p) => <Ic {...p} paths={<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>} />;
+    const IcStar = (p) => <Ic {...p} paths={<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>} />;
+    const IcZap = (p) => <Ic {...p} paths={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>} />;
+    const IcLayers = (p) => <Ic {...p} paths={<><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></>} />;
+    const IcPie = (p) => <Ic {...p} paths={<><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></>} />;
+
+    // ─── DATA ──────────────────────────────────────────────────────────
+    const companies = [
+      {
+        id:"planetgeo", name:"Planet Geo", description:"Geospatial analytics platform", crm:"HubSpot",
+        activePipeline:3200000, lateStage:1400000, earlyStage:1800000,
+        closeRate:0.34, closeRateChange:0.04, quota:1800000, quotaAttained:1350000,
+        newBookings:520000, upsell:180000, crossSell:90000,
+        renewalsThisQuarter:2100000, atRiskRenewal:340000,
+        netRetention:1.08, grossRetention:0.93, churnRate:0.07,
+        ltv:86000, cac:14200, ltvCacRatio:6.1, nps:42, npsChange:-3, arr:8400000, reps:8, csms:3,
+        sentiment:"mostly_positive",
+        renewals:[
+          {customer:"Meridian Corp",value:180000,status:"on_track",lastContact:"3 days ago",csmName:"Lisa R.",health:85},
+          {customer:"Atlas Industries",value:240000,status:"at_risk",lastContact:"28 days ago",csmName:"Lisa R.",health:45,riskSignal:"Evaluating competitor (spotted on G2)"},
+          {customer:"Navex Solutions",value:95000,status:"on_track",lastContact:"1 week ago",csmName:"Tom K.",health:78},
+          {customer:"BrightPath Inc",value:160000,status:"at_risk",lastContact:"42 days ago",csmName:"Tom K.",health:38,riskSignal:"Negative sentiment in last 2 support tickets"},
+          {customer:"Corinth Data",value:120000,status:"on_track",lastContact:"5 days ago",csmName:"Lisa R.",health:92},
+        ],
+        forecast:[
+          {month:"Apr",actual:420000,forecast:null,target:450000},
+          {month:"May",actual:null,forecast:480000,target:450000},
+          {month:"Jun",actual:null,forecast:510000,target:450000},
+          {month:"Jul",actual:null,forecast:470000,target:450000},
+          {month:"Aug",actual:null,forecast:530000,target:450000},
+          {month:"Sep",actual:null,forecast:490000,target:450000},
+        ],
+      },
+      {
+        id:"worthpoint", name:"WorthPoint", description:"Collectibles data & marketplace", crm:"Salesforce",
+        activePipeline:2400000, lateStage:880000, earlyStage:1520000,
+        closeRate:0.27, closeRateChange:-0.02, quota:1400000, quotaAttained:840000,
+        newBookings:340000, upsell:110000, crossSell:45000,
+        renewalsThisQuarter:1600000, atRiskRenewal:520000,
+        netRetention:0.97, grossRetention:0.88, churnRate:0.12,
+        ltv:62000, cac:11800, ltvCacRatio:5.3, nps:31, npsChange:-8, arr:5200000, reps:6, csms:2,
+        sentiment:"mixed",
+        renewals:[
+          {customer:"Heritage Auctions",value:320000,status:"at_risk",lastContact:"35 days ago",csmName:"David M.",health:32,riskSignal:"Emailed about pricing concerns 6 weeks ago \u2014 no CSM follow-up"},
+          {customer:"Kovels Online",value:180000,status:"on_track",lastContact:"4 days ago",csmName:"Sarah P.",health:80},
+          {customer:"Collector Hub",value:145000,status:"at_risk",lastContact:"21 days ago",csmName:"David M.",health:48,riskSignal:"Usage dropped 40% last month"},
+          {customer:"AntiquesRoadmap",value:210000,status:"on_track",lastContact:"1 week ago",csmName:"Sarah P.",health:71},
+        ],
+        forecast:[
+          {month:"Apr",actual:310000,forecast:null,target:350000},
+          {month:"May",actual:null,forecast:330000,target:350000},
+          {month:"Jun",actual:null,forecast:360000,target:350000},
+          {month:"Jul",actual:null,forecast:340000,target:350000},
+          {month:"Aug",actual:null,forecast:380000,target:350000},
+          {month:"Sep",actual:null,forecast:370000,target:350000},
+        ],
+      },
+      {
+        id:"datastream", name:"DataStream Pro", description:"Business intelligence & ETL platform", crm:"NetSuite",
+        activePipeline:1700000, lateStage:720000, earlyStage:980000,
+        closeRate:0.31, closeRateChange:0.02, quota:1100000, quotaAttained:780000,
+        newBookings:280000, upsell:95000, crossSell:60000,
+        renewalsThisQuarter:1200000, atRiskRenewal:180000,
+        netRetention:1.12, grossRetention:0.95, churnRate:0.05,
+        ltv:94000, cac:12600, ltvCacRatio:7.5, nps:56, npsChange:5, arr:4100000, reps:5, csms:2,
+        sentiment:"positive",
+        renewals:[
+          {customer:"LogiFlow Systems",value:190000,status:"on_track",lastContact:"2 days ago",csmName:"Amy L.",health:91},
+          {customer:"Pinnacle Analytics",value:260000,status:"on_track",lastContact:"6 days ago",csmName:"Amy L.",health:84},
+          {customer:"Vertex Solutions",value:140000,status:"at_risk",lastContact:"18 days ago",csmName:"James R.",health:52,riskSignal:"Requested data export \u2014 possible migration"},
+        ],
+        forecast:[
+          {month:"Apr",actual:290000,forecast:null,target:275000},
+          {month:"May",actual:null,forecast:310000,target:275000},
+          {month:"Jun",actual:null,forecast:330000,target:275000},
+          {month:"Jul",actual:null,forecast:300000,target:275000},
+          {month:"Aug",actual:null,forecast:350000,target:275000},
+          {month:"Sep",actual:null,forecast:320000,target:275000},
+        ],
+      },
+    ];
+
+    const totalPipeline = companies.reduce((s,c)=>s+c.activePipeline,0);
+    const totalLateStage = companies.reduce((s,c)=>s+c.lateStage,0);
+    const totalQuota = companies.reduce((s,c)=>s+c.quota,0);
+    const totalAttained = companies.reduce((s,c)=>s+c.quotaAttained,0);
+    const totalRenewals = companies.reduce((s,c)=>s+c.renewalsThisQuarter,0);
+    const totalAtRisk = companies.reduce((s,c)=>s+c.atRiskRenewal,0);
+    const totalARR = companies.reduce((s,c)=>s+c.arr,0);
+    const avgCloseRate = companies.reduce((s,c)=>s+c.closeRate,0)/companies.length;
+    const avgNetRetention = companies.reduce((s,c)=>s+c.netRetention,0)/companies.length;
+    const avgGrossRetention = companies.reduce((s,c)=>s+c.grossRetention,0)/companies.length;
+    const avgChurn = companies.reduce((s,c)=>s+c.churnRate,0)/companies.length;
+    const avgNPS = Math.round(companies.reduce((s,c)=>s+c.nps,0)/companies.length);
+    const totalNewBookings = companies.reduce((s,c)=>s+c.newBookings,0);
+    const totalUpsell = companies.reduce((s,c)=>s+c.upsell,0);
+    const totalCrossSell = companies.reduce((s,c)=>s+c.crossSell,0);
+
+    const aggregateForecast = companies[0].forecast.map((_,i)=>({
+      month: companies[0].forecast[i].month,
+      actual: companies.reduce((s,c)=>s+(c.forecast[i].actual||0),0)||null,
+      forecast: companies.reduce((s,c)=>s+(c.forecast[i].forecast||0),0)||null,
+      target: companies.reduce((s,c)=>s+c.forecast[i].target,0),
+    }));
+    aggregateForecast[0].forecast = null;
+
+    const pipelineByStage = [
+      {stage:"Discovery",value:1800000},{stage:"Qualification",value:1400000},
+      {stage:"Proposal",value:1200000},{stage:"Negotiation",value:1100000},{stage:"Verbal Commit",value:800000},
+    ];
+
+    // ─── COLORS & HELPERS ──────────────────────────────────────────────
+    const CL = {
+      primary:"#6366f1",primaryLight:"#818cf8",success:"#10b981",successLight:"#34d399",
+      warning:"#f59e0b",danger:"#ef4444",blue:"#3b82f6",purple:"#8b5cf6",slate:"#64748b",
+      bg:"#f8f9fb",cardBg:"#ffffff",border:"#e2e8f0",
+      t1:"#0f172a",t2:"#475569",t3:"#94a3b8",
+    };
+    const fmt=(n)=>{if(n>=1e6)return"$"+(n/1e6).toFixed(1)+"M";if(n>=1e3)return"$"+(n/1e3).toFixed(0)+"K";return"$"+n;};
+    const pct=(n)=>(n*100).toFixed(0)+"%";
+    const sentLabel=(s)=>{
+      if(s==="positive")return{text:"Positive",color:CL.success};
+      if(s==="mostly_positive")return{text:"Mostly Positive",color:CL.successLight};
+      if(s==="mixed")return{text:"Mixed",color:CL.warning};
+      return{text:"Negative",color:CL.danger};
+    };
+    const hColor=(h)=>h>=70?CL.success:h>=50?CL.warning:CL.danger;
+    const shd="0 1px 3px rgba(0,0,0,0.05)";
+
+    // Chart.js defaults
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 11;
+    Chart.defaults.color = CL.t3;
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.pointStyleWidth = 8;
+    Chart.defaults.plugins.legend.labels.padding = 16;
+
+    // ─── SUBCOMPONENTS ─────────────────────────────────────────────────
+    function KPICard({icon:IcComp,label,value,subValue,trend,trendUp,color}) {
+      return (
+        <div style={{background:CL.cardBg,border:"1px solid "+CL.border,borderRadius:12,padding:"20px 24px",flex:1,minWidth:180,boxShadow:shd}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+            <div style={{width:32,height:32,borderRadius:8,background:color+"15",display:"flex",alignItems:"center",justifyContent:"center"}}><IcComp size={16} color={color}/></div>
+            <span style={{fontSize:12,color:CL.t3,fontWeight:500}}>{label}</span>
+          </div>
+          <div style={{fontSize:26,fontWeight:700,color:CL.t1,lineHeight:1}}>{value}</div>
+          <div style={{display:"flex",alignItems:"center",gap:6,marginTop:6}}>
+            {trend&&<span style={{display:"inline-flex",alignItems:"center",gap:2,fontSize:11,fontWeight:600,color:trendUp?CL.success:CL.danger}}>{trendUp?<IcArrowUp size={12}/>:<IcArrowDown size={12}/>}{trend}</span>}
+            {subValue&&<span style={{fontSize:11,color:CL.t3}}>{subValue}</span>}
+          </div>
+        </div>
+      );
+    }
+
+    function SecHead({icon:IcComp,title,subtitle,color}) {
+      return (
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+          <div style={{width:36,height:36,borderRadius:10,background:(color||CL.primary)+"15",display:"flex",alignItems:"center",justifyContent:"center"}}><IcComp size={18} color={color||CL.primary}/></div>
+          <div><div style={{fontSize:16,fontWeight:700,color:CL.t1}}>{title}</div>{subtitle&&<div style={{fontSize:12,color:CL.t3}}>{subtitle}</div>}</div>
+        </div>
+      );
+    }
+
+    function PBar({value,max,color,height=6}) {
+      const p=Math.min((value/max)*100,100);
+      return <div style={{width:"100%",height,borderRadius:height,background:color+"20",overflow:"hidden"}}><div style={{width:p+"%",height:"100%",borderRadius:height,background:color,transition:"width 0.5s ease"}}/></div>;
+    }
+
+    function Badge({text,color}) {
+      return <span style={{fontSize:10,fontWeight:600,padding:"3px 8px",borderRadius:6,background:color+"15",color,textTransform:"uppercase",letterSpacing:"0.5px"}}>{text}</span>;
+    }
+
+    // ─── FORECAST CHART ────────────────────────────────────────────────
+    function ForecastChart({data,height}) {
+      const cfg = {
+        type:'bar',
+        data:{
+          labels: data.map(d=>d.month),
+          datasets:[
+            {label:'Actual',data:data.map(d=>d.actual),backgroundColor:CL.primary,borderRadius:4,barPercentage:0.6},
+            {label:'Forecast',data:data.map(d=>d.forecast),backgroundColor:CL.primaryLight+"70",borderRadius:4,barPercentage:0.6},
+            {label:'Target',data:data.map(d=>d.target),type:'line',borderColor:CL.warning,borderDash:[5,5],borderWidth:2,pointRadius:0,fill:false},
+          ]
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          scales:{y:{beginAtZero:true,grid:{color:CL.border},ticks:{callback:v=>"$"+v/1000+"K"}},x:{grid:{display:false}}},
+          plugins:{legend:{position:'bottom',labels:{font:{size:10}}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+": "+fmt(ctx.parsed.y)}}},
+        }
+      };
+      return <div style={{height:height||220}}><ChartBox config={cfg} height={height||220}/></div>;
+    }
+
+    // ─── COMPANY ROW ───────────────────────────────────────────────────
+    function CompanyRow({company,expanded,onToggle}) {
+      const qp=company.quotaAttained/company.quota;
+      const atRiskCount=company.renewals.filter(r=>r.status==="at_risk").length;
+      return (
+        <div style={{background:CL.cardBg,border:"1px solid "+(expanded?CL.primary+"40":CL.border),borderRadius:12,marginBottom:8,overflow:"hidden",boxShadow:shd}}>
+          <div onClick={onToggle} style={{padding:"16px 20px",cursor:"pointer",display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr 1fr 1fr 1fr 40px",alignItems:"center",gap:12}}>
+            <div>
+              <div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:14,fontWeight:600,color:CL.t1}}>{company.name}</span><Badge text={company.crm} color={CL.slate}/></div>
+              <div style={{fontSize:11,color:CL.t3,marginTop:2}}>{company.description}</div>
+            </div>
+            <div style={{textAlign:"right"}}><div style={{fontSize:14,fontWeight:600,color:CL.t1}}>{fmt(company.activePipeline)}</div><div style={{fontSize:10,color:CL.t3}}>Pipeline</div></div>
+            <div style={{textAlign:"right"}}><div style={{fontSize:14,fontWeight:600,color:CL.t1}}>{pct(company.closeRate)}</div><div style={{fontSize:10,color:company.closeRateChange>=0?CL.success:CL.danger}}>{company.closeRateChange>=0?"+":""}{(company.closeRateChange*100).toFixed(0)}pp</div></div>
+            <div style={{textAlign:"right"}}><div style={{fontSize:14,fontWeight:600,color:qp>=0.7?CL.success:qp>=0.5?CL.warning:CL.danger}}>{pct(qp)}</div><div style={{fontSize:10,color:CL.t3}}>Quota</div></div>
+            <div style={{textAlign:"right"}}><div style={{fontSize:14,fontWeight:600,color:CL.t1}}>{fmt(company.renewalsThisQuarter)}</div><div style={{fontSize:10,color:atRiskCount>0?CL.danger:CL.t3}}>{atRiskCount>0?atRiskCount+" at risk":"On track"}</div></div>
+            <div style={{textAlign:"right"}}><div style={{fontSize:14,fontWeight:600,color:company.netRetention>=1?CL.success:CL.danger}}>{pct(company.netRetention)}</div><div style={{fontSize:10,color:CL.t3}}>NRR</div></div>
+            <div style={{textAlign:"center"}}><div style={{fontSize:14,fontWeight:600,color:company.nps>=50?CL.success:company.nps>=30?CL.warning:CL.danger}}>{company.nps}</div><div style={{fontSize:10,color:CL.t3}}>NPS</div></div>
+            <div style={{display:"flex",justifyContent:"center"}}>{expanded?<IcChevDown size={16} color={CL.t3}/>:<IcChevRight size={16} color={CL.t3}/>}</div>
+          </div>
+          {expanded&&(
+            <div style={{padding:"0 20px 20px",borderTop:"1px solid "+CL.border}}>
+              <div style={{paddingTop:16,display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+                <div>
+                  <div style={{fontSize:12,fontWeight:600,color:CL.t2,marginBottom:10}}>Q2 Quota Attainment</div>
+                  <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:6}}>
+                    <span style={{fontSize:22,fontWeight:700,color:CL.t1}}>{fmt(company.quotaAttained)}</span>
+                    <span style={{fontSize:13,color:CL.t3}}>/ {fmt(company.quota)}</span>
+                  </div>
+                  <PBar value={company.quotaAttained} max={company.quota} color={qp>=0.7?CL.success:CL.warning} height={8}/>
+                  <div style={{marginTop:14,display:"flex",gap:16}}>
+                    <div><div style={{fontSize:10,color:CL.t3}}>New Bookings</div><div style={{fontSize:13,fontWeight:600,color:CL.blue}}>{fmt(company.newBookings)}</div></div>
+                    <div><div style={{fontSize:10,color:CL.t3}}>Upsell</div><div style={{fontSize:13,fontWeight:600,color:CL.success}}>{fmt(company.upsell)}</div></div>
+                    <div><div style={{fontSize:10,color:CL.t3}}>Cross-sell</div><div style={{fontSize:13,fontWeight:600,color:CL.purple}}>{fmt(company.crossSell)}</div></div>
+                  </div>
+                  <div style={{marginTop:14,display:"flex",gap:16}}>
+                    <div><div style={{fontSize:10,color:CL.t3}}>Late Stage</div><div style={{fontSize:13,fontWeight:600,color:CL.t1}}>{fmt(company.lateStage)}</div></div>
+                    <div><div style={{fontSize:10,color:CL.t3}}>ARR</div><div style={{fontSize:13,fontWeight:600,color:CL.t1}}>{fmt(company.arr)}</div></div>
+                    <div><div style={{fontSize:10,color:CL.t3}}>LTV:CAC</div><div style={{fontSize:13,fontWeight:600,color:company.ltvCacRatio>=5?CL.success:CL.warning}}>{company.ltvCacRatio}x</div></div>
+                  </div>
+                </div>
+                <div>
+                  <div style={{fontSize:12,fontWeight:600,color:CL.t2,marginBottom:10}}>6-Month Bookings Forecast</div>
+                  <ForecastChart data={company.forecast} height={140}/>
+                </div>
+              </div>
+              <div style={{marginTop:16}}>
+                <div style={{fontSize:12,fontWeight:600,color:CL.t2,marginBottom:8}}>Upcoming Renewals This Quarter</div>
+                <div style={{borderRadius:8,overflow:"hidden",border:"1px solid "+CL.border}}>
+                  <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1.5fr 1fr 2fr",padding:"8px 12px",background:"#f8fafc",fontSize:10,fontWeight:600,color:CL.t3,textTransform:"uppercase",letterSpacing:"0.5px"}}>
+                    <span>Customer</span><span style={{textAlign:"right"}}>Value</span><span style={{textAlign:"center"}}>Health</span><span>Last Contact</span><span>CSM</span><span>Risk Signal</span>
+                  </div>
+                  {company.renewals.map((r,i)=>(
+                    <div key={i} style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1.5fr 1fr 2fr",padding:"10px 12px",alignItems:"center",borderTop:"1px solid "+CL.border,background:r.status==="at_risk"?CL.danger+"08":"transparent"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:6}}>
+                        {r.status==="at_risk"?<IcAlert size={12} color={CL.danger}/>:<IcCheck size={12} color={CL.success}/>}
+                        <span style={{fontSize:12,fontWeight:500,color:CL.t1}}>{r.customer}</span>
+                      </div>
+                      <span style={{fontSize:12,fontWeight:600,color:CL.t1,textAlign:"right"}}>{fmt(r.value)}</span>
+                      <div style={{textAlign:"center"}}><span style={{fontSize:11,fontWeight:700,color:hColor(r.health),padding:"2px 6px",borderRadius:4,background:hColor(r.health)+"15"}}>{r.health}</span></div>
+                      <span style={{fontSize:11,color:r.lastContact.includes("day")&&parseInt(r.lastContact)>20?CL.danger:CL.t2}}><IcClock size={10} style={{marginRight:3}}/>{r.lastContact}</span>
+                      <span style={{fontSize:11,color:CL.t2}}>{r.csmName}</span>
+                      <span style={{fontSize:11,color:r.riskSignal?CL.danger:CL.t3,fontStyle:r.riskSignal?"normal":"italic"}}>{r.riskSignal||"\u2014"}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ─── MAIN APP ──────────────────────────────────────────────────────
+    function App() {
+      const [expandedCompany,setExpandedCompany] = useState(null);
+      const [activeTab,setActiveTab] = useState("overview");
+
+      const tabs=[
+        {id:"overview",label:"Overview",icon:IcLayers},
+        {id:"pipeline",label:"Pipeline & Sales",icon:IcBarChart},
+        {id:"retention",label:"Retention & Renewals",icon:IcShield},
+        {id:"economics",label:"Unit Economics",icon:IcDollar},
+      ];
+
+      const revenueBreakdown=[
+        {name:"New Sales",value:totalNewBookings,color:CL.blue},
+        {name:"Upsell",value:totalUpsell,color:CL.success},
+        {name:"Cross-sell",value:totalCrossSell,color:CL.purple},
+      ];
+      const allRenewals=companies.flatMap(c=>c.renewals.map(r=>({...r,company:c.name})));
+      const atRiskRenewals=allRenewals.filter(r=>r.status==="at_risk");
+      const cd={background:CL.cardBg,border:"1px solid "+CL.border,borderRadius:12,padding:20,boxShadow:shd};
+      const cdm={...cd,marginBottom:24};
+
+      // Chart configs
+      const aggForecastCfg = {
+        type:'bar',
+        data:{labels:aggregateForecast.map(d=>d.month),datasets:[
+          {label:'Actual',data:aggregateForecast.map(d=>d.actual),backgroundColor:CL.primary,borderRadius:4,barPercentage:0.5},
+          {label:'Forecast',data:aggregateForecast.map(d=>d.forecast),backgroundColor:CL.primaryLight+"60",borderRadius:4,barPercentage:0.5},
+          {label:'Target',data:aggregateForecast.map(d=>d.target),type:'line',borderColor:CL.warning,borderDash:[5,5],borderWidth:2,pointRadius:0,fill:false},
+        ]},
+        options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:CL.border},ticks:{callback:v=>"$"+v/1000+"K"}},x:{grid:{display:false}}},plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+": "+fmt(ctx.parsed.y)}}}}
+      };
+
+      const pieCfg = {
+        type:'doughnut',
+        data:{labels:revenueBreakdown.map(r=>r.name),datasets:[{data:revenueBreakdown.map(r=>r.value),backgroundColor:revenueBreakdown.map(r=>r.color),borderWidth:0,hoverOffset:4}]},
+        options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:ctx=>ctx.label+": "+fmt(ctx.parsed)}}}}
+      };
+
+      const pipelineByCompanyCfg = {
+        type:'bar',
+        data:{labels:companies.map(c=>c.name),datasets:[
+          {label:'Early Stage',data:companies.map(c=>c.earlyStage),backgroundColor:CL.primaryLight+"60",borderRadius:4},
+          {label:'Late Stage',data:companies.map(c=>c.lateStage),backgroundColor:CL.primary,borderRadius:4},
+        ]},
+        options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',scales:{x:{stacked:true,grid:{color:CL.border},ticks:{callback:v=>"$"+v/1e6+"M"}},y:{stacked:true,grid:{display:false}}},plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+": "+fmt(ctx.parsed.x)}}}}
+      };
+
+      const funnelCfg = {
+        type:'bar',
+        data:{labels:pipelineByStage.map(s=>s.stage),datasets:[{data:pipelineByStage.map(s=>s.value),backgroundColor:["#10b98140","#10b98160","#10b98180","#10b981a0","#10b981"],borderRadius:4}]},
+        options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:CL.border},ticks:{callback:v=>"$"+v/1e6+"M"}},x:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.parsed.y)}}}}
+      };
+
+      const revMixCfg = {
+        type:'bar',
+        data:{labels:companies.map(c=>c.name),datasets:[
+          {label:'New Sales',data:companies.map(c=>c.newBookings),backgroundColor:CL.blue},
+          {label:'Upsell',data:companies.map(c=>c.upsell),backgroundColor:CL.success},
+          {label:'Cross-sell',data:companies.map(c=>c.crossSell),backgroundColor:CL.purple,borderRadius:{topLeft:4,topRight:4}},
+        ]},
+        options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:CL.border},ticks:{callback:v=>"$"+v/1000+"K"}}},plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+": "+fmt(ctx.parsed.y)}}}}
+      };
+
+      return (
+        <div style={{minHeight:"100vh",background:CL.bg}}>
+          {/* Header */}
+          <div style={{padding:"20px 32px",borderBottom:"1px solid "+CL.border,background:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,"+CL.primary+","+CL.purple+")",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:800,color:"white"}}>E</div>
+              <div><div style={{fontSize:18,fontWeight:700}}>EVE Revenue OS</div><div style={{fontSize:11,color:CL.t3}}>WaveRock Holdings \u2014 Portfolio Intelligence</div></div>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <div style={{display:"flex",alignItems:"center",gap:6,padding:"8px 14px",borderRadius:8,background:CL.primary+"15",border:"1px solid "+CL.primary+"30",fontSize:12,color:CL.primary,fontWeight:500,cursor:"pointer"}}><IcZap size={14}/>Ask Eve</div>
+              <div style={{fontSize:11,color:CL.t3,background:CL.cardBg,padding:"8px 12px",borderRadius:8,border:"1px solid "+CL.border}}>Last synced: 12 min ago</div>
+            </div>
+          </div>
+
+          <div style={{padding:"24px 32px",maxWidth:1400,margin:"0 auto"}}>
+            {/* Tabs */}
+            <div style={{display:"flex",gap:4,marginBottom:24,background:"#f1f5f9",borderRadius:10,padding:4,width:"fit-content"}}>
+              {tabs.map(tab=>(
+                <button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 16px",borderRadius:8,border:"none",cursor:"pointer",fontSize:12,fontWeight:500,background:activeTab===tab.id?CL.primary:"transparent",color:activeTab===tab.id?"white":CL.t3,transition:"all 0.2s"}}>
+                  <tab.icon size={14}/>{tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* ═══ OVERVIEW ═══ */}
+            {activeTab==="overview"&&(<>
+              <div style={{display:"flex",gap:12,marginBottom:24,flexWrap:"wrap"}}>
+                <KPICard icon={IcBarChart} label="Total Active Pipeline" value={fmt(totalPipeline)} subValue={fmt(totalLateStage)+" late stage"} trend="+11%" trendUp color={CL.primary}/>
+                <KPICard icon={IcTarget} label="Q2 Quota Attainment" value={pct(totalAttained/totalQuota)} subValue={fmt(totalAttained)+" / "+fmt(totalQuota)} color={totalAttained/totalQuota>=0.7?CL.success:CL.warning}/>
+                <KPICard icon={IcRefresh} label="Renewals This Quarter" value={fmt(totalRenewals)} subValue={fmt(totalAtRisk)+" at risk"} trend={atRiskRenewals.length+" flags"} color={CL.warning}/>
+                <KPICard icon={IcActivity} label="Avg Net Retention" value={pct(avgNetRetention)} subValue={"Gross: "+pct(avgGrossRetention)} trend="Healthy" trendUp color={CL.success}/>
+                <KPICard icon={IcDollar} label="Total ARR" value={fmt(totalARR)} trend="+14% YoY" trendUp color={CL.blue}/>
+              </div>
+
+              <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:16,marginBottom:24}}>
+                <div style={cd}>
+                  <SecHead icon={IcTrendUp} title="Aggregate Bookings Forecast" subtitle="Actual + projected vs quarterly targets" color={CL.primary}/>
+                  <div style={{height:220}}><ChartBox config={aggForecastCfg} height={220}/></div>
+                </div>
+                <div style={cd}>
+                  <SecHead icon={IcPie} title="Revenue Breakdown" subtitle="Q2 bookings by type" color={CL.blue}/>
+                  <div style={{height:200}}><ChartBox config={pieCfg} height={200}/></div>
+                  <div style={{display:"flex",justifyContent:"center",gap:16,marginTop:8}}>
+                    {revenueBreakdown.map((r,i)=><div key={i} style={{textAlign:"center"}}><div style={{fontSize:14,fontWeight:700,color:r.color}}>{fmt(r.value)}</div><div style={{fontSize:10,color:CL.t3}}>{r.name}</div></div>)}
+                  </div>
+                </div>
+              </div>
+
+              <SecHead icon={IcBuilding} title="Portfolio Companies" subtitle="Click to expand for detailed view" color={CL.purple}/>
+              <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr 1fr 1fr 1fr 40px",padding:"8px 20px",gap:12,fontSize:10,fontWeight:600,color:CL.t3,textTransform:"uppercase",letterSpacing:"0.5px"}}>
+                <span>Company</span><span style={{textAlign:"right"}}>Pipeline</span><span style={{textAlign:"right"}}>Close Rate</span><span style={{textAlign:"right"}}>Quota %</span><span style={{textAlign:"right"}}>Renewals</span><span style={{textAlign:"right"}}>NRR</span><span style={{textAlign:"center"}}>NPS</span><span></span>
+              </div>
+              {companies.map(c=><CompanyRow key={c.id} company={c} expanded={expandedCompany===c.id} onToggle={()=>setExpandedCompany(expandedCompany===c.id?null:c.id)}/>)}
+            </>)}
+
+            {/* ═══ PIPELINE & SALES ═══ */}
+            {activeTab==="pipeline"&&(<>
+              <div style={{display:"flex",gap:12,marginBottom:24,flexWrap:"wrap"}}>
+                <KPICard icon={IcBarChart} label="Total Pipeline" value={fmt(totalPipeline)} trend="+11%" trendUp color={CL.primary}/>
+                <KPICard icon={IcTarget} label="Late Stage" value={fmt(totalLateStage)} subValue={pct(totalLateStage/totalPipeline)+" of total"} color={CL.success}/>
+                <KPICard icon={IcTrendUp} label="Avg Close Rate" value={pct(avgCloseRate)} trend="+2pp QoQ" trendUp color={CL.blue}/>
+                <KPICard icon={IcDollar} label="Avg Deal Size" value="$48K" trend="+8%" trendUp color={CL.purple}/>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:24}}>
+                <div style={cd}><SecHead icon={IcBuilding} title="Pipeline by Company" subtitle="Early vs late stage" color={CL.primary}/><div style={{height:220}}><ChartBox config={pipelineByCompanyCfg} height={220}/></div></div>
+                <div style={cd}><SecHead icon={IcLayers} title="Pipeline by Stage" subtitle="Aggregate funnel" color={CL.success}/><div style={{height:220}}><ChartBox config={funnelCfg} height={220}/></div></div>
+              </div>
+              <div style={cdm}>
+                <SecHead icon={IcTarget} title="Q2 Quota Attainment by Company" subtitle="Progress toward quarterly targets" color={CL.warning}/>
+                <div style={{display:"flex",flexDirection:"column",gap:16}}>
+                  {companies.map(c=>{const qp=c.quotaAttained/c.quota;return(
+                    <div key={c.id} style={{display:"grid",gridTemplateColumns:"140px 1fr 140px",alignItems:"center",gap:16}}>
+                      <div><div style={{fontSize:13,fontWeight:600,color:CL.t1}}>{c.name}</div><div style={{fontSize:11,color:CL.t3}}>{c.reps} reps</div></div>
+                      <PBar value={c.quotaAttained} max={c.quota} color={qp>=0.7?CL.success:qp>=0.5?CL.warning:CL.danger} height={10}/>
+                      <div style={{textAlign:"right"}}><span style={{fontSize:14,fontWeight:700,color:qp>=0.7?CL.success:qp>=0.5?CL.warning:CL.danger}}>{pct(qp)}</span><span style={{fontSize:11,color:CL.t3,marginLeft:6}}>{fmt(c.quotaAttained)} / {fmt(c.quota)}</span></div>
+                    </div>
+                  );})}
+                </div>
+              </div>
+              <div style={cd}>
+                <SecHead icon={IcTrendUp} title="Rolling 6-Month Bookings Forecast" subtitle="Based on pipeline, close rates, and Eve\u2019s intelligence signals" color={CL.primary}/>
+                <div style={{height:260}}><ChartBox config={aggForecastCfg} height={260}/></div>
+                <div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:CL.primary+"10",border:"1px solid "+CL.primary+"20",fontSize:12,color:CL.t2,display:"flex",alignItems:"center",gap:8}}>
+                  <IcZap size={14} color={CL.primary}/>
+                  <span><strong style={{color:CL.t1}}>Eve's forecast:</strong> Based on current pipeline velocity and close rates, aggregate bookings are projected {fmt(companies.reduce((s,c)=>s+c.forecast.reduce((fs,f)=>fs+(f.forecast||0),0),0))} over the next 5 months \u2014 <span style={{color:CL.success,fontWeight:600}}>+4% above target</span></span>
+                </div>
+              </div>
+            </>)}
+
+            {/* ═══ RETENTION & RENEWALS ═══ */}
+            {activeTab==="retention"&&(<>
+              <div style={{display:"flex",gap:12,marginBottom:24,flexWrap:"wrap"}}>
+                <KPICard icon={IcRefresh} label="Renewals This Quarter" value={fmt(totalRenewals)} color={CL.primary}/>
+                <KPICard icon={IcAlert} label="At-Risk Revenue" value={fmt(totalAtRisk)} subValue={atRiskRenewals.length+" accounts"} color={CL.danger}/>
+                <KPICard icon={IcActivity} label="Avg Net Retention" value={pct(avgNetRetention)} trend="+3pp" trendUp color={CL.success}/>
+                <KPICard icon={IcStar} label="Avg NPS" value={String(avgNPS)} color={avgNPS>=40?CL.success:CL.warning}/>
+                <KPICard icon={IcTrendDown} label="Avg Churn" value={pct(avgChurn)} color={CL.danger}/>
+              </div>
+              <div style={cdm}>
+                <SecHead icon={IcAlert} title="At-Risk Renewals" subtitle={atRiskRenewals.length+" accounts flagged \u2014 "+fmt(totalAtRisk)+" revenue at risk"} color={CL.danger}/>
+                <div style={{borderRadius:8,overflow:"hidden",border:"1px solid "+CL.border}}>
+                  <div style={{display:"grid",gridTemplateColumns:"1.2fr 1.5fr 1fr 1fr 1fr 1.2fr 2.5fr",padding:"8px 14px",background:"#f8fafc",fontSize:10,fontWeight:600,color:CL.t3,textTransform:"uppercase",letterSpacing:"0.5px"}}>
+                    <span>Company</span><span>Customer</span><span style={{textAlign:"right"}}>Value</span><span style={{textAlign:"center"}}>Health</span><span>Last Contact</span><span>CSM</span><span>Risk Signal (from Eve)</span>
+                  </div>
+                  {atRiskRenewals.map((r,i)=>(
+                    <div key={i} style={{display:"grid",gridTemplateColumns:"1.2fr 1.5fr 1fr 1fr 1fr 1.2fr 2.5fr",padding:"12px 14px",alignItems:"center",borderTop:"1px solid "+CL.border,background:CL.danger+"06"}}>
+                      <span style={{fontSize:12,fontWeight:500,color:CL.t2}}>{r.company}</span>
+                      <div style={{display:"flex",alignItems:"center",gap:6}}><IcAlert size={12} color={CL.danger}/><span style={{fontSize:12,fontWeight:600,color:CL.t1}}>{r.customer}</span></div>
+                      <span style={{fontSize:12,fontWeight:600,color:CL.t1,textAlign:"right"}}>{fmt(r.value)}</span>
+                      <div style={{textAlign:"center"}}><span style={{fontSize:11,fontWeight:700,color:hColor(r.health),padding:"2px 8px",borderRadius:4,background:hColor(r.health)+"15"}}>{r.health}</span></div>
+                      <span style={{fontSize:11,color:parseInt(r.lastContact)>20?CL.danger:CL.t2,fontWeight:parseInt(r.lastContact)>20?600:400}}><IcClock size={10} style={{marginRight:3}}/>{r.lastContact}</span>
+                      <span style={{fontSize:11,color:CL.t2}}>{r.csmName}</span>
+                      <span style={{fontSize:11,color:CL.danger}}>{r.riskSignal}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{marginTop:12,padding:"10px 14px",borderRadius:8,background:CL.danger+"10",border:"1px solid "+CL.danger+"20",fontSize:12,color:CL.t2,display:"flex",alignItems:"center",gap:8}}>
+                  <IcZap size={14} color={CL.danger}/>
+                  <span><strong style={{color:CL.t1}}>Eve's recommendation:</strong> Heritage Auctions ({fmt(320000)}) is the highest-priority save \u2014 pricing concern went unaddressed for 6 weeks. Suggest immediate executive outreach.</span>
+                </div>
+              </div>
+              <div style={cdm}>
+                <SecHead icon={IcShield} title="Retention & Churn by Company" subtitle="Net retention, gross retention, churn rate, and NPS" color={CL.success}/>
+                {companies.map(c=>{const sent=sentLabel(c.sentiment);return(
+                  <div key={c.id} style={{display:"grid",gridTemplateColumns:"160px repeat(5,1fr)",alignItems:"center",gap:16,padding:"12px 0",borderBottom:"1px solid "+CL.border}}>
+                    <div><div style={{fontSize:13,fontWeight:600,color:CL.t1}}>{c.name}</div><div style={{fontSize:11,color:CL.t3}}>{c.csms} CSMs · ARR {fmt(c.arr)}</div></div>
+                    <div style={{textAlign:"center"}}><div style={{fontSize:18,fontWeight:700,color:c.netRetention>=1?CL.success:CL.danger}}>{pct(c.netRetention)}</div><div style={{fontSize:10,color:CL.t3}}>Net Retention</div></div>
+                    <div style={{textAlign:"center"}}><div style={{fontSize:18,fontWeight:700,color:c.grossRetention>=0.9?CL.success:CL.warning}}>{pct(c.grossRetention)}</div><div style={{fontSize:10,color:CL.t3}}>Gross Retention</div></div>
+                    <div style={{textAlign:"center"}}><div style={{fontSize:18,fontWeight:700,color:c.churnRate<=0.07?CL.success:CL.danger}}>{pct(c.churnRate)}</div><div style={{fontSize:10,color:CL.t3}}>Churn Rate</div></div>
+                    <div style={{textAlign:"center"}}><div style={{fontSize:18,fontWeight:700,color:c.nps>=50?CL.success:c.nps>=30?CL.warning:CL.danger}}>{c.nps}<span style={{fontSize:11,fontWeight:500,color:c.npsChange>=0?CL.success:CL.danger,marginLeft:4}}>{c.npsChange>=0?"+":""}{c.npsChange}</span></div><div style={{fontSize:10,color:CL.t3}}>NPS</div></div>
+                    <div style={{textAlign:"center"}}><Badge text={sent.text} color={sent.color}/><div style={{fontSize:10,color:CL.t3,marginTop:4}}>Sentiment</div></div>
+                  </div>
+                );})}
+              </div>
+              <div style={cd}>
+                <SecHead icon={IcUsers} title="CSM Activity Summary" subtitle="Are renewals being actively managed?" color={CL.blue}/>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16}}>
+                  {companies.map(c=>{const onTrack=c.renewals.filter(r=>r.status==="on_track").length;const atR=c.renewals.filter(r=>r.status==="at_risk").length;const noC=c.renewals.filter(r=>parseInt(r.lastContact)>14).length;return(
+                    <div key={c.id} style={{padding:14,borderRadius:8,border:"1px solid "+CL.border}}>
+                      <div style={{fontSize:13,fontWeight:600,color:CL.t1,marginBottom:10}}>{c.name}</div>
+                      <div style={{display:"flex",gap:12,marginBottom:10}}>
+                        <div style={{flex:1,textAlign:"center",padding:"8px 0",borderRadius:6,background:CL.success+"10"}}><div style={{fontSize:18,fontWeight:700,color:CL.success}}>{onTrack}</div><div style={{fontSize:10,color:CL.t3}}>On Track</div></div>
+                        <div style={{flex:1,textAlign:"center",padding:"8px 0",borderRadius:6,background:CL.danger+"10"}}><div style={{fontSize:18,fontWeight:700,color:CL.danger}}>{atR}</div><div style={{fontSize:10,color:CL.t3}}>At Risk</div></div>
+                        <div style={{flex:1,textAlign:"center",padding:"8px 0",borderRadius:6,background:CL.warning+"10"}}><div style={{fontSize:18,fontWeight:700,color:noC>0?CL.warning:CL.success}}>{noC}</div><div style={{fontSize:10,color:CL.t3}}>No Contact 14d+</div></div>
+                      </div>
+                      <div style={{fontSize:11,color:CL.t3}}>CSMs: {[...new Set(c.renewals.map(r=>r.csmName))].join(", ")}</div>
+                    </div>
+                  );})}
+                </div>
+              </div>
+            </>)}
+
+            {/* ═══ UNIT ECONOMICS ═══ */}
+            {activeTab==="economics"&&(<>
+              <div style={{display:"flex",gap:12,marginBottom:24,flexWrap:"wrap"}}>
+                <KPICard icon={IcDollar} label="Total ARR" value={fmt(totalARR)} trend="+14% YoY" trendUp color={CL.primary}/>
+                <KPICard icon={IcActivity} label="Blended NRR" value={pct(avgNetRetention)} color={avgNetRetention>=1?CL.success:CL.danger}/>
+                <KPICard icon={IcTrendDown} label="Blended Churn" value={pct(avgChurn)} color={CL.danger}/>
+                <KPICard icon={IcStar} label="Avg LTV:CAC" value={(companies.reduce((s,c)=>s+c.ltvCacRatio,0)/companies.length).toFixed(1)+"x"} color={CL.success}/>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:24}}>
+                <div style={cd}>
+                  <SecHead icon={IcPie} title="Q2 Revenue by Type" subtitle="New sales, upsell, cross-sell" color={CL.blue}/>
+                  <div style={{height:240}}><ChartBox config={pieCfg} height={240}/></div>
+                </div>
+                <div style={cd}>
+                  <SecHead icon={IcBuilding} title="Revenue Mix by Company" subtitle="Breakdown of bookings sources" color={CL.purple}/>
+                  <div style={{height:240}}><ChartBox config={revMixCfg} height={240}/></div>
+                </div>
+              </div>
+              <div style={cd}>
+                <SecHead icon={IcDollar} title="SaaS Unit Economics by Company" subtitle="LTV, CAC, LTV:CAC, retention, churn" color={CL.success}/>
+                <div style={{borderRadius:8,overflow:"hidden",border:"1px solid "+CL.border}}>
+                  <div style={{display:"grid",gridTemplateColumns:"1.5fr repeat(7,1fr)",padding:"10px 14px",background:"#f8fafc",fontSize:10,fontWeight:600,color:CL.t3,textTransform:"uppercase",letterSpacing:"0.5px"}}>
+                    <span>Company</span><span style={{textAlign:"right"}}>ARR</span><span style={{textAlign:"right"}}>LTV</span><span style={{textAlign:"right"}}>CAC</span><span style={{textAlign:"right"}}>LTV:CAC</span><span style={{textAlign:"right"}}>NRR</span><span style={{textAlign:"right"}}>GRR</span><span style={{textAlign:"right"}}>Churn</span>
+                  </div>
+                  {companies.map(c=>(
+                    <div key={c.id} style={{display:"grid",gridTemplateColumns:"1.5fr repeat(7,1fr)",padding:"14px",alignItems:"center",borderTop:"1px solid "+CL.border}}>
+                      <div><div style={{fontSize:13,fontWeight:600,color:CL.t1}}>{c.name}</div><div style={{fontSize:10,color:CL.t3}}>{c.crm}</div></div>
+                      <div style={{textAlign:"right",fontSize:13,fontWeight:600,color:CL.t1}}>{fmt(c.arr)}</div>
+                      <div style={{textAlign:"right",fontSize:13,fontWeight:600,color:CL.t1}}>{fmt(c.ltv)}</div>
+                      <div style={{textAlign:"right",fontSize:13,fontWeight:600,color:CL.t1}}>{fmt(c.cac)}</div>
+                      <div style={{textAlign:"right",fontSize:13,fontWeight:700,color:c.ltvCacRatio>=5?CL.success:CL.warning}}>{c.ltvCacRatio}x</div>
+                      <div style={{textAlign:"right",fontSize:13,fontWeight:700,color:c.netRetention>=1?CL.success:CL.danger}}>{pct(c.netRetention)}</div>
+                      <div style={{textAlign:"right",fontSize:13,fontWeight:600,color:c.grossRetention>=0.9?CL.success:CL.warning}}>{pct(c.grossRetention)}</div>
+                      <div style={{textAlign:"right",fontSize:13,fontWeight:600,color:c.churnRate<=0.07?CL.success:CL.danger}}>{pct(c.churnRate)}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>)}
+
+            {/* Footer */}
+            <div style={{marginTop:32,paddingTop:20,borderTop:"1px solid "+CL.border,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div style={{fontSize:11,color:CL.t3}}>Data sourced from HubSpot, Salesforce, NetSuite + Eve's intelligence layer (emails, transcripts, signals)</div>
+              <div style={{fontSize:11,color:CL.t3}}>EVE Revenue OS \u00a9 2026</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  </script>
+</body>
+</html>
