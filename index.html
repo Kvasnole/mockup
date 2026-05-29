@@ -78,14 +78,60 @@
   .fchip .x{color:var(--muted);cursor:pointer;font-weight:700}
   .negkw{display:inline-flex;align-items:center;gap:5px;background:#fdecec;color:var(--red);border:1px solid #f7caca;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600}
 
+  /* Eve chat */
+  .imp.agent{background:#0e9f6e}
+  .eve-chat{margin:16px;border:1.5px solid #d6d6f5;border-radius:16px;background:#fff;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 24px rgba(91,91,214,.12)}
+  .eve-chat-h{display:flex;align-items:center;gap:9px;padding:12px 16px;border-bottom:1px solid #ececfb;background:linear-gradient(90deg,var(--brand-soft),#f8f8ff)}
+  .eve-ava{width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex-shrink:0}
+  .eve-chat-h .nm{font-weight:700}
+  .eve-chat-h .st{margin-left:auto;font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+  .eve-chat-h .st:before{content:"";width:7px;height:7px;border-radius:50%;background:#16a34a}
+  .eve-thread{padding:16px;display:flex;flex-direction:column;gap:12px;max-height:300px;overflow:auto}
+  .elog{display:flex;gap:9px;max-width:80%}
+  .elog .ava{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:11px;font-weight:700}
+  .elog.eve .ava{background:var(--brand-soft);color:var(--brand)}
+  .elog.me{align-self:flex-end;flex-direction:row-reverse}
+  .elog.me .ava{background:#dfe3ea}
+  .elog .b{padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.5}
+  .elog.eve .b{background:#f4f5f8;border-top-left-radius:4px}
+  .elog.me .b{background:var(--brand);color:#fff;border-top-right-radius:4px}
+  .elog .b .act{display:block;margin-top:7px;font-size:12px;color:var(--green);font-weight:600}
+  .quick,.elog .rsn{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .quick button,.elog .rsn span{border:1px solid var(--brand);color:var(--brand);background:#fff;border-radius:999px;padding:5px 13px;font-size:12px;cursor:pointer;font-weight:600}
+  .quick button.sec{border-color:var(--line);color:var(--muted);font-weight:500}
+  .quick button:hover,.elog .rsn span:hover{background:var(--brand-soft)}
+  .eve-composer{display:flex;align-items:center;gap:9px;padding:12px 16px;border-top:1px solid var(--line)}
+  .eve-composer .sg{display:flex;gap:7px;overflow-x:auto;flex:1;scrollbar-width:none}
+  .eve-composer .sg::-webkit-scrollbar{display:none}
+  .composer-row{display:flex;gap:9px;padding:0 16px 14px}
+  .composer-row input{flex:1;border:1px solid var(--line);border-radius:999px;padding:11px 16px;outline:none;font-size:13px}
+  .composer-row input:focus{border-color:var(--brand)}
+  .composer-row button{border:none;background:var(--brand);color:#fff;border-radius:999px;width:42px;height:42px;font-size:16px;cursor:pointer;flex-shrink:0}
+  .eve-sg{display:flex;gap:7px;flex-wrap:wrap;padding:0 16px 12px}
+  .eve-sg span{font-size:12px;color:var(--muted);background:var(--chip);border-radius:999px;padding:6px 12px;cursor:pointer}
+  .eve-sg span:hover{color:var(--brand);background:var(--brand-soft)}
+  tr.data.removed td{opacity:.34;background:#fff7f7}
+
   /* Table */
   table{width:100%;border-collapse:collapse}
   table.prospects{table-layout:fixed;min-width:1150px}
+  /* Thin horizontal scrollbar — always visible, sits directly above the header */
+  .topscroll{overflow-x:scroll;overflow-y:hidden;background:#fbfbff;scrollbar-width:thin;scrollbar-color:#c5c8cf #f1f2f5}
+  .topscroll-inner{height:1px}
+  .topscroll::-webkit-scrollbar{height:9px}
+  .topscroll::-webkit-scrollbar-track{background:#f1f2f5;border-radius:8px}
+  .topscroll::-webkit-scrollbar-thumb{background:#c5c8cf;border-radius:8px;border:2px solid #f1f2f5;min-width:50px}
+  .topscroll::-webkit-scrollbar-thumb:hover{background:#a9adb8}
+  /* Table scrolls with the top bar; its own scrollbar is hidden to avoid a duplicate */
+  .tablewrap{overflow-x:auto;scrollbar-width:none}
+  .tablewrap::-webkit-scrollbar{display:none}
   th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:#fff;vertical-align:middle}
   td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle;word-wrap:break-word}
   tr:last-child td{border-bottom:none}
   .co{font-weight:600}
   .dom{font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
+  .found{font-size:11px;color:var(--muted);margin-top:6px;display:inline-flex;align-items:center;gap:4px}
+  .found.fresh{color:var(--green);font-weight:600}
 
   /* Segment group rows (inside the table) */
   .seg-h td{background:#fbfbff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-weight:600;cursor:pointer;padding:12px 16px}
@@ -107,7 +153,7 @@
   .email-missing{color:var(--amber);font-style:italic;font-size:12px}
 
   /* score */
-  .score{display:inline-flex;align-items:center;gap:8px}
+  .score{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
   .ring{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;
     background:conic-gradient(var(--green) calc(var(--p)*1%),#eef0f4 0);position:relative}
   .ring span{width:30px;height:30px;background:#fff;border-radius:50%;display:grid;place-items:center}
@@ -204,7 +250,6 @@
       <h1>Prospects</h1>
       <p class="sub">117 prospects matched against your <b>Enterprise</b> ICP — ranked by fit, validated by web search.</p>
 
-      <div class="banner">Hover any <span class="imp" style="position:relative;top:0">i<span class="tip"><b>Improvement badges</b>Every purple number marks one of the 13 improvements from the customer calls. Hover to read what it does.</span></span>-style purple number to see what changed and why.</div>
 
       <div class="card">
         <!-- Toolbar -->
@@ -223,11 +268,45 @@
           </div>
         </div>
 
-        <!-- Filter panel -->
+        <!-- Eve chat -->
+        <div class="eve-chat">
+          <div class="eve-chat-h">
+            <span class="eve-ava">E</span>
+            <span class="nm">Eve</span>
+            <span class="imp agent">A<span class="tip"><b>Agentic, not filters</b>You steer Eve by chatting, not by operating an Apollo-style filter wall. Say what you want in plain language — Eve takes the action, explains it, and the filters below just record what it did.</span></span>
+            <span class="st">online</span>
+          </div>
+
+          <div class="eve-thread" id="eveLog">
+            <div class="elog eve">
+              <div class="ava">E</div>
+              <div class="b">Hi Olesia — I found <b>117</b> prospects for your Enterprise ICP and ranked them by fit. One thing: about <b>1 in 5</b> look like resellers, which usually aren’t a fit for your motion. Want me to exclude them?
+                <div class="quick">
+                  <button onclick="this.closest('.quick').remove();agentAct('exclude-resellers')">Yes, exclude</button>
+                  <button class="sec" onclick="this.closest('.quick').remove();eveSay('No problem — I’ll keep resellers in the list.')">Keep them</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="eve-sg">
+            <span onclick="agentAct('us-200')">Only US, 200+ people</span>
+            <span onclick="agentAct('drop-staffing')">Drop staffing agencies</span>
+            <span onclick="agentAct('enterprise')">Focus on enterprise</span>
+            <span onclick="agentAct('why-rank')">Why ranked this way?</span>
+          </div>
+
+          <div class="composer-row">
+            <input id="eveInput" type="text" placeholder="Message Eve…  e.g. only companies hiring SDRs, exclude non-profits" onkeydown="if(event.key==='Enter')agentSend()">
+            <button onclick="agentSend()" title="Send">➤</button>
+          </div>
+        </div>
+
+        <!-- Filter panel (now reflects what Eve did) -->
         <div class="filterbar collapsed" id="filterbar">
           <div class="row" style="width:100%;justify-content:space-between">
-            <b style="font-size:13px">Refine this list <span class="meta">— same ranked results, your controls on top</span></b>
-            <span class="meta">7 of 117 hidden by your filters</span>
+            <b style="font-size:13px">What Eve applied <span class="meta">— editable by hand if you want; normally Eve sets these from your chat</span></b>
+            <span class="meta" id="hiddenCount">7 of 117 hidden</span>
           </div>
           <div class="filterbody">
             <span class="fchip">Location <select><option>United States</option><option>Any</option></select> <span class="x">×</span></span>
@@ -237,15 +316,18 @@
             <span style="border-left:1px solid var(--line);padding-left:10px">
               <span class="meta" style="margin-right:6px">Negative keywords</span>
               <span class="negkw">staffing agency <span class="x">×</span></span>
-              <span class="negkw">reseller <span class="x">×</span></span>
-              <span class="negkw">+ add</span>
-              <span class="imp">2<span class="tip"><b>Improvement 2</b>Negative keywords. The web-search pass on each company site filters out any match — so "staffing agency" or "reseller" pages never reach your list.</span></span>
+              <span class="negkw" id="negAdd">+ add</span>
+              <span class="imp">2<span class="tip"><b>Improvement 2</b>Negative keywords — but set agentically. You don't type chips; you tell Eve "skip resellers" in chat and it adds the keyword here and re-scans. The chip is just a visible record of what Eve did.</span></span>
             </span>
           </div>
         </div>
 
+        <!-- Top horizontal scrollbar (synced with the table) -->
+        <div class="topscroll" id="topscroll"><div class="topscroll-inner" id="topscrollInner"></div></div>
+
         <!-- Single aligned table -->
-        <div style="overflow-x:auto">
+        <div class="tablescroll" id="tablescroll">
+        <div class="tablewrap" id="tablewrap">
         <table class="prospects">
           <colgroup>
             <col style="width:40px">
@@ -283,7 +365,7 @@
             </tr>
             <tr class="data">
               <td><input type="checkbox"></td>
-              <td><div class="co">Brightwave Group</div><div class="dom">brightwave.com</div></td>
+              <td><div class="co">Brightwave Group</div><div class="dom">brightwave.com</div><div class="found">🕐 Found 2 days ago <span class="imp">14<span class="tip"><b>Improvement 14</b>Prospect freshness. Every lead shows when Eve found it — "2 days ago", "yesterday". Newly found prospects surface at the top and are flagged green, so you always know what's new and never re-work stale leads.</span></span></div></td>
               <td>
                 <div class="contact best"><div class="av">DM</div><div><div class="nm">Dana Morales</div><div class="tl">VP, Revenue Operations</div></div></div>
                 <div class="contact"><div class="av">RK</div><div><div class="nm">Raj Kapoor</div><div class="tl">Director, Sales Enablement</div></div></div>
@@ -292,7 +374,7 @@
               <td><span class="attr">📍 San Francisco, CA</span></td>
               <td><span class="attr">1,200</span></td>
               <td><span class="attr">Management Consulting</span></td>
-              <td><div class="score" style="--p:92"><div class="ring"><span>92</span></div></div></td>
+              <td><div class="score" title="Ask Eve why" onclick="explainScore(this)" style="--p:92"><div class="ring"><span>92</span></div></div></td>
               <td class="reason"><b>Lookalike of Acme Co</b> (won). Site mentions "outbound revenue team" and 3 office locations. Matches enterprise plan signals.</td>
               <td><div class="rowact">
                 <button class="iconbtn" title="Generate email">✉</button>
@@ -302,7 +384,7 @@
             </tr>
             <tr class="data">
               <td><input type="checkbox"></td>
-              <td><div class="co">Northpeak Advisory</div><div class="dom">northpeak.io</div></td>
+              <td><div class="co">Northpeak Advisory</div><div class="dom">northpeak.io</div><div class="found fresh">✨ Found 5 hours ago</div></td>
               <td>
                 <div class="contact best"><div class="av">EL</div><div><div class="nm">Erin Liu</div><div class="tl">Head of Growth</div></div></div>
                 <div class="contact"><div class="av">MW</div><div><div class="nm">Marcus Webb</div><div class="tl">VP Marketing</div><div class="enrich">⟳ <span class="email-missing">email enriching via web search…</span></div></div></div>
@@ -312,7 +394,7 @@
               <td><span class="attr">📍 New York, NY</span></td>
               <td><span class="attr">640</span></td>
               <td><span class="attr">Professional Services</span></td>
-              <td><div class="score" style="--p:86"><div class="ring"><span>86</span></div></div></td>
+              <td><div class="score" title="Ask Eve why" onclick="explainScore(this)" style="--p:86"><div class="ring"><span>86</span></div></div></td>
               <td class="reason"><b>Lookalike of Vertex Inc</b> (won). Hiring 4 SDRs (web search). No staffing-agency signals.</td>
               <td><div class="rowact">
                 <button class="iconbtn" title="Generate email">✉</button>
@@ -332,7 +414,7 @@
             </tr>
             <tr class="data">
               <td><input type="checkbox"></td>
-              <td><div class="co">Lumen Apps</div><div class="dom">lumenapps.com</div></td>
+              <td><div class="co">Lumen Apps</div><div class="dom">lumenapps.com</div><div class="found">🕐 Found 1 week ago</div></td>
               <td>
                 <div class="contact best"><div class="av">SP</div><div><div class="nm">Sofia Park</div><div class="tl">Growth Lead</div></div></div>
                 <span class="more-c">+ 1 more contact</span>
@@ -340,7 +422,7 @@
               <td><span class="attr">📍 Austin, TX</span></td>
               <td><span class="attr">180</span></td>
               <td><span class="attr">Mobile Gaming</span></td>
-              <td><div class="score med" style="--p:74"><div class="ring"><span>74</span></div></div></td>
+              <td><div class="score med" title="Ask Eve why" onclick="explainScore(this)" style="--p:74"><div class="ring"><span>74</span></div></div></td>
               <td class="reason"><b>Lookalike of PixelPlay</b> (won). In-app monetization focus matches your top vertical.</td>
               <td><div class="rowact">
                 <button class="iconbtn" title="Generate email">✉</button>
@@ -349,7 +431,7 @@
             </tr>
             <tr class="data">
               <td><input type="checkbox"></td>
-              <td><div class="co">Cartwheel Commerce</div><div class="dom">cartwheel.shop</div></td>
+              <td><div class="co">Cartwheel Commerce</div><div class="dom">cartwheel.shop</div><div class="found fresh">✨ Found yesterday</div></td>
               <td>
                 <div class="contact best"><div class="av">TN</div><div><div class="nm">Theo Nguyen</div><div class="tl">Director of CRM</div></div></div>
                 <span class="more-c">+ 4 more contacts</span>
@@ -357,7 +439,7 @@
               <td><span class="attr">📍 Chicago, IL</span></td>
               <td><span class="attr">320</span></td>
               <td><span class="attr">eCommerce</span></td>
-              <td><div class="score med" style="--p:71"><div class="ring"><span>71</span></div></div></td>
+              <td><div class="score med" title="Ask Eve why" onclick="explainScore(this)" style="--p:71"><div class="ring"><span>71</span></div></div></td>
               <td class="reason">New vertical test (eCommerce). Site shows Shopify Plus + retention team.</td>
               <td><div class="rowact">
                 <button class="iconbtn" title="Generate email">✉</button>
@@ -366,6 +448,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
         </div>
       </div>
     </section>
@@ -460,9 +543,10 @@
 </div>
 
 <!-- Legend -->
-<button class="legend-btn" onclick="toggleLegend()">★ 13 Improvements</button>
+<button class="legend-btn" onclick="toggleLegend()">★ 14 Improvements</button>
 <div class="legend" id="legend">
   <h3>Improvements in this prototype <span style="font-weight:400;font-size:12px;color:var(--muted)">— click to jump</span></h3>
+  <div class="li" onclick="goAgent()"><div class="n" style="background:#0e9f6e">A</div><div class="t"><b>Agentic control</b><span>Steer by chat, not filters. Eve acts &amp; explains; filters just record it. → Prospects</span></div></div>
   <div class="li" onclick="goImp(1)"><div class="n">1</div><div class="t"><b>Conversational ICP onboarding</b><span>Eve interviews you with follow-ups instead of a hidden text box. → Settings</span></div></div>
   <div class="li" onclick="goImp(2)"><div class="n">2</div><div class="t"><b>Negative keywords</b><span>Filtered out during per-company web search. → Settings &amp; Filters</span></div></div>
   <div class="li" onclick="goImp(3)"><div class="n">3</div><div class="t"><b>Ideal-person / persona field</b><span>Rank who at the company to contact. → Settings</span></div></div>
@@ -476,10 +560,23 @@
   <div class="li" onclick="goImp(11)"><div class="n">11</div><div class="t"><b>Group by segment</b><span>117 leads made digestible. → Table</span></div></div>
   <div class="li" onclick="goImp(12)"><div class="n">12</div><div class="t"><b>Multiple products / personas / verticals</b><span>Each gets its own ranked list. → Settings</span></div></div>
   <div class="li" onclick="goImp(13)"><div class="n">13</div><div class="t"><b>Hybrid similarity vs. database routing</b><span>Right method for the ICP type. → Settings</span></div></div>
+  <div class="li" onclick="goImp(14)"><div class="n">14</div><div class="t"><b>Prospect freshness / found date</b><span>Each lead shows when it was found; new ones flagged. → Table</span></div></div>
 </div>
 
 <div id="gtip"></div>
 <script>
+  // ---- Sync top scrollbar with the table ----
+  (function(){
+    var top=document.getElementById('topscroll'),inner=document.getElementById('topscrollInner'),wrap=document.getElementById('tablewrap');
+    if(!top||!wrap)return;
+    var tbl=wrap.querySelector('table');
+    function size(){inner.style.width=tbl.scrollWidth+'px';}
+    size();window.addEventListener('resize',size);
+    var lock=false;
+    top.addEventListener('scroll',function(){if(lock)return;lock=true;wrap.scrollLeft=top.scrollLeft;lock=false;});
+    wrap.addEventListener('scroll',function(){if(lock)return;lock=true;top.scrollLeft=wrap.scrollLeft;lock=false;});
+  })();
+
   // ---- Floating tooltip for every .imp badge (never clipped) ----
   var gtip=document.getElementById('gtip');
   function placeTip(badge){
@@ -511,8 +608,17 @@
   // Which view each improvement number lives on
   var IMP_VIEW={1:'pipeline',2:'pipeline',3:'pipeline',4:'prospects',5:'prospects',
     6:'prospects',7:'prospects',8:'prospects',9:'prospects',10:'prospects',
-    11:'prospects',12:'pipeline',13:'pipeline'};
+    11:'prospects',12:'pipeline',13:'pipeline',14:'prospects'};
 
+  function goAgent(){
+    document.getElementById('legend').classList.remove('show');
+    show('prospects');
+    var badge=document.querySelector('#prospects .imp.agent');
+    if(!badge)return;
+    badge.scrollIntoView({behavior:'smooth',block:'center'});
+    badge.animate([{boxShadow:'0 0 0 0 rgba(14,159,110,.6)'},{boxShadow:'0 0 0 12px rgba(14,159,110,0)'}],{duration:800});
+    setTimeout(function(){placeTip(badge);},380);
+  }
   function goImp(n){
     // close legend, switch to the right page
     document.getElementById('legend').classList.remove('show');
@@ -549,13 +655,86 @@
     if(grouped) document.querySelectorAll('.seg').forEach(s=>s.classList.remove('collapsed'));
   }
   function toggleLegend(){document.getElementById('legend').classList.toggle('show');}
+  // ---------- Agentic layer ----------
+  var hidden=7;
+  function setHidden(n){var el=document.getElementById('hiddenCount');if(el)el.textContent=n+' of 117 hidden';}
+  function openFilters(){document.getElementById('filterbar').classList.remove('collapsed');}
+  function dismissProact(){var p=document.getElementById('proact');if(p)p.style.display='none';}
+  function addNegKw(word){
+    var chips=[].slice.call(document.querySelectorAll('#filterbar .negkw'));
+    if(chips.some(c=>c.textContent.toLowerCase().indexOf(word.toLowerCase())>-1))return;
+    var chip=document.createElement('span');chip.className='negkw';chip.innerHTML=word+' <span class="x">×</span>';
+    var add=document.getElementById('negAdd');add.parentNode.insertBefore(chip,add);
+  }
+  function appendLog(who){
+    var log=document.getElementById('eveLog');
+    var row=document.createElement('div');row.className='elog '+who;
+    var av=document.createElement('div');av.className='ava';av.textContent=who==='eve'?'E':'O';
+    var b=document.createElement('div');b.className='b';
+    row.appendChild(av);row.appendChild(b);log.appendChild(row);
+    log.scrollTop=log.scrollHeight;
+    return b;
+  }
+  function revealChat(){document.querySelector('.eve-chat').scrollIntoView({behavior:'smooth',block:'center'});var l=document.getElementById('eveLog');l.scrollTop=l.scrollHeight;}
+  function eveSay(html){var b=appendLog('eve');b.innerHTML=html;return b;}
+  function userSay(html){var b=appendLog('me');b.innerHTML=html;return b;}
+
+  function agentAct(kind){
+    if(kind==='exclude-resellers'){
+      userSay('Yes — exclude resellers');
+      addNegKw('reseller');openFilters();hidden+=23;setHidden(hidden);
+      eveSay('Done. I added <b>reseller</b> to your negative keywords and re-scanned all 117 company sites — dropped <b>23</b> that describe reselling other vendors’ software. <span class="act">✓ Filters updated · 94 prospects remain</span>');
+      dismissProact();
+    }else if(kind==='drop-staffing'){
+      userSay('Drop staffing agencies');
+      addNegKw('staffing agency');openFilters();hidden+=9;setHidden(hidden);
+      eveSay('Staffing agencies were already out — and I found <b>9</b> more re-branded as “talent solutions” and removed those too. <span class="act">✓ Learned for this product · 9 removed</span>');
+    }else if(kind==='us-200'){
+      userSay('Only US, 200+ people');openFilters();
+      eveSay('Set location to <b>United States</b> and size to <b>200+</b>. That hides 31 companies (mostly EU / sub-200). Two German companies scored 90+ otherwise — want me to keep those? <span class="act">✓ Filters updated</span>');
+    }else if(kind==='enterprise'){
+      userSay('Focus on enterprise');
+      var s2=document.querySelector('.seg[data-seg="2"]');if(s2)s2.classList.add('collapsed');
+      eveSay('Prioritising your enterprise motion — 500+ employee B2B companies with an outbound team move to the top, mid-market is collapsed below. I’ll weight future searches the same way.');
+    }else if(kind==='why-rank'){
+      userSay('Why ranked this way?');
+      eveSay('I don’t pull from a filter list like Apollo — I find <b>lookalikes of your won customers</b>, then visit each site to validate it against your ICP. Top of the list = closest lookalikes with the strongest positive signals and no negative keywords. Tap any score to see one company’s exact reasons.');
+    }
+    revealChat();
+  }
+
+  function agentSend(){
+    var inp=document.getElementById('eveInput');var t=(inp.value||'').trim();
+    if(!t)return;inp.value='';
+    userSay(t.replace(/</g,'&lt;'));
+    eveSay('On it — I’ll interpret that, re-scan the matching sites and reshape the list, then update the filters below to show exactly what I changed. <span class="act">(Prototype: wired examples are the chips above.)</span>');
+    revealChat();
+  }
+
+  function explainScore(el){
+    var tr=el.closest('tr.data');var co=tr.querySelector('.co').textContent.trim();
+    var score=el.querySelector('span').textContent;var reason=tr.querySelector('.reason').textContent.trim();
+    userSay('Why is '+co+' a '+score+'?');
+    eveSay('<b>'+co+' — fit '+score+'.</b><br>• Similarity to your won accounts: <b>high</b><br>• Size &amp; region: match your ICP<br>• Positive signals on site: hiring SDRs, uses HubSpot<br>• Negative keywords: none<br>• Source: '+reason);
+    revealChat();
+  }
+
   function badLead(btn){
-    const tr=btn.closest('tr');
-    tr.style.transition='.3s';tr.style.opacity='.35';
-    const co=tr.querySelector('.co').childNodes[0].textContent.trim();
-    setTimeout(()=>{tr.style.background='#fff7f7';},10);
-    btn.textContent='✓';
-    btn.title='Eve will learn from this';
+    var tr=btn.closest('tr.data');var co=tr.querySelector('.co').textContent.trim();
+    btn.textContent='✓';btn.title='Marked';
+    var b=eveSay('Thanks — what made <b>'+co+'</b> a bad fit? I’ll turn it into a rule and apply it across the whole list.');
+    var rsn=document.createElement('div');rsn.className='rsn';
+    [['Too small','too small (headcount)'],['Wrong industry','wrong industry'],['Already a customer','existing customer'],['Wrong persona','no matching buyer']]
+      .forEach(function(p){var s=document.createElement('span');s.textContent=p[0];
+        s.addEventListener('click',function(){learnBad(p[1],tr,b);});rsn.appendChild(s);});
+    b.appendChild(rsn);
+    revealChat();
+  }
+  function learnBad(rule,tr,b){
+    tr.classList.add('removed');var r=b.querySelector('.rsn');if(r)r.remove();
+    var n=6+Math.floor(Math.random()*6);
+    eveSay('Learned: <b>exclude '+rule+'</b>. I checked the other 116 and found <b>'+n+'</b> similar companies — removing them and remembering this for future searches of this product. <span class="act">✓ Rule saved · '+(n+1)+' removed</span>');
+    hidden+=n+1;setHidden(hidden);
   }
   function pick(el){
     const body=document.getElementById('chatBody');
