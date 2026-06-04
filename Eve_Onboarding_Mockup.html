@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eve — Onboarding Mockup</title>
+<style>
+  /* ── Eve Brand Design Tokens (from app.nova.joineve.ai) ── */
+  :root {
+    --bg-start: #F0EFE9;
+    --bg-end: #E8E6DF;
+    --coral: #7F56D9;
+    --coral-hover: #6941C6;
+    --coral-light: #F4F0FD;
+    --coral-mid: #E9E0FB;
+    --white: #FFFFFF;
+    --text: #0a0a0a;
+    --text-muted: #5c5a66;
+    --text-light: #8A8894;
+    --border: #e2e0e8;
+    --border-coral: #D6BBFB;
+    --green: #10B981;
+    --green-light: #D1FAE5;
+    --amber: #F59E0B;
+    --amber-light: #FEF3C7;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-xs: 8px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 6px 32px rgba(0,0,0,0.09);
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: #F0EFE9;
+    min-height: 100vh;
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* ── Screen system ── */
+  .screen { display: none; min-height: 100vh; padding: 24px 16px 40px; flex-direction: column; align-items: center; }
+  .screen.active { display: flex; }
+
+  /* ── Top Bar ── */
+  .topbar {
+    width: 100%; max-width: 640px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .logo { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+  .logo span { color: var(--coral); }
+
+  /* ── Progress Bar ── */
+  .progress-wrap { display: flex; align-items: center; gap: 6px; }
+  .progress-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border-coral); transition: all 0.3s;
+  }
+  .progress-dot.active { background: var(--coral); width: 24px; border-radius: 4px; }
+  .progress-dot.done { background: var(--coral); opacity: 0.4; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 36px;
+    width: 100%; max-width: 600px;
+    animation: fadeUp 0.4s ease-out;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+  .card h2 { font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; margin-bottom: 8px; line-height: 1.25; }
+  .card .subtitle { font-size: 15px; color: var(--text-muted); margin-bottom: 28px; line-height: 1.6; }
+
+  /* ── AI Badge ── */
+  .ai-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--coral-light); color: var(--coral);
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 20px; border: 1px solid var(--border-coral);
+    float: right; margin-left: 12px;
+  }
+  .ai-badge::before { content: '✦'; font-size: 10px; }
+
+  /* ── Inputs ── */
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .field input, .field textarea, .field select {
+    width: 100%; padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-xs); font-size: 15px;
+    font-family: var(--font); color: var(--text);
+    background: var(--white); transition: border-color 0.2s;
+    outline: none;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--coral); }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field .prefilled { background: #FAFAFE; border-color: var(--border-coral); }
+  .field .helper { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+  .field .error { font-size: 12px; color: #EF4444; margin-top: 5px; display: none; }
+  .field.has-error input { border-color: #EF4444; }
+  .field.has-error .error { display: block; }
+
+  .input-icon-wrap { position: relative; }
+  .input-icon-wrap .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; }
+  .input-icon-wrap input { padding-left: 42px; }
+  .input-icon-wrap .valid-check {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--green); font-size: 16px; opacity: 0; transition: opacity 0.2s;
+  }
+  .input-icon-wrap.valid .valid-check { opacity: 1; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 24px; border-radius: var(--radius-xs);
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; border: none; font-family: var(--font);
+  }
+  .btn-primary { background: var(--coral); color: white; width: 100%; }
+  .btn-primary:hover { background: var(--coral-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(127,86,217,0.25); }
+  .btn-primary:disabled { background: #D1D5DB; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-secondary { background: transparent; color: var(--coral); border: 1.5px solid var(--coral); width: 100%; }
+  .btn-secondary:hover { background: var(--coral-light); }
+  .btn-ghost { background: transparent; color: var(--text-muted); font-size: 14px; padding: 8px 0; }
+  .btn-ghost:hover { color: var(--text); }
+
+  .btn-row { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+  .btn-row .btn-back { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; font-family: var(--font); padding: 8px 0; text-align: center; }
+  .btn-row .btn-back:hover { color: var(--text); }
+
+  .skip-link { display: block; text-align: center; margin-top: 14px; font-size: 13px; color: var(--text-light); cursor: pointer; }
+  .skip-link:hover { color: var(--text-muted); }
+
+  /* ── Chips ── */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: all 0.15s;
+    border: 1.5px solid var(--border-coral);
+    background: var(--coral-light); color: var(--coral);
+    user-select: none;
+  }
+  .chip.selected { background: var(--coral); color: white; border-color: var(--coral); }
+  .chip.unselected { background: white; color: var(--text-muted); border-color: var(--border); }
+  .chip .remove { font-size: 11px; opacity: 0.7; margin-left: 2px; }
+  .chip .remove:hover { opacity: 1; }
+  .chip-add {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: 1.5px dashed var(--border-coral); color: var(--coral);
+    background: transparent; transition: all 0.15s;
+  }
+  .chip-add:hover { background: var(--coral-light); }
+
+  .section-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.7px; margin: 20px 0 8px; }
+
+  /* ── Loading Screen ── */
+  .loading-screen {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 100vh; padding: 40px 16px;
+    animation: fadeIn 0.3s ease-out;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .loading-card {
+    background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 48px 40px;
+    width: 100%; max-width: 480px; text-align: center;
+  }
+  .loading-icon { font-size: 40px; margin-bottom: 20px; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.8; } }
+  .loading-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .loading-card .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; }
+  .checklist { text-align: left; }
+  .check-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; font-size: 14px; color: var(--text-muted);
+    border-bottom: 1px solid #F3F4F6; transition: color 0.3s;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-item .icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+  .check-item .icon.pending { background: var(--coral-light); color: var(--coral); animation: spin 1s linear infinite; }
+  .check-item .icon.done { background: var(--green-light); color: var(--green); animation: none; }
+  .check-item .icon.waiting { background: #F3F4F6; color: var(--text-light); }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .check-item.active { color: var(--text); font-weight: 500; }
+  .check-item.done-item { color: var(--text-muted); }
+  .tease-msg { margin-top: 20px; padding: 12px 16px; background: var(--coral-light); border-radius: var(--radius-xs); font-size: 13px; color: var(--coral); display: none; }
+
+  /* ── Tool Cards ── */
+  .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tool-card {
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    padding: 16px; transition: all 0.2s; position: relative;
+    background: white;
+  }
+  .tool-card:hover { border-color: var(--border-coral); box-shadow: 0 2px 12px rgba(255,107,53,0.08); }
+  .tool-card.connected { border-color: var(--green); background: #F0FDF9; }
+  .tool-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .tool-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .tool-logo { font-size: 20px; }
+  .tool-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px; }
+  .tool-badge {
+    display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px;
+    border-radius: 10px; margin-bottom: 8px;
+  }
+  .badge-recommended { background: var(--coral-light); color: var(--coral); }
+  .badge-optional { background: #F3F4F6; color: var(--text-muted); }
+  .badge-connected { background: var(--green-light); color: var(--green); }
+  .tool-btn {
+    font-size: 12px; font-weight: 600; padding: 6px 14px;
+    border-radius: 6px; cursor: pointer; border: 1.5px solid var(--coral);
+    color: var(--coral); background: transparent; font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .tool-btn:hover { background: var(--coral-light); }
+  .tool-btn.connected-btn { border-color: var(--green); color: var(--green); }
+  .connect-later { display: block; font-size: 11px; color: var(--text-light); cursor: pointer; margin-top: 6px; text-align: center; }
+  .connect-later:hover { color: var(--text-muted); }
+
+  .tools-nudge {
+    background: var(--coral-light); border: 1px solid var(--border-coral);
+    border-radius: var(--radius-xs); padding: 12px 16px; margin-bottom: 16px;
+    font-size: 13px; color: var(--coral); display: flex; align-items: center; gap: 8px;
+  }
+  .nudge-bar { flex: 1; height: 4px; background: var(--border-coral); border-radius: 2px; }
+  .nudge-fill { height: 100%; background: var(--coral); border-radius: 2px; transition: width 0.5s; }
+
+  /* ── Signal Cards ── */
+  .signal-grid { display: flex; flex-direction: column; gap: 8px; }
+  .signal-card {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    transition: all 0.2s; cursor: pointer;
+  }
+  .signal-card.selected { border-color: var(--coral); background: var(--coral-light); }
+  .signal-card.disabled { opacity: 0.45; }
+  .signal-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; font-size: 11px; transition: all 0.15s; }
+  .signal-card.selected .signal-check { background: var(--coral); border-color: var(--coral); color: white; }
+  .signal-body { flex: 1; }
+  .signal-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .signal-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .signal-sources { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+  .source-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: #F3F4F6; color: var(--text-muted); }
+
+  /* ── Accordion ── */
+  .accordion { border: 1.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .acc-item { border-bottom: 1px solid var(--border); }
+  .acc-item:last-child { border-bottom: none; }
+  .acc-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; cursor: pointer; user-select: none;
+    transition: background 0.15s;
+  }
+  .acc-header:hover { background: #FAFAFA; }
+  .acc-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .acc-summary { font-size: 12px; color: var(--text-muted); }
+  .acc-right { display: flex; align-items: center; gap: 12px; }
+  .acc-edit { font-size: 12px; color: var(--coral); font-weight: 600; }
+  .acc-chevron { font-size: 11px; color: var(--text-light); transition: transform 0.2s; }
+  .acc-item.open .acc-chevron { transform: rotate(180deg); }
+  .acc-body { padding: 0 16px 14px; display: none; }
+  .acc-item.open .acc-body { display: block; }
+
+  /* ── Opportunity Cards ── */
+  .opp-card {
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    padding: 20px; margin-bottom: 12px; transition: all 0.2s; background: white;
+  }
+  .opp-card.approved { border-color: var(--green); background: #F0FDF9; }
+  .opp-card.rejected { border-color: #E5E7EB; opacity: 0.55; }
+  .opp-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .opp-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #EDE9FE, #DDD6FE); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: var(--coral); flex-shrink: 0; }
+  .opp-info { flex: 1; }
+  .opp-name { font-size: 16px; font-weight: 700; }
+  .opp-title { font-size: 13px; color: var(--text-muted); }
+  .opp-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .meta-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #F3F4F6; color: var(--text-muted); }
+  .opp-li { color: var(--text-muted); font-size: 16px; cursor: pointer; }
+  .opp-why { background: var(--coral-light); border-radius: var(--radius-xs); padding: 12px; margin-bottom: 12px; }
+  .opp-why-label { font-size: 11px; font-weight: 700; color: var(--coral); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+  .opp-why p { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .opp-signal { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--coral); background: var(--coral-light); padding: 4px 10px; border-radius: 20px; margin-bottom: 8px; }
+  .opp-sources { display: flex; gap: 5px; margin-bottom: 14px; }
+  .opp-source { font-size: 11px; padding: 3px 8px; border-radius: 4px; background: #F4F0FD; color: #7F56D9; font-weight: 600; }
+  .opp-feedback { display: flex; gap: 8px; }
+  .fb-good, .fb-bad {
+    flex: 1; padding: 9px; border-radius: var(--radius-xs);
+    font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid;
+    font-family: var(--font); transition: all 0.15s;
+  }
+  .fb-good { border-color: var(--green); color: var(--green); background: transparent; }
+  .fb-good:hover { background: var(--green-light); }
+  .fb-bad { border-color: var(--coral); color: var(--coral); background: transparent; }
+  .fb-bad:hover { background: var(--coral-light); }
+  .fb-reasons { margin-top: 10px; display: none; flex-wrap: wrap; gap: 6px; }
+  .fb-reasons.show { display: flex; }
+  .fb-reason-chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 20px;
+    border: 1px solid var(--border); background: white; cursor: pointer;
+    font-family: var(--font); transition: all 0.15s;
+  }
+  .fb-reason-chip:hover { border-color: var(--coral); background: var(--coral-light); color: var(--coral); }
+  .fb-done { font-size: 13px; padding: 10px; text-align: center; border-radius: var(--radius-xs); display: none; }
+  .fb-done.good { background: var(--green-light); color: var(--green); }
+  .fb-done.bad { background: #F3F4F6; color: var(--text-muted); }
+
+  /* ── Tone Cards ── */
+  .tone-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .tone-card {
+    border: 2px solid var(--border); border-radius: var(--radius-sm);
+    padding: 14px 12px; cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .tone-card:hover { border-color: var(--border-coral); }
+  .tone-card.selected { border-color: var(--coral); background: var(--coral-light); }
+  .tone-icon { font-size: 22px; margin-bottom: 6px; }
+  .tone-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .tone-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+  .tone-card.selected .tone-desc { color: var(--coral); }
+
+  /* ── Progress nudge ── */
+  .rating-progress { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+  .rp-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
+  .rp-fill { height: 100%; background: var(--coral); border-radius: 2px; transition: width 0.4s; }
+
+  /* ── Trust line ── */
+  .trust-line { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .trust-line::before { content: '🔒'; font-size: 12px; }
+
+  /* ── Warning ── */
+  .warning-banner { background: var(--amber-light); border: 1px solid #FDE68A; border-radius: var(--radius-xs); padding: 12px 16px; font-size: 13px; color: #92400E; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+  /* ── Success screen ── */
+  .success-wrap { text-align: center; }
+  .success-icon { font-size: 56px; margin-bottom: 20px; animation: pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275); }
+  @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .success-stats { display: flex; gap: 12px; justify-content: center; margin: 20px 0 28px; }
+  .stat-chip { background: var(--coral-light); border: 1px solid var(--border-coral); border-radius: var(--radius-sm); padding: 12px 16px; text-align: center; flex: 1; }
+  .stat-num { font-size: 22px; font-weight: 800; color: var(--coral); }
+  .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* ── Screen nav helper ── */
+  .dev-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(3,2,19,0.96); padding: 8px 16px;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    justify-content: center; z-index: 1000;
+  }
+  .dev-nav span { color: #6B7280; font-size: 11px; }
+  .dev-btn {
+    font-size: 10px; padding: 4px 9px; border-radius: 4px;
+    background: #374151; color: #D1D5DB; border: none; cursor: pointer;
+    font-family: var(--font);
+  }
+  .dev-btn.current { background: var(--coral); color: white; }
+  .dev-btn:hover { background: #4B5563; }
+  .dev-btn.current:hover { background: var(--coral-hover); }
+
+  /* padding for dev nav */
+  body { padding-bottom: 50px; }
+
+  /* ── Mobile ── */
+  @media (max-width: 480px) {
+    .card { padding: 24px; }
+    .tool-grid { grid-template-columns: 1fr; }
+    .tone-grid { grid-template-columns: 1fr; }
+    .success-stats { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     S1 — ADD WEBSITE
+════════════════════════════════════ -->
+<div class="screen active" id="s1">
+  <div class="topbar">
+    <div class="logo">EVE<span>.</span></div>
+    <div class="progress-wrap">
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+  <div class="card" style="text-align:center; padding-top:48px; padding-bottom:48px;">
+    <div style="font-size:40px; margin-bottom:16px;">🌐</div>
+    <h2 style="margin-bottom:8px;">Let's get to know your business</h2>
+    <p class="subtitle" style="max-width:420px; margin:0 auto 32px;">Add your website and Eve will analyze it to pre-fill your company profile, ICP, and revenue settings — so you spend less time on setup.</p>
+    <div class="field" style="text-align:left; max-width:420px; margin:0 auto 20px;">
+      <label>Your website</label>
+      <div class="input-icon-wrap" id="urlWrap">
+        <span class="icon">🌐</span>
+        <input type="text" id="urlInput" placeholder="https://yourcompany.com" oninput="validateUrl(this)">
+        <span class="valid-check">✓</span>
+      </div>
+      <div class="error" id="urlError">Please enter a valid URL (e.g. https://yourcompany.com)</div>
+    </div>
+    <div style="max-width:420px; margin:0 auto;">
+      <button class="btn btn-primary" id="analyzeBtn" disabled onclick="goTo('l1')">Analyze my website →</button>
+      <div style="margin-top:14px; font-size:13px; color:var(--text-muted);">
+        <a onclick="goTo('s2')" style="color:var(--coral); cursor:pointer; text-decoration:none;">I don't have a website yet →</a>
+      </div>
+    </div>
+    <div style="margin-top:28px; font-size:12px; color:var(--text-light);">✦ EVE analyzed 1,200+ company websites this month</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     L1 — ANALYZING WEBSITE
+════════════════════════════════════ -->
+<div class="screen" id="l1">
+  <div class="loading-screen" style="padding:0; min-height:auto; width:100%; max-width:480px;">
+    <div class="loading-card">
+      <div class="loading-icon">✦</div>
+      <h2>Analyzing your website…</h2>
+      <p class="subtitle">Eve is reading your site to build your revenue profile. This usually takes less than 10 seconds.</p>
+      <div class="checklist" id="cl1">
+        <div class="check-item" id="ci1-1"><div class="icon waiting">○</div>Reading your website</div>
+        <div class="check-item" id="ci1-2"><div class="icon waiting">○</div>Understanding your product and positioning</div>
+        <div class="check-item" id="ci1-3"><div class="icon waiting">○</div>Extracting your value proposition</div>
+        <div class="check-item" id="ci1-4"><div class="icon waiting">○</div>Identifying buyer personas</div>
+        <div class="check-item" id="ci1-5"><div class="icon waiting">○</div>Mapping target industries</div>
+        <div class="check-item" id="ci1-6"><div class="icon waiting">○</div>Preparing your revenue profile</div>
+      </div>
+      <div class="skip-link" id="l1skip" style="display:none;" onclick="goTo('s2')">Skip and fill in manually →</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S2 — CONFIRM COMPANY PROFILE
+════════════════════════════════════ -->
+<div class="screen" id="s2">
+  <div class="topbar">
+    <div class="logo">EVE<span>.</span></div>
+    <div class="progress-wrap">
+      <div class="progress-dot done"></div>
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="step-label">Step 1 of 8</div>
+    <div style="overflow:hidden;">
+      <span class="ai-badge">AI-generated — review before confirming</span>
+      <h2>Here's what Eve learned about your company</h2>
+    </div>
+    <p class="subtitle">We pre-filled this from your website. Review and adjust anything that looks off — this shapes every insight Eve surfaces for you.</p>
+
+    <div class="field">
+      <label>Website</label>
+      <input class="prefilled" type="text" value="https://joineve.ai">
+    </div>
+    <div class="field">
+      <label>Company name</label>
+      <input class="prefilled" type="text" value="Eve">
+    </div>
+    <div class="field">
+      <label>Industry</label>
+      <select class="prefilled">
+        <option selected>Software Development & SaaS</option>
+        <option>IT Services & Consulting</option>
+        <option>Sales Technology</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Company description & value proposition</label>
+      <div style="position:relative;">
+        <textarea class="prefilled" rows="3">Eve is an AI revenue teammate that connects to your existing tools, surfaces dormant leads, missed follow-ups, and stalled deals — giving revenue teams clear, actionable visibility without manual CRM work.</textarea>
+        <div style="position:absolute; top:8px; right:10px; font-size:11px; color:var(--coral); cursor:pointer;">✦ Regenerate</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Key features</label>
+      <div class="chip-group">
+        <span class="chip selected">Dormant lead detection</span>
+        <span class="chip selected">Missed follow-up alerts</span>
+        <span class="chip selected">Pipeline visibility</span>
+        <span class="chip selected">Inbound response tracking</span>
+        <span class="chip-add">+ Add</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Customer pain points</label>
+      <div class="chip-group">
+        <span class="chip selected">Leads going cold</span>
+        <span class="chip selected">CRM data gaps</span>
+        <span class="chip selected">Missed revenue moments</span>
+        <span class="chip selected">Manual follow-up burden</span>
+        <span class="chip-add">+ Add</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Preferred language</label>
+      <select class="prefilled">
+        <option selected>English (US)</option>
+        <option>English (UK)</option>
+        <option>French</option>
+        <option>German</option>
+        <option>Spanish</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Message tone <span style="font-size:11px; font-weight:400; color:var(--text-muted);">— used for AI insights, suggested replies, and follow-up drafts</span></label>
+      <div class="tone-grid">
+        <div class="tone-card" onclick="selectTone(this)">
+          <div class="tone-icon">🎯</div>
+          <div class="tone-name">Professional</div>
+          <div class="tone-desc">Polished and structured</div>
+        </div>
+        <div class="tone-card selected" onclick="selectTone(this)">
+          <div class="tone-icon">💬</div>
+          <div class="tone-name">Conversational</div>
+          <div class="tone-desc">Friendly and natural</div>
+        </div>
+        <div class="tone-card" onclick="selectTone(this)">
+          <div class="tone-icon">⚡</div>
+          <div class="tone-name">Direct</div>
+          <div class="tone-desc">Concise and confident</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo('s3')">Looks good, continue →</button>
+      <button class="btn-back" onclick="goTo('s1')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S3 — CONNECT YOUR TOOLS
+════════════════════════════════════ -->
+<div class="screen" id="s3">
+  <div class="topbar">
+    <div class="logo">EVE<span>.</span></div>
+    <div class="progress-wrap">
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="step-label">Step 2 of 8</div>
+    <h2>Connect your tools</h2>
+    <p class="subtitle">Eve reads your existing tools to find missed revenue moments — dormant leads, stalled deals, inbound gaps, and follow-ups that slipped through the cracks.</p>
+
+    <div class="tools-nudge" id="nudge">
+      <span>Connect recommended tools for full revenue visibility</span>
+      <div class="nudge-bar"><div class="nudge-fill" id="nudgeFill" style="width:0%"></div></div>
+      <span id="nudgeCount">0/3</span>
+    </div>
+
+    <div class="section-label">Email</div>
+    <div class="tool-grid" style="margin-bottom:16px;">
+      <div class="tool-card" id="tc-gmail">
+        <div class="tool-header">
+          <span class="tool-logo">📧</span>
+          <span class="tool-badge badge-recommended">Recommended</span>
+        </div>
+        <div class="tool-name">Gmail</div>
+        <div class="tool-desc">Catch missed follow-ups, dormant leads, and inbound conversations</div>
+        <button class="tool-btn" onclick="connectTool('gmail', this)">Connect</button>
+        <span class="connect-later">Connect later</span>
+      </div>
+      <div class="tool-card" id="tc-outlook">
+        <div class="tool-header">
+          <span class="tool-logo">📨</span>
+          <span class="tool-badge badge-recommended">Recommended</span>
+        </div>
+        <div class="tool-name">Outlook</div>
+        <div class="tool-desc">Catch missed follow-ups, dormant leads, and inbound conversations</div>
+        <button class="tool-btn" onclick="connectTool('outlook', this)">Connect</button>
+        <span class="connect-later">Connect later</span>
+      </div>
+    </div>
+
+    <div class="section-label">CRM</div>
+    <div class="tool-grid" style="margin-bottom:16px;">
+      <div class="tool-card" id="tc-hubspot">
+        <div class="tool-header">
+          <span class="tool-logo">🟠</span>
+          <span class="tool-badge badge-recommended">Recommended</span>
+        </div>
+        <div class="tool-name">HubSpot</div>
+        <div class="tool-desc">Pipeline history, opportunity status, and account context</div>
+        <button class="tool-btn" onclick="connectTool('hubspot', this)">Connect</button>
+        <span class="connect-later">Connect later</span>
+      </div>
+      <div class="tool-card" id="tc-salesforce">
+        <div class="tool-header">
+          <span class="tool-logo">☁️</span>
+          <span class="tool-badge badge-optional">Optional</span>
+        </div>
+        <div class="tool-name">Salesforce</div>
+        <div class="tool-desc">Pipeline history, opportunity status, and account context</div>
+        <button class="tool-btn" onclick="connectTool('salesforce', this)">Connect</button>
+        <span class="connect-later">Connect later</span>
+      </div>
+      <div class="tool-card" id="tc-pipedrive">
+        <div class="tool-header">
+          <span class="tool-logo">🟢</span>
+          <span class="tool-badge badge-optional">Optional</span>
+        </div>
+        <div class="tool-name">Pipedrive</div>
+        <div class="tool-desc">Pipeline history and deal tracking</div>
+        <button class="tool-btn" onclick="connectTool('pipedrive', this)">Connect</button>
+        <span class="connect-later">Connect later</span>
+      </div>
+      <div class="tool-card" id="tc-accelo">
+        <div class="tool-header">
+          <span class="tool-logo">🔷</span>
+          <span class="tool-badge badge-optional">Optional</span>
+        </div>
+        <div class="tool-name">Accelo</div>
+        <div class="tool-desc">Project and client history for service-based revenue</div>
+        <button class="tool-btn" onclick="connectTool('accelo', this)">Connect</button>
+        <span class="connect-later">Connect later</span>
+      </div>
+    </div>
+
+    <div class="section-label">Calendar</div>
+    <div class="tool-grid" style="margin-bottom:16px;">
+      <div class="tool-card" id="tc-gcal">
+        <div class="tool-header">
+          <span class="tool-logo">📅</span>
+          <span class="tool-badge badge-optional">Optional</span>
+        </div>
+        <div class="tool-name">Google Calendar</div>
+        <div class="tool-desc">Meeting history and follow-up gaps</div>
+        <button class="tool-btn" onclick="connectTool('gcal', this)">Connect</button>
+        <span class="connect-later">Connect later</span>
+      </div>
+      <div class="tool-card" id="tc-ocal">
+        <div class="tool-header">
+          <span class="tool-logo">📆</span>
+          <span class="tool-badge badge-optional">Optional</span>
+        </div>
+        <div class="tool-name">Outlook Calendar</div>
+        <div class="tool-desc">Meeting history and follow-up gaps</div>
+        <button class="tool-btn" onclick="connectTool('ocal', this)">Connect</button>
+        <span class="connect-later">Connect later</span>
+      </div>
+    </div>
+
+    <div class="section-label">Enrichment (Optional)</div>
+    <div class="tool-grid" style="margin-bottom:20px;">
+      <div class="tool-card" id="tc-linkedin">
+        <div class="tool-header">
+          <span class="tool-logo">💼</span>
+          <span class="tool-badge badge-optional">Optional</span>
+        </div>
+        <div class="tool-name">LinkedIn</div>
+        <div class="tool-desc">Job change signals and profile context</div>
+        <button class="tool-btn" onclick="connectTool('linkedin', this)">Connect</button>
+        <span class="connect-later">Connect later</span>
+      </div>
+      <div class="tool-card" id="tc-slack">
+        <div class="tool-header">
+          <span class="tool-logo">💬</span>
+          <span class="tool-badge badge-optional">Optional</span>
+        </div>
+        <div class="tool-name">Slack</div>
+        <div class="tool-desc">Internal deal discussion signals</div>
+        <button class="tool-btn" onclick="connectTool('slack', this)">Connect</button>
+        <span class="connect-later">Connect later</span>
+      </div>
+    </div>
+
+    <div class="trust-line">Eve only reads your data. It never sends messages or takes actions without your approval.</div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo('l2')">Continue →</button>
+      <button class="btn-back" onclick="goTo('s2')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     L2 — PRE-CONFIGURING REVENUE PROFILE
+════════════════════════════════════ -->
+<div class="screen" id="l2">
+  <div class="loading-screen" style="padding:0; min-height:auto; width:100%; max-width:480px;">
+    <div class="loading-card">
+      <div class="loading-icon">⚙️</div>
+      <h2>Pre-configuring your revenue profile…</h2>
+      <p class="subtitle">Eve is processing your company data and connected tools to prepare smart defaults for your ICP.</p>
+      <div class="checklist" id="cl2">
+        <div class="check-item" id="ci2-1"><div class="icon waiting">○</div>Reading your company profile</div>
+        <div class="check-item" id="ci2-2"><div class="icon waiting">○</div>Identifying buyer personas from your tools</div>
+        <div class="check-item" id="ci2-3"><div class="icon waiting">○</div>Mapping target industries</div>
+        <div class="check-item" id="ci2-4"><div class="icon waiting">○</div>Detecting revenue signals in connected data</div>
+        <div class="check-item" id="ci2-5"><div class="icon waiting">○</div>Finding potential opportunities to surface</div>
+      </div>
+      <div class="skip-link" id="l2skip" style="display:none;" onclick="goTo('s4')">Skip ahead →</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S4 — IDEAL CUSTOMER ROLES
+════════════════════════════════════ -->
+<div class="screen" id="s4">
+  <div class="topbar">
+    <div class="logo">EVE<span>.</span></div>
+    <div class="progress-wrap">
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="step-label">Step 3 of 8</div>
+    <div style="overflow:hidden;">
+      <span class="ai-badge">AI-suggested roles</span>
+      <h2>Who is your ideal customer?</h2>
+    </div>
+    <p class="subtitle">We pre-filled this based on your website and industry. Eve will also match similar job titles automatically — so you don't need to add every variation.</p>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px; background:var(--coral-light); padding:10px 12px; border-radius:8px;">✦ Eve automatically matches similar titles — "VP Sales" = "Head of Sales" = "Sales Director"</p>
+
+    <div class="chip-group" id="roleChips">
+      <span class="chip selected" onclick="toggleChip(this)">VP of Sales</span>
+      <span class="chip selected" onclick="toggleChip(this)">Head of Revenue Operations</span>
+      <span class="chip selected" onclick="toggleChip(this)">Sales Director</span>
+      <span class="chip selected" onclick="toggleChip(this)">Chief Revenue Officer</span>
+      <span class="chip selected" onclick="toggleChip(this)">Revenue Leader</span>
+      <span class="chip selected" onclick="toggleChip(this)">Founder / CEO</span>
+      <span class="chip unselected" onclick="toggleChip(this)">VP of Marketing</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Head of Growth</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Account Executive</span>
+      <span class="chip-add">+ Add role</span>
+    </div>
+    <div style="font-size:12px; color:var(--text-muted); margin-top:10px;">6 roles selected</div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo('s5')">Looks good, continue →</button>
+      <button class="btn-back" onclick="goTo('l2')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S5 — TARGET COMPANIES
+════════════════════════════════════ -->
+<div class="screen" id="s5">
+  <div class="topbar">
+    <div class="logo">EVE<span>.</span></div>
+    <div class="progress-wrap">
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="step-label">Step 4 of 8</div>
+    <div style="overflow:hidden;">
+      <span class="ai-badge">AI-generated</span>
+      <h2>What kinds of companies are you targeting?</h2>
+    </div>
+    <p class="subtitle">We pre-filled this based on your website. Adjust or add if anything looks off.</p>
+
+    <div class="section-label">Industry — select all that apply</div>
+    <div class="chip-group">
+      <span class="chip selected" onclick="toggleChip(this)">Software Development & SaaS</span>
+      <span class="chip selected" onclick="toggleChip(this)">IT Services & Consulting</span>
+      <span class="chip selected" onclick="toggleChip(this)">Real Estate</span>
+      <span class="chip selected" onclick="toggleChip(this)">Staffing & Recruiting</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Financial Services</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Professional Services</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Healthcare</span>
+      <span class="chip-add">+ Add</span>
+    </div>
+
+    <div class="section-label">Location</div>
+    <div class="chip-group">
+      <span class="chip selected" onclick="toggleChip(this)">United States</span>
+      <span class="chip selected" onclick="toggleChip(this)">Canada</span>
+      <span class="chip selected" onclick="toggleChip(this)">United Kingdom</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Australia</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Germany</span>
+      <span class="chip unselected" onclick="toggleChip(this)">All locations</span>
+      <span class="chip-add">+ Add</span>
+    </div>
+
+    <div class="section-label">Company type</div>
+    <div class="chip-group">
+      <span class="chip selected" onclick="toggleChip(this)">Private Company</span>
+      <span class="chip selected" onclick="toggleChip(this)">Startup</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Public Company</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Non-profit</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Government</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Educational Institution</span>
+    </div>
+
+    <div class="section-label">Company size (employees)</div>
+    <div class="chip-group">
+      <span class="chip unselected" onclick="toggleChip(this)">1–10</span>
+      <span class="chip selected" onclick="toggleChip(this)">11–50</span>
+      <span class="chip selected" onclick="toggleChip(this)">51–200</span>
+      <span class="chip selected" onclick="toggleChip(this)">201–500</span>
+      <span class="chip selected" onclick="toggleChip(this)">501–1,000</span>
+      <span class="chip unselected" onclick="toggleChip(this)">1,001–5,000</span>
+      <span class="chip unselected" onclick="toggleChip(this)">5,000+</span>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo('s6')">Looks good, continue →</button>
+      <button class="btn-back" onclick="goTo('s4')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S6 — EXCLUSIONS
+════════════════════════════════════ -->
+<div class="screen" id="s6">
+  <div class="topbar">
+    <div class="logo">EVE<span>.</span></div>
+    <div class="progress-wrap">
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="step-label">Step 5 of 8</div>
+    <div style="overflow:hidden;">
+      <span class="ai-badge">AI-suggested</span>
+      <h2>Who should we exclude?</h2>
+    </div>
+    <p class="subtitle">We pre-filled smart defaults based on your profile. Remove anything that doesn't apply, or add custom exclusions.</p>
+
+    <div class="section-label">Exclude these profile types</div>
+    <div class="chip-group">
+      <span class="chip selected" onclick="toggleChip(this)">Service providers</span>
+      <span class="chip selected" onclick="toggleChip(this)">Freelancers / Consultants</span>
+      <span class="chip selected" onclick="toggleChip(this)">"Open to work" profiles</span>
+      <span class="chip selected" onclick="toggleChip(this)">Students / Interns</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Job seekers</span>
+      <span class="chip unselected" onclick="toggleChip(this)">Agency employees</span>
+      <span class="chip-add">+ Add</span>
+    </div>
+
+    <div class="section-label">Avoid these companies & keywords</div>
+    <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Competitors</div>
+    <div class="chip-group" style="margin-bottom:14px;">
+      <span class="chip selected" onclick="toggleChip(this)">Competitor A</span>
+      <span class="chip selected" onclick="toggleChip(this)">Competitor B</span>
+      <span class="chip-add">+ Add competitor</span>
+    </div>
+    <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Existing customers</div>
+    <div class="chip-group" style="margin-bottom:14px;">
+      <span class="chip selected" onclick="toggleChip(this)">Import from CRM ✓</span>
+      <span class="chip-add">+ Add manually</span>
+    </div>
+    <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Recruiting agencies</div>
+    <div class="chip-group" style="margin-bottom:14px;">
+      <span class="chip selected" onclick="toggleChip(this)">Recruiting agencies</span>
+    </div>
+
+    <div class="section-label">Custom keywords to avoid</div>
+    <div class="field">
+      <input type="text" placeholder="Type a keyword or company name and press Enter…" onkeydown="addKeyword(event, this)">
+      <div class="helper">Eve will ignore opportunities matching these keywords in company names, titles, or descriptions.</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo('s7')">Looks good, continue →</button>
+      <a class="skip-link" onclick="goTo('s7')">Skip exclusions for now →</a>
+      <button class="btn-back" onclick="goTo('s5')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S7 — SIGNALS TO TRACK
+════════════════════════════════════ -->
+<div class="screen" id="s7">
+  <div class="topbar">
+    <div class="logo">EVE<span>.</span></div>
+    <div class="progress-wrap">
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="step-label">Step 6 of 8</div>
+    <div style="overflow:hidden;">
+      <span class="ai-badge">Recommended for your profile</span>
+      <h2>Which signals should Eve watch?</h2>
+    </div>
+    <p class="subtitle">Eve will use these signals to surface high-intent opportunities and missed revenue moments from your connected tools.</p>
+    <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+      <span style="font-size:12px; color:var(--coral); cursor:pointer;" onclick="selectAllSignals()">Select all</span>
+      <span style="font-size:12px; color:var(--text-light); margin:0 8px;">·</span>
+      <span style="font-size:12px; color:var(--text-muted); cursor:pointer;" onclick="deselectAllSignals()">Deselect all</span>
+    </div>
+
+    <div class="signal-grid">
+
+      <!-- #1 -->
+      <div class="signal-card selected" onclick="toggleSignal(this)">
+        <div class="signal-check">✓</div>
+        <div class="signal-body">
+          <div class="signal-name">Received new funding</div>
+          <div class="signal-desc">Company raised a round, secured a loan, or received a grant — budget constraints are removed. Best window is within 2 weeks of announcement.</div>
+          <div class="signal-sources"><span class="source-tag">CRM</span><span class="source-tag">News</span></div>
+        </div>
+      </div>
+
+      <!-- #2 -->
+      <div class="signal-card selected" onclick="toggleSignal(this)">
+        <div class="signal-check">✓</div>
+        <div class="signal-body">
+          <div class="signal-name">New decision-maker joined</div>
+          <div class="signal-desc">New CRO, VP Sales, or RevOps hire at a stalled account — no baggage from the old conversation, fresh evaluation cycle begins.</div>
+          <div class="signal-sources"><span class="source-tag">LinkedIn</span><span class="source-tag">News</span></div>
+        </div>
+      </div>
+
+      <!-- #3 -->
+      <div class="signal-card selected" onclick="toggleSignal(this)">
+        <div class="signal-check">✓</div>
+        <div class="signal-body">
+          <div class="signal-name">Key contact changed companies</div>
+          <div class="signal-desc">A champion or blocker left their company. Follow the champion to their new role as a warm lead, or re-enter the account now the blocker is gone.</div>
+          <div class="signal-sources"><span class="source-tag">LinkedIn</span><span class="source-tag">CRM</span></div>
+        </div>
+      </div>
+
+      <!-- #4 -->
+      <div class="signal-card selected" onclick="toggleSignal(this)">
+        <div class="signal-check">✓</div>
+        <div class="signal-body">
+          <div class="signal-name">Company growing headcount</div>
+          <div class="signal-desc">New job postings or team growth signal the company is scaling GTM — bandwidth is freeing up and they need tooling to keep up.</div>
+          <div class="signal-sources"><span class="source-tag">LinkedIn</span><span class="source-tag">Job postings</span></div>
+        </div>
+      </div>
+
+      <!-- #5 -->
+      <div class="signal-card selected" onclick="toggleSignal(this)">
+        <div class="signal-check">✓</div>
+        <div class="signal-body">
+          <div class="signal-name">New product or service launched</div>
+          <div class="signal-desc">Launch creates new pipeline, new markets, new leads to track — directly amplifies the pain Eve solves. "Too early" objection is gone.</div>
+          <div class="signal-sources"><span class="source-tag">News</span><span class="source-tag">CRM</span></div>
+        </div>
+      </div>
+
+      <!-- #6 -->
+      <div class="signal-card selected" onclick="toggleSignal(this)">
+        <div class="signal-check">✓</div>
+        <div class="signal-body">
+          <div class="signal-name">Signed a new client</div>
+          <div class="signal-desc">Proves they're actively selling and generating pipeline. The "not enough volume to justify a tool" objection no longer holds.</div>
+          <div class="signal-sources"><span class="source-tag">News</span><span class="source-tag">CRM</span></div>
+        </div>
+      </div>
+
+      <!-- #7 -->
+      <div class="signal-card selected" onclick="toggleSignal(this)">
+        <div class="signal-check">✓</div>
+        <div class="signal-body">
+          <div class="signal-name">Acquisition or merger</div>
+          <div class="signal-desc">M&A creates duplicate CRMs, orphaned leads, and lost relationships — peak Eve pain. Also unblocks deals that were gated on closing an acquisition.</div>
+          <div class="signal-sources"><span class="source-tag">News</span><span class="source-tag">CRM</span></div>
+        </div>
+      </div>
+
+      <!-- #8 -->
+      <div class="signal-card selected" onclick="toggleSignal(this)">
+        <div class="signal-check">✓</div>
+        <div class="signal-body">
+          <div class="signal-name">Expanding to new markets or offices</div>
+          <div class="signal-desc">Geographic or operational expansion means new relationships to build and track — complexity increases, and the "too simple" objection fades.</div>
+          <div class="signal-sources"><span class="source-tag">News</span><span class="source-tag">LinkedIn</span></div>
+        </div>
+      </div>
+
+      <!-- #9 -->
+      <div class="signal-card selected" onclick="toggleSignal(this)">
+        <div class="signal-check">✓</div>
+        <div class="signal-body">
+          <div class="signal-name">Tech stack changing</div>
+          <div class="signal-desc">Company dropped a CRM, added new integrations, or switched tools — the lock-in objection is gone and they're open to new vendors.</div>
+          <div class="signal-sources"><span class="source-tag">CRM</span><span class="source-tag">News</span></div>
+        </div>
+      </div>
+
+      <!-- #10 -->
+      <div class="signal-card selected" onclick="toggleSignal(this)">
+        <div class="signal-check">✓</div>
+        <div class="signal-body">
+          <div class="signal-name">Compliance or capacity blocker resolved</div>
+          <div class="signal-desc">New IT or security hire, compliance certification achieved, or team bandwidth restored — the operational blocker that stalled the deal is removed.</div>
+          <div class="signal-sources"><span class="source-tag">LinkedIn</span><span class="source-tag">Job postings</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-label" style="margin-top:24px;">Keywords & topics to track</div>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">Eve tracks these in emails, CRM notes, and conversations to detect buying intent.</p>
+    <div class="chip-group" id="kwChips">
+      <span class="chip selected" onclick="toggleChip(this)">revive dormant leads</span>
+      <span class="chip selected" onclick="toggleChip(this)">pipeline visibility</span>
+      <span class="chip selected" onclick="toggleChip(this)">inbound automation</span>
+      <span class="chip selected" onclick="toggleChip(this)">missed follow-ups</span>
+      <span class="chip selected" onclick="toggleChip(this)">CRM hygiene</span>
+      <span class="chip selected" onclick="toggleChip(this)">sales AI</span>
+      <span class="chip selected" onclick="toggleChip(this)">revenue operations</span>
+      <span class="chip unselected" onclick="toggleChip(this)">lead routing</span>
+      <span class="chip unselected" onclick="toggleChip(this)">sales productivity</span>
+      <span class="chip-add">+ Add keyword</span>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo('s8')">Looks good, continue →</button>
+      <button class="btn-back" onclick="goTo('s6')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S8 — REVIEW REVENUE PROFILE
+════════════════════════════════════ -->
+<div class="screen" id="s8">
+  <div class="topbar">
+    <div class="logo">EVE<span>.</span></div>
+    <div class="progress-wrap">
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot active"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="step-label">Step 7 of 8 — Almost there!</div>
+    <h2>Check your revenue profile before previewing opportunities</h2>
+    <p class="subtitle">Review your ICP and signal settings. You can always adjust from Settings later.</p>
+
+    <div class="accordion">
+      <div class="acc-item open">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">🧑‍💼 Job roles</div>
+          <div class="acc-right">
+            <span class="acc-summary">VP of Sales, CRO, Sales Director +3</span>
+            <span class="acc-edit" onclick="event.stopPropagation(); goTo('s4')">Edit →</span>
+            <span class="acc-chevron">▲</span>
+          </div>
+        </div>
+        <div class="acc-body">
+          <div class="chip-group">
+            <span class="chip selected">VP of Sales</span>
+            <span class="chip selected">Head of Revenue Operations</span>
+            <span class="chip selected">Sales Director</span>
+            <span class="chip selected">CRO</span>
+            <span class="chip selected">Revenue Leader</span>
+            <span class="chip selected">Founder / CEO</span>
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">🏢 Industries</div>
+          <div class="acc-right">
+            <span class="acc-summary">SaaS, IT Services, Real Estate, Staffing</span>
+            <span class="acc-edit" onclick="event.stopPropagation(); goTo('s5')">Edit →</span>
+            <span class="acc-chevron">▼</span>
+          </div>
+        </div>
+        <div class="acc-body">
+          <div class="chip-group">
+            <span class="chip selected">Software Development & SaaS</span>
+            <span class="chip selected">IT Services & Consulting</span>
+            <span class="chip selected">Real Estate</span>
+            <span class="chip selected">Staffing & Recruiting</span>
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">📏 Company size</div>
+          <div class="acc-right">
+            <span class="acc-summary">11–50, 51–200, 201–500, 501–1,000</span>
+            <span class="acc-edit" onclick="event.stopPropagation(); goTo('s5')">Edit →</span>
+            <span class="acc-chevron">▼</span>
+          </div>
+        </div>
+        <div class="acc-body">
+          <div class="chip-group">
+            <span class="chip selected">11–50</span>
+            <span class="chip selected">51–200</span>
+            <span class="chip selected">201–500</span>
+            <span class="chip selected">501–1,000</span>
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">📍 Locations</div>
+          <div class="acc-right">
+            <span class="acc-summary">United States, Canada, United Kingdom</span>
+            <span class="acc-edit" onclick="event.stopPropagation(); goTo('s5')">Edit →</span>
+            <span class="acc-chevron">▼</span>
+          </div>
+        </div>
+        <div class="acc-body">
+          <div class="chip-group">
+            <span class="chip selected">United States</span>
+            <span class="chip selected">Canada</span>
+            <span class="chip selected">United Kingdom</span>
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">🚫 Excluded profiles</div>
+          <div class="acc-right">
+            <span class="acc-summary">Freelancers, Service providers, Open to work</span>
+            <span class="acc-edit" onclick="event.stopPropagation(); goTo('s6')">Edit →</span>
+            <span class="acc-chevron">▼</span>
+          </div>
+        </div>
+        <div class="acc-body">
+          <div class="chip-group">
+            <span class="chip selected">Service providers</span>
+            <span class="chip selected">Freelancers / Consultants</span>
+            <span class="chip selected">"Open to work" profiles</span>
+            <span class="chip selected">Students / Interns</span>
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">📡 Signals to track</div>
+          <div class="acc-right">
+            <span class="acc-summary">10 signals active</span>
+            <span class="acc-edit" onclick="event.stopPropagation(); goTo('s7')">Edit →</span>
+            <span class="acc-chevron">▼</span>
+          </div>
+        </div>
+        <div class="acc-body">
+          <div class="chip-group">
+            <span class="chip selected">Received new funding</span>
+            <span class="chip selected">New decision-maker joined</span>
+            <span class="chip selected">Key contact changed companies</span>
+            <span class="chip selected">Growing headcount</span>
+            <span class="chip selected">New product launched</span>
+            <span class="chip selected">Signed a new client</span>
+            <span class="chip selected">Acquisition or merger</span>
+            <span class="chip selected">Expanding to new markets</span>
+            <span class="chip selected">Tech stack changing</span>
+            <span class="chip selected">Compliance blocker resolved</span>
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">🔗 Connected tools</div>
+          <div class="acc-right">
+            <span class="acc-summary">Gmail ✓, HubSpot ✓</span>
+            <span class="acc-edit" onclick="event.stopPropagation(); goTo('s3')">Edit →</span>
+            <span class="acc-chevron">▼</span>
+          </div>
+        </div>
+        <div class="acc-body">
+          <div class="chip-group">
+            <span class="chip" style="background:var(--green-light); color:var(--green); border-color:var(--green);">✓ Gmail</span>
+            <span class="chip" style="background:var(--green-light); color:var(--green); border-color:var(--green);">✓ HubSpot</span>
+          </div>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">🗣 Message tone</div>
+          <div class="acc-right">
+            <span class="acc-summary">Conversational</span>
+            <span class="acc-edit" onclick="event.stopPropagation(); goTo('s2')">Edit →</span>
+            <span class="acc-chevron">▼</span>
+          </div>
+        </div>
+        <div class="acc-body" style="padding-top:10px;">
+          <span class="chip selected">💬 Conversational — Friendly and natural</span>
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">💬 Customer pain points</div>
+          <div class="acc-right">
+            <span class="acc-summary">4 pain points</span>
+            <span class="acc-edit" onclick="event.stopPropagation(); goTo('s2')">Edit →</span>
+            <span class="acc-chevron">▼</span>
+          </div>
+        </div>
+        <div class="acc-body">
+          <div class="chip-group">
+            <span class="chip selected">Leads going cold</span>
+            <span class="chip selected">CRM data gaps</span>
+            <span class="chip selected">Missed revenue moments</span>
+            <span class="chip selected">Manual follow-up burden</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:12px; color:var(--text-light); text-align:center; margin-top:14px;">✦ Powered by your company profile, website analysis, and connected tools</div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo('l3')">Confirm & preview opportunities →</button>
+      <button class="btn-back" onclick="goTo('s7')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     L3 — FINDING OPPORTUNITIES
+════════════════════════════════════ -->
+<div class="screen" id="l3">
+  <div class="loading-screen" style="padding:0; min-height:auto; width:100%; max-width:480px;">
+    <div class="loading-card">
+      <div class="loading-icon">🔍</div>
+      <h2>Searching for opportunities matching your ICP…</h2>
+      <p class="subtitle">Eve is scanning your connected tools and matching signals against your revenue profile.</p>
+      <div class="checklist" id="cl3">
+        <div class="check-item" id="ci3-1"><div class="icon waiting">○</div>Matching profiles against your ICP</div>
+        <div class="check-item" id="ci3-2"><div class="icon waiting">○</div>Filtering by role, industry, and location</div>
+        <div class="check-item" id="ci3-3"><div class="icon waiting">○</div>Checking revenue signals across your tools</div>
+        <div class="check-item" id="ci3-4"><div class="icon waiting">○</div>Finding missed or overlooked opportunities</div>
+        <div class="check-item" id="ci3-5"><div class="icon waiting">○</div>Ranking opportunities by relevance</div>
+      </div>
+      <div class="tease-msg" id="l3tease">✦ Found 3 dormant leads in your CRM with recent email activity…</div>
+      <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:16px; line-height:1.5;">This is just a preview — Eve will keep finding opportunities continuously after setup.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S9 — FIRST OPPORTUNITIES
+════════════════════════════════════ -->
+<div class="screen" id="s9">
+  <div class="topbar">
+    <div class="logo">EVE<span>.</span></div>
+    <div style="font-size:13px; color:var(--text-muted);">Step 8 of 8</div>
+  </div>
+  <div style="width:100%; max-width:600px;">
+    <div style="margin-bottom:20px; animation: fadeUp 0.4s ease-out;">
+      <h2 style="font-size:24px; font-weight:700; margin-bottom:6px;">Here are the first opportunities Eve identified for you</h2>
+      <p style="font-size:15px; color:var(--text-muted); margin-bottom:12px;">Review a few examples so Eve can learn what good looks like for your team.</p>
+      <div class="rating-progress">
+        <span id="ratingText">Rate at least 3 opportunities to continue</span>
+        <div class="rp-bar"><div class="rp-fill" id="rpFill" style="width:0%"></div></div>
+        <span id="ratingCount">0/3</span>
+      </div>
+    </div>
+
+    <!-- Opportunity 1 -->
+    <div class="opp-card" id="opp1">
+      <div class="opp-header">
+        <div class="opp-avatar">JM</div>
+        <div class="opp-info">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="opp-name">Jane Mitchell</span>
+            <span class="opp-li">💼</span>
+          </div>
+          <div class="opp-title">VP of Sales · Acme Corp</div>
+          <div class="opp-meta">
+            <span class="meta-tag">SaaS</span>
+            <span class="meta-tag">51–200 employees</span>
+            <span class="meta-tag">San Francisco, CA</span>
+          </div>
+        </div>
+      </div>
+      <div class="opp-why">
+        <div class="opp-why-label">✦ Why Eve surfaced this</div>
+        <p>Jane's company signed up for a demo 6 months ago but never received a follow-up. She's now opened 3 of your emails this week and visited the pricing page twice.</p>
+      </div>
+      <div><span class="opp-signal">📡 Dormant lead reactivating</span></div>
+      <div class="opp-sources">
+        <span class="opp-source">Gmail</span>
+        <span class="opp-source">HubSpot</span>
+      </div>
+      <div class="opp-feedback">
+        <button class="fb-good" onclick="approveopp('opp1')">✓ Looks good</button>
+        <button class="fb-bad" onclick="showReasons('opp1')">✗ Not right ▾</button>
+      </div>
+      <div class="fb-reasons" id="reasons-opp1">
+        <span class="fb-reason-chip" onclick="rejectopp('opp1', this.textContent)">Not the right role</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp1', this.textContent)">Wrong industry</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp1', this.textContent)">Not a good location</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp1', this.textContent)">Wrong company size</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp1', this.textContent)">Bad signal</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp1', this.textContent)">Already a customer</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp1', this.textContent)">Not relevant</span>
+      </div>
+      <div class="fb-done" id="done-opp1"></div>
+    </div>
+
+    <!-- Opportunity 2 -->
+    <div class="opp-card" id="opp2">
+      <div class="opp-header">
+        <div class="opp-avatar" style="background:linear-gradient(135deg,#E0F2FE,#BAE6FD); color:#0369A1;">RK</div>
+        <div class="opp-info">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="opp-name">Raj Kumar</span>
+            <span class="opp-li">💼</span>
+          </div>
+          <div class="opp-title">Head of Revenue Operations · Buildtech Inc</div>
+          <div class="opp-meta">
+            <span class="meta-tag">IT Services</span>
+            <span class="meta-tag">201–500 employees</span>
+            <span class="meta-tag">Austin, TX</span>
+          </div>
+        </div>
+      </div>
+      <div class="opp-why">
+        <div class="opp-why-label">✦ Why Eve surfaced this</div>
+        <p>Raj was in an active deal conversation 4 months ago that went quiet after your last email. His CRM record shows no next step and no follow-up was ever scheduled.</p>
+      </div>
+      <div><span class="opp-signal">📡 Stalled opportunity — no next step</span></div>
+      <div class="opp-sources">
+        <span class="opp-source">HubSpot</span>
+        <span class="opp-source">Gmail</span>
+      </div>
+      <div class="opp-feedback">
+        <button class="fb-good" onclick="approveopp('opp2')">✓ Looks good</button>
+        <button class="fb-bad" onclick="showReasons('opp2')">✗ Not right ▾</button>
+      </div>
+      <div class="fb-reasons" id="reasons-opp2">
+        <span class="fb-reason-chip" onclick="rejectopp('opp2', this.textContent)">Not the right role</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp2', this.textContent)">Wrong industry</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp2', this.textContent)">Not a good location</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp2', this.textContent)">Wrong company size</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp2', this.textContent)">Bad signal</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp2', this.textContent)">Already a customer</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp2', this.textContent)">Not relevant</span>
+      </div>
+      <div class="fb-done" id="done-opp2"></div>
+    </div>
+
+    <!-- Opportunity 3 -->
+    <div class="opp-card" id="opp3">
+      <div class="opp-header">
+        <div class="opp-avatar" style="background:linear-gradient(135deg,#D1FAE5,#6EE7B7); color:#065F46;">SC</div>
+        <div class="opp-info">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="opp-name">Sarah Chen</span>
+            <span class="opp-li">💼</span>
+          </div>
+          <div class="opp-title">CRO · NovaPipeline</div>
+          <div class="opp-meta">
+            <span class="meta-tag">SaaS</span>
+            <span class="meta-tag">11–50 employees</span>
+            <span class="meta-tag">New York, NY</span>
+          </div>
+        </div>
+      </div>
+      <div class="opp-why">
+        <div class="opp-why-label">✦ Why Eve surfaced this</div>
+        <p>Sarah filled out your inbound form 3 weeks ago but never received a response. The thread is sitting in your inbox unread. This is a direct revenue opportunity with no action taken.</p>
+      </div>
+      <div><span class="opp-signal">📡 Inbound lead without response</span></div>
+      <div class="opp-sources">
+        <span class="opp-source">Gmail</span>
+      </div>
+      <div class="opp-feedback">
+        <button class="fb-good" onclick="approveopp('opp3')">✓ Looks good</button>
+        <button class="fb-bad" onclick="showReasons('opp3')">✗ Not right ▾</button>
+      </div>
+      <div class="fb-reasons" id="reasons-opp3">
+        <span class="fb-reason-chip" onclick="rejectopp('opp3', this.textContent)">Not the right role</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp3', this.textContent)">Wrong industry</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp3', this.textContent)">Not a good location</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp3', this.textContent)">Wrong company size</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp3', this.textContent)">Bad signal</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp3', this.textContent)">Already a customer</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp3', this.textContent)">Not relevant</span>
+      </div>
+      <div class="fb-done" id="done-opp3"></div>
+    </div>
+
+    <!-- Opportunity 4 -->
+    <div class="opp-card" id="opp4">
+      <div class="opp-header">
+        <div class="opp-avatar" style="background:linear-gradient(135deg,#FEF3C7,#FDE68A); color:#92400E;">TW</div>
+        <div class="opp-info">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="opp-name">Tom Walters</span>
+            <span class="opp-li">💼</span>
+          </div>
+          <div class="opp-title">Sales Director · CoreLink Solutions</div>
+          <div class="opp-meta">
+            <span class="meta-tag">Staffing & Recruiting</span>
+            <span class="meta-tag">51–200 employees</span>
+            <span class="meta-tag">Chicago, IL</span>
+          </div>
+        </div>
+      </div>
+      <div class="opp-why">
+        <div class="opp-why-label">✦ Why Eve surfaced this</div>
+        <p>Tom replied to a cold email 8 months ago saying "reach back out in Q1" — that follow-up never happened. His company has grown by 40 employees since the conversation.</p>
+      </div>
+      <div><span class="opp-signal">📡 Dormant lead — promised follow-up missed</span></div>
+      <div class="opp-sources">
+        <span class="opp-source">Gmail</span>
+        <span class="opp-source">HubSpot</span>
+      </div>
+      <div class="opp-feedback">
+        <button class="fb-good" onclick="approveopp('opp4')">✓ Looks good</button>
+        <button class="fb-bad" onclick="showReasons('opp4')">✗ Not right ▾</button>
+      </div>
+      <div class="fb-reasons" id="reasons-opp4">
+        <span class="fb-reason-chip" onclick="rejectopp('opp4', this.textContent)">Not the right role</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp4', this.textContent)">Wrong industry</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp4', this.textContent)">Not a good location</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp4', this.textContent)">Wrong company size</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp4', this.textContent)">Bad signal</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp4', this.textContent)">Already a customer</span>
+        <span class="fb-reason-chip" onclick="rejectopp('opp4', this.textContent)">Not relevant</span>
+      </div>
+      <div class="fb-done" id="done-opp4"></div>
+    </div>
+
+    <div style="font-size:13px; color:var(--text-muted); text-align:center; padding:16px; background:white; border-radius:var(--radius-sm); margin-bottom:20px; border:1px solid var(--border);">
+      💡 When you reject an opportunity, Eve learns from your feedback and stops surfacing similar profiles in the future. The more you rate, the smarter Eve gets.
+    </div>
+
+    <div style="animation: fadeUp 0.4s ease-out;">
+      <button class="btn btn-primary" id="finishBtn" disabled onclick="goTo('l4')" style="width:100%; margin-bottom:10px;">Finish setup →</button>
+      <div style="text-align:center;"><a class="skip-link" onclick="goTo('l4')">Skip feedback for now →</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     L4 — LAUNCHING EVE AGENT
+════════════════════════════════════ -->
+<div class="screen" id="l4">
+  <div class="loading-screen" style="padding:0; min-height:auto; width:100%; max-width:480px;">
+    <div class="loading-card" style="text-align:center;">
+      <div class="loading-icon">🚀</div>
+      <h2>Launching your Eve agent…</h2>
+      <p class="subtitle">Creating your revenue profile, opportunity list, and first recommendations.</p>
+      <div style="background:#F9FAFB; border-radius:var(--radius-xs); overflow:hidden; height:6px; margin:24px 0 12px;">
+        <div id="launchBar" style="height:100%; background:var(--coral); border-radius:var(--radius-xs); width:0%; transition:width 0.5s ease;"></div>
+      </div>
+      <div id="launchStep" style="font-size:13px; color:var(--text-muted);">Setting up your revenue profile…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S10 — SUCCESS
+════════════════════════════════════ -->
+<div class="screen" id="s10">
+  <div class="topbar">
+    <div class="logo">EVE<span>.</span></div>
+  </div>
+  <div class="card" style="text-align:center; padding:48px 36px;">
+    <div class="success-wrap">
+      <div class="success-icon">✅</div>
+      <h2 style="font-size:28px;">Your Eve agent is ready ✦</h2>
+      <p style="font-size:15px; color:var(--text-muted); max-width:420px; margin:12px auto 0; line-height:1.6;">Eve will now monitor your connected tools continuously and surface missed revenue opportunities — so you never let a lead go cold again.</p>
+      <div class="success-stats">
+        <div class="stat-chip">
+          <div class="stat-num">2</div>
+          <div class="stat-label">Tools connected</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-num">10</div>
+          <div class="stat-label">Signals active</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-num">12</div>
+          <div class="stat-label">Opportunities found</div>
+        </div>
+      </div>
+      <div class="btn-row" style="max-width:360px; margin:0 auto;">
+        <button class="btn btn-primary" onclick="alert('→ Dashboard')">Go to dashboard</button>
+        <button class="btn btn-secondary" onclick="goTo('s9')">Review opportunities</button>
+        <button class="btn btn-ghost" onclick="goTo('s3')" style="color:var(--coral); font-size:14px;">+ Connect more tools</button>
+      </div>
+      <p style="font-size:12px; color:var(--text-light); margin-top:20px; line-height:1.6;">Eve runs in the background and will alert you when new opportunities are detected. You can adjust your ICP and signals any time from Settings.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     DEV NAV BAR
+════════════════════════════════════ -->
+<div class="dev-nav">
+  <span>Screens:</span>
+  <button class="dev-btn current" id="nav-s1" onclick="goTo('s1')">S1 Website</button>
+  <button class="dev-btn" id="nav-l1" onclick="goTo('l1')">L1 Analyzing</button>
+  <button class="dev-btn" id="nav-s2" onclick="goTo('s2')">S2 Profile</button>
+  <button class="dev-btn" id="nav-s3" onclick="goTo('s3')">S3 Tools</button>
+  <button class="dev-btn" id="nav-l2" onclick="goTo('l2')">L2 Config</button>
+  <button class="dev-btn" id="nav-s4" onclick="goTo('s4')">S4 Roles</button>
+  <button class="dev-btn" id="nav-s5" onclick="goTo('s5')">S5 Companies</button>
+  <button class="dev-btn" id="nav-s6" onclick="goTo('s6')">S6 Exclusions</button>
+  <button class="dev-btn" id="nav-s7" onclick="goTo('s7')">S7 Signals</button>
+  <button class="dev-btn" id="nav-s8" onclick="goTo('s8')">S8 Review</button>
+  <button class="dev-btn" id="nav-l3" onclick="goTo('l3')">L3 Searching</button>
+  <button class="dev-btn" id="nav-s9" onclick="goTo('s9')">S9 Opportunities</button>
+  <button class="dev-btn" id="nav-l4" onclick="goTo('l4')">L4 Launching</button>
+  <button class="dev-btn" id="nav-s10" onclick="goTo('s10')">S10 Success</button>
+</div>
+
+<script>
+// ── Screen navigation ──
+let currentScreen = 's1';
+const loadingTimers = {};
+
+function goTo(id) {
+  // hide all
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  // show target
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+  // scroll to top
+  window.scrollTo(0,0);
+  currentScreen = id;
+  // update dev nav
+  document.querySelectorAll('.dev-btn').forEach(b => b.classList.remove('current'));
+  const nb = document.getElementById('nav-' + id);
+  if (nb) nb.classList.add('current');
+  // trigger loading animations
+  if (id === 'l1') runChecklist('cl1', 6, 700, function(){ setTimeout(()=>{ document.getElementById('l1skip').style.display='block'; setTimeout(()=>{ goTo('s2'); }, 1200); }, 400); });
+  if (id === 'l2') runChecklist('cl2', 5, 650, function(){ setTimeout(()=>{ document.getElementById('l2skip').style.display='block'; setTimeout(()=>{ goTo('s4'); }, 1000); }, 300); });
+  if (id === 'l3') runChecklist('cl3', 5, 700, function(){
+    setTimeout(()=>{ const t = document.getElementById('l3tease'); if(t){ t.style.display='block'; } }, 2000);
+    setTimeout(()=>{ goTo('s9'); }, 4500);
+  });
+  if (id === 'l4') runLaunch();
+}
+
+// ── Animated checklist ──
+function runChecklist(clId, count, interval, onComplete) {
+  // reset
+  for(let i=1;i<=count;i++){
+    const item = document.getElementById(clId.replace('cl','ci') + '-' + i);
+    if(item){
+      item.className = 'check-item';
+      item.querySelector('.icon').className = 'icon waiting';
+      item.querySelector('.icon').textContent = '○';
+    }
+  }
+  let current = 1;
+  function step(){
+    // mark previous done
+    if(current > 1){
+      const prev = document.getElementById(clId.replace('cl','ci') + '-' + (current-1));
+      if(prev){
+        prev.classList.add('done-item');
+        prev.querySelector('.icon').className = 'icon done';
+        prev.querySelector('.icon').textContent = '✓';
+      }
+    }
+    if(current > count){ if(onComplete) onComplete(); return; }
+    const item = document.getElementById(clId.replace('cl','ci') + '-' + current);
+    if(item){
+      item.classList.add('active');
+      item.querySelector('.icon').className = 'icon pending';
+      item.querySelector('.icon').textContent = '◌';
+    }
+    current++;
+    setTimeout(step, interval);
+  }
+  step();
+}
+
+// ── Launch bar ──
+function runLaunch(){
+  const bar = document.getElementById('launchBar');
+  const label = document.getElementById('launchStep');
+  const steps = ['Setting up your revenue profile…','Applying your feedback…','Preparing your opportunity list…','Activating your agent…',''];
+  let p = 0;
+  let si = 0;
+  const t = setInterval(()=>{
+    p += 4;
+    if(bar) bar.style.width = Math.min(p, 100) + '%';
+    if(p % 25 === 0 && si < steps.length){ if(label) label.textContent = steps[si]; si++; }
+    if(p >= 100){ clearInterval(t); setTimeout(()=>{ goTo('s10'); }, 600); }
+  }, 60);
+}
+
+// ── URL validation ──
+function validateUrl(input){
+  const val = input.value.trim();
+  const wrap = document.getElementById('urlWrap');
+  const btn = document.getElementById('analyzeBtn');
+  const errEl = document.getElementById('urlError');
+  const isValid = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/.*)?$/.test(val) && val.length > 4;
+  if(isValid){
+    wrap.classList.add('valid');
+    wrap.parentElement.classList.remove('has-error');
+    errEl.style.display = 'none';
+    btn.disabled = false;
+  } else {
+    wrap.classList.remove('valid');
+    btn.disabled = true;
+  }
+}
+
+// ── Chip toggle ──
+function toggleChip(chip){
+  if(chip.classList.contains('selected')){
+    chip.classList.remove('selected');
+    chip.classList.add('unselected');
+  } else {
+    chip.classList.remove('unselected');
+    chip.classList.add('selected');
+  }
+}
+
+// ── Tone select ──
+function selectTone(card){
+  document.querySelectorAll('.tone-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+}
+
+// ── Tool connect ──
+const connectedTools = new Set();
+function connectTool(id, btn){
+  btn.textContent = 'Connecting…';
+  btn.disabled = true;
+  setTimeout(()=>{
+    connectedTools.add(id);
+    const card = document.getElementById('tc-' + id);
+    card.classList.add('connected');
+    const badge = card.querySelector('.tool-badge');
+    if(badge){ badge.className = 'tool-badge badge-connected'; badge.textContent = 'Connected ✓'; }
+    btn.textContent = 'Manage';
+    btn.className = 'tool-btn connected-btn';
+    btn.disabled = false;
+    updateNudge();
+  }, 900);
+}
+
+function updateNudge(){
+  const recommended = ['gmail','outlook','hubspot'];
+  const cnt = recommended.filter(t => connectedTools.has(t)).length;
+  const pct = (cnt/3)*100;
+  const fill = document.getElementById('nudgeFill');
+  const count = document.getElementById('nudgeCount');
+  if(fill) fill.style.width = pct + '%';
+  if(count) count.textContent = cnt + '/3';
+}
+
+// ── Signal toggle ──
+function toggleSignal(card){
+  if(card.classList.contains('disabled')) return;
+  card.classList.toggle('selected');
+  const chk = card.querySelector('.signal-check');
+  chk.textContent = card.classList.contains('selected') ? '✓' : '';
+}
+function selectAllSignals(){ document.querySelectorAll('.signal-card:not(.disabled)').forEach(c=>{ c.classList.add('selected'); c.querySelector('.signal-check').textContent='✓'; }); }
+function deselectAllSignals(){ document.querySelectorAll('.signal-card:not(.disabled)').forEach(c=>{ c.classList.remove('selected'); c.querySelector('.signal-check').textContent=''; }); }
+
+// ── Accordion ──
+function toggleAcc(header){
+  const item = header.parentElement;
+  item.classList.toggle('open');
+  const chev = item.querySelector('.acc-chevron');
+  chev.textContent = item.classList.contains('open') ? '▲' : '▼';
+}
+
+// ── Keyword add ──
+function addKeyword(event, input){
+  if(event.key === 'Enter' && input.value.trim()){
+    const chip = document.createElement('span');
+    chip.className = 'chip selected';
+    chip.textContent = input.value.trim();
+    chip.onclick = function(){ toggleChip(this); };
+    input.parentElement.insertBefore(chip, input);
+    input.value = '';
+  }
+}
+
+// ── Opportunity feedback ──
+let ratedCount = 0;
+function updateRatingProgress(){
+  ratedCount++;
+  const pct = Math.min((ratedCount/3)*100, 100);
+  const fill = document.getElementById('rpFill');
+  const countEl = document.getElementById('ratingCount');
+  const textEl = document.getElementById('ratingText');
+  const btn = document.getElementById('finishBtn');
+  if(fill) fill.style.width = pct + '%';
+  if(countEl) countEl.textContent = Math.min(ratedCount,3) + '/3';
+  if(ratedCount >= 3){
+    if(textEl) textEl.textContent = 'Great! Eve is learning your preferences.';
+    if(btn){ btn.disabled = false; }
+  }
+}
+
+function approveopp(id){
+  const card = document.getElementById(id);
+  card.classList.add('approved');
+  card.querySelector('.opp-feedback').style.display = 'none';
+  const done = document.getElementById('done-' + id);
+  done.className = 'fb-done good';
+  done.textContent = '✓ Noted — Eve will surface more opportunities like this';
+  done.style.display = 'block';
+  updateRatingProgress();
+}
+
+function showReasons(id){
+  const reasons = document.getElementById('reasons-' + id);
+  reasons.classList.toggle('show');
+}
+
+function rejectopp(id, reason){
+  const card = document.getElementById(id);
+  card.classList.add('rejected');
+  card.querySelector('.opp-feedback').style.display = 'none';
+  const reasons = document.getElementById('reasons-' + id);
+  if(reasons) reasons.style.display = 'none';
+  const done = document.getElementById('done-' + id);
+  done.className = 'fb-done bad';
+  done.textContent = '✗ Got it — Eve will avoid similar opportunities (' + reason + ')';
+  done.style.display = 'block';
+  updateRatingProgress();
+}
+</script>
+</body>
+</html>
