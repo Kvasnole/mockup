@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EVE — Clickable onboarding prototype (branching)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.11.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --purple:#534AB7;--purple-d:#3C3489;--purple-l:#EEEDFE;
+  --ink:#1f1e1c;--muted:#5F5E5A;--hint:#8a897f;
+  --line:#e8e6de;--line-2:#d4d2c8;--surface:#f7f6f1;--white:#fff;
+  --teal:#0F6E56;--teal-l:#E1F5EE;--info:#185FA5;--info-l:#E6F1FB;
+  --amber:#854F0B;--amber-l:#FAEEDA;--slack:#4A154B;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:#e7e5dd;color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+.app{max-width:1060px;margin:0 auto;padding:22px 18px 50px;}
+.head{text-align:center;margin-bottom:16px;}
+.head .brand{font-weight:700;letter-spacing:2px;color:var(--purple);font-size:14px;}
+.head h1{font-size:22px;margin:6px 0 2px;font-weight:700;}
+.head p{color:var(--muted);font-size:13px;margin:0;}
+.layout{display:flex;gap:24px;align-items:flex-start;justify-content:center;flex-wrap:wrap;}
+.rail{width:236px;flex-shrink:0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;}
+.rail h3{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--hint);margin:4px 6px 10px;}
+.stage-item{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:9px;cursor:pointer;font-size:12.5px;color:var(--muted);}
+.stage-item:hover{background:var(--surface);}
+.stage-item .sdot{width:22px;height:22px;border-radius:50%;background:var(--surface);color:var(--hint);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:1px solid var(--line-2);}
+.stage-item.active{background:var(--purple-l);color:var(--purple-d);font-weight:600;}
+.stage-item.active .sdot{background:var(--purple);color:#fff;border-color:var(--purple);}
+.stage-item.done .sdot{background:var(--teal);color:#fff;border-color:var(--teal);}
+.device-col{display:flex;flex-direction:column;align-items:center;}
+.device{width:430px;max-width:94vw;height:680px;background:#fff;border:1px solid var(--line-2);border-radius:26px;overflow:hidden;box-shadow:0 18px 50px rgba(40,30,70,.16);display:flex;flex-direction:column;}
+.scr{flex:1;overflow-y:auto;}
+.scr::-webkit-scrollbar{width:8px;}.scr::-webkit-scrollbar-thumb{background:#d8d6cd;border-radius:8px;}
+.controls{display:flex;align-items:center;gap:10px;margin-top:16px;}
+.ctl{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;border:1px solid var(--line-2);background:#fff;border-radius:10px;padding:9px 15px;cursor:pointer;color:var(--ink);}
+.ctl:hover{background:var(--surface);}.ctl[disabled]{opacity:.4;cursor:not-allowed;}
+.caption{font-size:12.5px;color:var(--muted);margin-top:12px;text-align:center;max-width:430px;line-height:1.5;}
+.caption b{color:var(--purple-d);}
+.bbar{display:flex;align-items:center;gap:6px;padding:11px 14px;background:var(--surface);border-bottom:1px solid var(--line);}
+.bdot{width:9px;height:9px;border-radius:50%;background:#cfcdc4;}
+.burl{flex:1;margin-left:8px;font-size:11px;color:var(--hint);font-family:ui-monospace,Menlo,monospace;background:#fff;border:1px solid var(--line);border-radius:30px;padding:4px 12px;}
+.bbody{padding:30px 24px;}
+.center{text-align:center;}
+.logo{font-weight:700;letter-spacing:2px;color:var(--purple);font-size:16px;}
+.h1{font-size:21px;font-weight:700;margin:0 0 6px;line-height:1.25;}
+.h2{font-size:17px;font-weight:700;margin:0 0 6px;}
+.sub{font-size:13.5px;color:var(--muted);margin:0 0 20px;line-height:1.5;}
+.field{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--hint);font-family:ui-monospace,Menlo,monospace;background:var(--surface);border:1px solid var(--line-2);border-radius:10px;padding:12px 13px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;padding:11px 18px;border-radius:11px;border:none;cursor:pointer;transition:transform .05s;}
+.btn:active{transform:scale(.98);}
+.btn-primary{background:var(--purple);color:#fff;}.btn-slack{background:#4A154B;color:#fff;}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line-2);}
+.btn-block{width:100%;}
+.gap{display:flex;gap:10px;flex-wrap:wrap;}.gap.cen{justify-content:center;}
+.note{font-size:11.5px;color:var(--hint);display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+.note span{display:inline-flex;align-items:center;gap:5px;}
+.checklist{text-align:left;background:var(--surface);border-radius:10px;padding:12px 14px;margin:0 0 18px;}
+.checklist .c{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted);margin:5px 0;}
+.checklist .c i{color:#c6452f;}
+.prov{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:11px;padding:12px 14px;margin-bottom:10px;cursor:pointer;}
+.prov:hover{border-color:var(--purple);background:var(--purple-l);}
+.prov .lhs{display:flex;align-items:center;gap:11px;font-size:14px;font-weight:600;}
+.prov .ic{width:30px;height:30px;border-radius:7px;background:var(--surface);display:flex;align-items:center;justify-content:center;}
+.toggle{display:flex;align-items:flex-start;gap:10px;font-size:13px;margin:9px 0;}
+.toggle i{color:var(--teal);margin-top:1px;}
+.slack-top{background:#4A154B;color:#fff;padding:13px 16px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:9px;}
+.slack-top .ch{opacity:.8;font-weight:400;font-size:13px;}
+.sbody{padding:16px 16px 22px;}
+.msg{display:flex;gap:11px;margin:0 0 16px;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.ava{flex-shrink:0;width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;}
+.ava-eve{background:var(--purple);}.ava-user{background:#1264A3;}
+.who{font-size:13.5px;font-weight:700;margin-bottom:2px;}
+.who .app{font-size:9.5px;font-weight:600;color:#fff;background:#9a9a9a;border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:1px;}
+.who .time{font-size:11px;color:var(--hint);font-weight:400;margin-left:7px;}
+.txt{font-size:14px;color:#1d1c1d;}
+.txt p{margin:0 0 7px;}.txt p:last-child{margin-bottom:0;}
+.txt ul{margin:6px 0;padding-left:20px;}.txt li{margin:2px 0;}
+.user .txt{background:var(--info-l);border-radius:11px;padding:9px 13px;display:inline-block;font-weight:500;}
+.choices{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 4px 47px;animation:fade .25s ease;}
+.choice{font-size:13px;font-weight:600;border:1px solid var(--line-2);background:#fff;border-radius:9px;padding:8px 13px;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform .05s;}
+.choice:hover{border-color:var(--purple);background:var(--purple-l);color:var(--purple-d);}
+.choice:active{transform:scale(.97);}
+.choice.primary{background:var(--purple);color:#fff;border-color:var(--purple);}
+.choice.primary:hover{background:var(--purple-d);color:#fff;}
+.pcard{border:1px solid var(--line);border-left:3px solid var(--purple);border-radius:9px;padding:11px 13px;margin:9px 0;background:#fff;}
+.pcard.info{border-left-color:var(--info);}
+.pname{font-weight:700;font-size:14px;}.pmeta{font-size:12px;color:var(--muted);margin:1px 0 5px;}
+.pwhy{font-size:13px;color:#3a3a38;}
+.signal{display:inline-flex;align-items:center;gap:5px;font-size:11px;background:var(--amber-l);color:var(--amber);padding:3px 9px;border-radius:12px;margin-top:7px;font-weight:600;}
+.unlock{border-radius:10px;padding:12px 14px;margin-top:11px;background:var(--info-l);border:1px solid #bcd7f2;}
+.unlock.amber{background:var(--amber-l);border-color:#ecd9b0;}
+.unlock .ut{font-weight:700;font-size:13px;color:var(--info);display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.unlock.amber .ut{color:var(--amber);}
+.unlock .ud{font-size:13px;color:#243;}
+.done-banner{text-align:center;padding:32px 24px;}
+.done-banner .big{width:60px;height:60px;border-radius:16px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;}
+.done-banner .big.warn{background:var(--amber);}
+.caps{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px;text-align:left;}
+.cap{display:flex;align-items:center;gap:8px;font-size:12px;background:var(--surface);border-radius:9px;padding:9px 10px;}
+.cap i{color:var(--purple);}
+.evolve{font-size:13px;color:var(--muted);margin-top:18px;line-height:1.6;}
+.evolve b{color:var(--ink);}
+@media(max-width:920px){.rail{display:none;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div class="brand">EVE</div>
+    <h1>Clickable onboarding prototype</h1>
+    <p>Every answer branches. Try the alternatives — "Almost", "Not really", each rejection reason, and "Not now" all lead somewhere.</p>
+  </div>
+  <div class="layout">
+    <div class="rail" id="rail"></div>
+    <div class="device-col">
+      <div class="device"><div class="scr" id="scr"></div></div>
+      <div class="controls">
+        <button class="ctl" id="backBtn" onclick="back()"><i class="ti ti-arrow-left"></i>Back</button>
+        <button class="ctl" onclick="restart()"><i class="ti ti-refresh"></i>Restart</button>
+        <span class="ctl" style="cursor:default;border:none;background:transparent;color:var(--hint);" id="counter"></span>
+      </div>
+      <div class="caption" id="caption"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STAGE_NAMES=['Low-friction signup','First conversation in Slack','First value, no integrations','First limitation appears','CRM unlocks accuracy','Inbox access','Reactivation available','Draft & send outreach','Contextual tools','Full EVE experience'];
+
+const REASONS=[
+ {t:'Wrong industry',reply:'Wrong industry for a couple.',to:'refine'},
+ {t:'Too small / large',reply:'Wrong company size.',to:'refine'},
+ {t:'Wrong market',reply:'Wrong market.',to:'refine'},
+ {t:'Wrong business model',reply:'Not the right business model.',to:'refine'},
+ {t:'Already contacted',primary:true,reply:'We already contacted some of these.',to:'crmLimit'},
+ {t:'Existing customer',reply:'A couple are existing customers.',to:'crmLimit'},
+ {t:'Other',reply:'Other reason.',to:'refine'},
+];
+
+const NODES={
+ // ---------- web signup ----------
+ home:{kind:'web',stage:1,cap:'<b>Stage 1 · Step 1.</b> Land on the homepage and click Get started for free. No CRM, inbox, payment or form yet.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">eve.ai</span></div>
+   <div class="bbody center">
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;"><span class="logo">EVE</span><button class="btn btn-ghost" onclick="screenNext()">Start free</button></div>
+     <div class="h1">Find &amp; manage sales opportunities — right inside Slack</div>
+     <div class="sub">Your AI sales teammate. No setup marathon required.</div>
+     <div class="checklist">
+       <div class="c"><i class="ti ti-x"></i>No CRM connection</div>
+       <div class="c"><i class="ti ti-x"></i>No inbox connection</div>
+       <div class="c"><i class="ti ti-x"></i>No data upload or payment</div>
+       <div class="c"><i class="ti ti-x"></i>No long onboarding form</div>
+     </div>
+     <button class="btn btn-primary btn-block" onclick="screenNext()"><i class="ti ti-arrow-right"></i>Get started for free</button>
+     <div class="gap cen" style="margin-top:10px;"><button class="btn btn-ghost" onclick="screenNext()">Contact sales</button></div>
+   </div>`,to:'signup'},
+ signup:{kind:'web',stage:1,cap:'<b>Step 2.</b> Enter your company website. EVE scans it so you don’t describe the business from scratch.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">eve.ai/signup</span></div>
+   <div class="bbody">
+     <div class="center"><span class="logo">EVE</span></div>
+     <div class="h2" style="margin-top:18px;">What’s your company website?</div>
+     <div class="sub">EVE scans it to understand your products, customers, industries, size, positioning and buyer personas.</div>
+     <div class="field" style="margin-bottom:18px;"><i class="ti ti-world"></i>https://your-company.com</div>
+     <button class="btn btn-primary btn-block" onclick="screenNext()">Continue</button>
+   </div>`,to:'oauth'},
+ oauth:{kind:'web',stage:1,cap:'<b>Step 3.</b> Authorize Slack — account is created and you’re dropped straight into a DM with EVE.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">slack.com/oauth</span></div>
+   <div class="bbody center">
+     <i class="ti ti-brand-slack" style="font-size:34px;color:#4A154B;"></i>
+     <div class="h2" style="margin-top:12px;">EVE is requesting access to your workspace</div>
+     <div class="field" style="text-align:left;margin:6px 0 8px;">your-workspace.slack.com</div>
+     <div class="field" style="text-align:left;margin-bottom:18px;color:var(--hint);">Sign in to your workspace</div>
+     <button class="btn btn-slack btn-block" onclick="screenNext()"><i class="ti ti-check"></i>Allow</button>
+     <div class="note"><span><i class="ti ti-credit-card-off"></i>No credit card</span><span><i class="ti ti-shield-check"></i>SOC 2 Type I</span></div>
+   </div>`,to:'welcome'},
+
+ // ---------- stage 2 ----------
+ welcome:{kind:'turn',stage:2,cap:'<b>Stage 2 · Steps 4–5.</b> EVE arrives having already done work and proposes a draft ICP. Try any of the three answers.',
+  msgs:[
+   `<p>Hi! I’ve reviewed your website and already have an initial understanding of your company.</p><p>I’ll ask a few quick questions to make sure I’m looking for the right opportunities — a couple of minutes.</p>`,
+   `<p>Based on your website, it looks like you help <b>B2B SaaS companies improve their outbound sales</b>.</p><p>I think your ideal customers are <b>20–200 employees</b>, mostly founders and Heads of Sales. Is that approximately right?</p>`],
+  actions:[
+   {t:'Yes, that looks right',primary:true,reply:'Yes, that looks right',to:'market'},
+   {t:'Almost — let me correct it',reply:'Almost — let me correct it',to:'icpCorrect'},
+   {t:'Not really',reply:'Not really',to:'icpNotReally'}]},
+ icpCorrect:{kind:'turn',stage:2,cap:'Branch: <b>Almost.</b> EVE invites a correction, then folds it in.',
+  msgs:[`<p>No problem — what should I adjust? Just tell me in your own words.</p>`],
+  actions:[{t:'Send correction',primary:true,reply:'We focus on fintech specifically, 50–500 employees.',to:'icpCorrectAck'}]},
+ icpCorrectAck:{kind:'turn',stage:2,cap:'EVE updates the draft and continues.',
+  msgs:[`<p>Updated — fintech, 50–500 employees. Thanks, that helps.</p>`],
+  actions:[{t:'Continue',primary:true,to:'market'}]},
+ icpNotReally:{kind:'turn',stage:2,cap:'Branch: <b>Not really.</b> EVE rebuilds the ICP from your own description.',
+  msgs:[`<p>Got it — tell me in a sentence who your best customers are and I’ll rebuild it.</p>`],
+  actions:[{t:'Describe my ICP',primary:true,reply:'Mostly Series A–B fintech startups in the US.',to:'icpNotReallyAck'}]},
+ icpNotReallyAck:{kind:'turn',stage:2,cap:'EVE re-drafts and continues.',
+  msgs:[`<p>Much clearer — Series A–B fintech in the US. I’ve re-drafted the profile.</p>`],
+  actions:[{t:'Continue',primary:true,to:'market'}]},
+
+ market:{kind:'turn',stage:2,cap:'<b>Step 6.</b> EVE asks only what the site can’t answer. Each market choice changes the summary.',
+  msgs:[`<p>One thing I can’t tell from the site — which market is the highest priority right now?</p>`],
+  actions:[
+   {t:'US',primary:true,reply:'US first. And skip agencies.',set:{market:'the US market'},to:'icpSummary'},
+   {t:'Europe',reply:'Europe is our priority.',set:{market:'the European market'},to:'icpSummary'},
+   {t:'Both',reply:'Both US and Europe.',set:{market:'the US and European markets'},to:'icpSummary'}]},
+ icpSummary:{kind:'turn',stage:2,cap:'<b>Step 6.</b> EVE summarises the ICP it will use — confirm or correct.',
+  msgs:[()=>`<p>Got it. Here’s the ICP I’ll use:</p><ul><li>B2B SaaS companies</li><li>20–200 employees</li><li>Selling into <b>${state.market}</b></li><li>Primary buyers: founders &amp; sales leaders</li><li>Exclude agencies &amp; free consumer products</li></ul><p>Does this look right?</p>`],
+  actions:[{t:'Looks right',primary:true,reply:'Looks right 👍',to:'suggestion'},{t:'Let me correct one thing',reply:'Let me correct one thing.',to:'summaryCorrect'}]},
+ summaryCorrect:{kind:'turn',stage:2,cap:'Branch: a final ICP tweak before moving on.',
+  msgs:[`<p>Sure — what should change?</p>`],
+  actions:[{t:'Raise size cap to 500',primary:true,reply:'Raise the upper size to 500.',to:'suggestion'},{t:'Drop the exclusions',reply:'Don’t exclude anyone yet.',to:'suggestion'}]},
+ suggestion:{kind:'turn',stage:2,cap:'<b>Step 7.</b> EVE gives value during the interview — a positioning tip — before any prospect exists.',
+  msgs:[`<div class="unlock amber"><div class="ut"><i class="ti ti-bulb"></i>A quick suggestion</div><div class="ud">Your website speaks broadly about helping “growing businesses,” but your strongest ICP is B2B SaaS with small sales teams. Making that explicit could help qualified visitors understand the product faster.</div></div>`],
+  actions:[{t:'Makes sense — thanks',primary:true,to:'prospects'}]},
+
+ // ---------- stage 3 ----------
+ prospects:{kind:'turn',stage:3,cap:'<b>Stage 3 · Steps 8–9.</b> 3–5 prospects with reasons, signals and confidence. Try each feedback option.',
+  msgs:[`<p>Great — here are a few that appear to match. These are initial results from public info and your website only.</p>
+   <div class="pcard"><div class="pname">Acme AI</div><div class="pmeta">75 employees · B2B SaaS · acme.ai · Confidence: High</div><div class="pwhy">Expanding their sales team; matches your size and market. Likely buyer: VP of Sales.</div><span class="signal"><i class="ti ti-trending-up"></i> Recently hired a VP of Sales</span></div>
+   <div class="pcard"><div class="pname">Northwind Labs</div><div class="pmeta">120 employees · B2B SaaS · Confidence: Medium</div><div class="pwhy">Strong US presence, fits company size.</div></div>
+   <p style="margin-top:8px;">How do these look?</p>`],
+  actions:[{t:'These look good',reply:'These look good.',to:'goodFeedback'},{t:'Some are relevant',primary:true,reply:'Some are relevant.',to:'reasons'},{t:'Not right',reply:'These aren’t right.',to:'notRight'}]},
+ goodFeedback:{kind:'turn',stage:3,cap:'Branch: <b>looks good.</b> EVE still surfaces the limitation honestly.',
+  msgs:[`<p>Glad they look right! One thing though — I can’t yet see which companies your team has already contacted, so some may be duplicates.</p>`],
+  actions:[{t:'Makes sense',primary:true,to:'crmLimit'}]},
+ reasons:{kind:'turn',stage:3,cap:'<b>Step 9.</b> For rejected prospects EVE asks a simple reason. “Already contacted” / “existing customer” lead to the CRM ask; others refine.',
+  msgs:[`<p>Which should I drop, and why?</p>`],actions:REASONS},
+ notRight:{kind:'turn',stage:3,cap:'Branch: <b>not right.</b> EVE asks what’s most off, using the same reasons.',
+  msgs:[`<p>Thanks for the honesty — what’s most off?</p>`],actions:REASONS},
+ refine:{kind:'turn',stage:3,cap:'Branch: EVE refines the ICP and pulls a fresh set before asking for any access.',
+  msgs:[`<p>Got it — refining and pulling a fresh set.</p>
+   <div class="pcard"><div class="pname">Lumen Data</div><div class="pmeta">90 employees · B2B SaaS · Confidence: High</div><div class="pwhy">Closer fit on industry and size after your feedback.</div></div>`],
+  actions:[{t:'These are better',primary:true,to:'crmLimit'},{t:'Still a bit off',reply:'Still a bit off.',to:'refine2'}]},
+ refine2:{kind:'turn',stage:3,cap:'Branch: EVE acknowledges it needs more context to do better.',
+  msgs:[`<p>Understood — I’m at the limit of what public data can tell me here. More of your own context will sharpen this a lot.</p>`],
+  actions:[{t:'OK, what do you need?',primary:true,to:'crmLimit'}]},
+
+ // ---------- stage 4 ----------
+ crmLimit:{kind:'turn',stage:4,cap:'<b>Stage 4 · Step 10.</b> EVE turns a limitation you just hit into a CRM recommendation. Both Connect and Not now branch.',
+  msgs:[`<p>A few of these may already be in your pipeline. Right now I’m working from your website, ICP and public data, so I can’t see who your team has already contacted.</p>
+   <div class="unlock"><div class="ut"><i class="ti ti-database"></i>Connect your CRM</div><div class="ud">I’ll automatically exclude existing customers and previous opportunities from future lists.</div></div>`],
+  actions:[{t:'Connect CRM',primary:true,reply:'Let’s connect the CRM.',to:'crmConnect'},{t:'Not now',reply:'Not now.',to:'crmSkip'}]},
+ crmSkip:{kind:'turn',stage:4,cap:'Branch: <b>Not now.</b> EVE keeps delivering value in limited mode and re-offers later.',
+  msgs:[`<p>No problem — I’ll keep working from public data, just a little less precisely. You can connect the CRM any time.</p>`],
+  actions:[{t:'Actually, connect CRM',primary:true,reply:'OK, let’s connect it.',to:'crmConnect'},{t:'Continue without CRM',reply:'Keep going without it.',to:'limitedEnd'}]},
+ crmConnect:{kind:'webapp',stage:5,cap:'<b>Stage 5 · Step 11.</b> Connect a CRM in the web app. EVE then analyses accounts, opportunities, deal stages and conversion patterns.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/integrations</span></div>
+   <div class="bbody"><div class="h2">Connect your CRM</div><div class="sub">Pick your CRM so EVE can dedupe against your pipeline.</div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-hipchat"></i></span>HubSpot</span><span class="btn btn-primary" style="padding:7px 14px;">Connect</span></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-cloud"></i></span>Salesforce</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-database"></i></span>Other CRM</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div></div>`,to:'crmAfter'},
+
+ // ---------- stage 5 ----------
+ crmAfter:{kind:'turn',stage:5,cap:'<b>Step 12.</b> EVE reports what it found and delivers sharper results — immediate return for connecting.',
+  msgs:[`<p>Your CRM is connected. I found:</p><ul><li>243 companies already contacted</li><li>37 existing customers</li><li>18 open opportunities</li></ul><p>I’ll exclude these from new searches unless you ask me to include them.</p>`,
+   `<p>These prospects are more precise — I removed pipeline companies and prioritised look-alikes of your best customers.</p><p><b>I found 42 relevant prospects. Here are the top five.</b></p>`],
+  actions:[{t:'View full report in EVE',primary:true,reply:'Open the full report.',to:'inboxPrompt'},{t:'Continue here',reply:'Just continue in Slack.',to:'inboxPrompt'}]},
+
+ // ---------- stage 6 ----------
+ inboxPrompt:{kind:'turn',stage:6,cap:'<b>Stage 6 · Step 13.</b> Requested only after the CRM paid off. Both options branch.',
+  msgs:[`<p>Your team has worked with some of these accounts, but the CRM doesn’t have the full conversation history.</p>
+   <div class="unlock"><div class="ut"><i class="ti ti-mail"></i>Connect your inbox</div><div class="ud">I’ll spot companies you’re already talking to, understand the latest conversation, and catch opportunities never added to the CRM.</div></div>`],
+  actions:[{t:'Connect inbox',primary:true,reply:'Connect the inbox.',to:'inboxConnect'},{t:'Not now',reply:'Not right now.',to:'inboxSkip'}]},
+ inboxSkip:{kind:'turn',stage:6,cap:'Branch: <b>Not now.</b> EVE proceeds on CRM data only; reactivation stays limited.',
+  msgs:[`<p>That’s fine — I’ll prioritise using CRM data only. Note that reactivation works best once I can also see conversations.</p>`],
+  actions:[{t:'Connect inbox',primary:true,reply:'OK, connect it.',to:'inboxConnect'},{t:'Continue without inbox',reply:'Continue without it.',to:'noInboxEnd'}]},
+ inboxConnect:{kind:'webapp',stage:6,cap:'<b>Step 14.</b> Connect Gmail or Outlook. EVE combines permitted conversations with CRM data.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/integrations</span></div>
+   <div class="bbody"><div class="h2">Connect your inbox</div><div class="sub">EVE reads only permitted sales communications.</div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-google"></i></span>Gmail</span><span class="btn btn-primary" style="padding:7px 14px;">Connect</span></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-windows"></i></span>Outlook</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div></div>`,to:'inboxAfter'},
+ inboxAfter:{kind:'turn',stage:6,cap:'<b>Step 14.</b> EVE reports what the inbox added.',
+  msgs:[`<p>Inbox connected. I found <b>14 active sales conversations</b> not fully reflected in your CRM and removed those companies from your new-prospect list.</p><p>I can now tell apart new prospects, active &amp; dormant conversations, customers, lost deals, and do-not-contact companies.</p>`],
+  actions:[{t:'Continue',primary:true,to:'reactIntro'}]},
+
+ // ---------- stage 7 ----------
+ reactIntro:{kind:'turn',stage:7,cap:'<b>Stage 7 · Step 15.</b> With CRM + inbox trusted, EVE surfaces dormant opportunities with fresh reasons.',
+  msgs:[`<p>I also found <b>23 companies</b> that previously showed interest but haven’t been contacted recently — some now have new reasons to re-engage.</p>
+   <div class="pcard"><div class="pname">Acme AI</div><div class="pmeta">Last conversation: 8 months ago · Outcome: timing wasn’t right</div><div class="pwhy">New signal: recently raised a Series A and hired a Head of Sales.</div><span class="signal"><i class="ti ti-cash"></i> Series A · new sales leader</span></div>`],
+  actions:[{t:'Show reactivation opportunities',primary:true,to:'reactActions'}]},
+ reactActions:{kind:'turn',stage:7,cap:'<b>Step 16.</b> Every action feeds EVE’s learning loop. Each option branches.',
+  msgs:[`<p>Here’s what you can do with each reactivation opportunity:</p>`],
+  actions:[
+   {t:'Draft a follow-up',primary:true,reply:'Draft a follow-up for Acme.',to:'emailDraft'},
+   {t:'Approve',reply:'Approve this one.',to:'reactAck'},
+   {t:'Reject',reply:'Reject this one.',to:'reactAck'},
+   {t:'Fix reasoning',reply:'Your reasoning is a bit off.',to:'reactAck'},
+   {t:'Snooze',reply:'Snooze for now.',to:'reactAck'},
+   {t:'Assign',reply:'Assign to a teammate.',to:'reactAck'}]},
+ reactAck:{kind:'turn',stage:7,cap:'Branch: EVE logs the action and folds it into future recommendations.',
+  msgs:[`<p>Done — logged, and I’ll factor that into which signals and lost-reasons I trust going forward.</p>`],
+  actions:[{t:'Draft a follow-up for Acme',primary:true,reply:'Now draft a follow-up.',to:'emailDraft'}]},
+
+ // ---------- stage 8 ----------
+ emailDraft:{kind:'turn',stage:8,cap:'<b>Stage 8 · Step 17.</b> EVE drafts first so you can judge quality before granting send permission. Try each option.',
+  msgs:[`<p>I prepared a follow-up for <b>Acme AI</b> based on your previous conversation and their recent funding.</p>
+   <div class="pcard info"><div class="pmeta" style="margin:0;">Subject: Congrats on the raise — quick thought</div><div class="pwhy" style="margin-top:5px;">Hi Sam — saw the Series A news, congratulations. When we last spoke the timing wasn’t right; with the new sales hire it might be worth another look…</div></div>`],
+  actions:[
+   {t:'Approve',primary:true,reply:'Approved — looks great.',to:'agentEmail'},
+   {t:'Edit',reply:'Let me edit it.',to:'editTurn'},
+   {t:'Reject',reply:'Not this one.',to:'rejectTurn'},
+   {t:'Different tone',reply:'Try a different tone.',to:'toneTurn'}]},
+ editTurn:{kind:'turn',stage:8,cap:'Branch: <b>Edit.</b> You tweak the copy, EVE learns your style.',
+  msgs:[`<p>Sure — tweak the wording and approve when it reads right. I’ll learn your style from the edits.</p>`],
+  actions:[{t:'Use this version',primary:true,reply:'This version is good.',to:'agentEmail'}]},
+ rejectTurn:{kind:'turn',stage:8,cap:'Branch: <b>Reject.</b> EVE discards and offers another angle.',
+  msgs:[`<p>Discarded. Want me to try a different angle?</p>`],
+  actions:[{t:'Yes, try again',primary:true,reply:'Yes, try again.',to:'emailDraft'},{t:'No, leave it',reply:'Leave it for now.',to:'agentEmail'}]},
+ toneTurn:{kind:'turn',stage:8,cap:'Branch: <b>Different tone.</b> EVE offers an alternative voice.',
+  msgs:[`<p>Here’s a warmer, shorter version:</p>
+   <div class="pcard info"><div class="pwhy">Hi Sam — huge congrats on the raise! Last time felt early; now might be perfect. Worth a quick chat?</div></div>`],
+  actions:[{t:'Approve this one',primary:true,reply:'Approve the warmer version.',to:'agentEmail'},{t:'Back to original',reply:'Use the original tone.',to:'emailDraft'}]},
+ agentEmail:{kind:'turn',stage:8,cap:'<b>Step 18.</b> After repeated approvals, EVE asks for a dedicated agent email — the high-trust step. Both options branch.',
+  msgs:[`<p>You’ve approved several messages like this. Want a dedicated EVE email account so I can manage approved outreach more independently?</p><ul><li>EVE can draft only</li><li>Send only after approval</li><li>Auto-send within defined rules</li><li>Pause any time · all activity visible</li></ul>`],
+  actions:[{t:'Set up EVE email',primary:true,reply:'Let’s set it up.',to:'emailSetup'},{t:'Keep drafting only',reply:'Keep drafting only for now.',to:'keepDraft'}]},
+ keepDraft:{kind:'turn',stage:8,cap:'Branch: <b>Keep drafting only.</b> EVE stays in draft-only mode — nothing sent without you.',
+  msgs:[`<p>Got it — I’ll keep preparing drafts for your approval and won’t send anything on my own.</p>`],
+  actions:[{t:'Continue',primary:true,to:'contextual'}]},
+ emailSetup:{kind:'webapp',stage:8,cap:'<b>Step 18.</b> Set up the EVE email with explicit controls.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/email</span></div>
+   <div class="bbody"><div class="h2">Set up EVE email</div><div class="sub">eve@your-company.com</div>
+   <div class="toggle"><i class="ti ti-circle-check"></i>EVE can draft messages</div>
+   <div class="toggle"><i class="ti ti-circle-check"></i>Send only after your approval</div>
+   <div class="toggle"><i class="ti ti-circle-check"></i>Auto-send within defined rules</div>
+   <div class="toggle"><i class="ti ti-circle-check"></i>Pause sending any time · visible to the team</div>
+   <button class="btn btn-primary btn-block" style="margin-top:14px;" onclick="screenNext()">Create EVE email</button></div>`,to:'contextual'},
+
+ // ---------- stage 9 ----------
+ contextual:{kind:'turn',stage:9,cap:'<b>Stage 9 · Step 19.</b> EVE recommends extra tools contextually — each unlocks a clearly stated capability.',
+  msgs:[`<p>As they become useful, I’ll suggest one tool at a time — never a generic checklist:</p>
+   <div class="unlock"><div class="ut"><i class="ti ti-calendar"></i>Calendar</div><div class="ud">This prospect agreed to a meeting — connect your calendar and I’ll track meetings and prepare follow-ups.</div></div>
+   <div class="unlock"><div class="ut"><i class="ti ti-microphone"></i>Call recording</div><div class="ud">A call happened but I don’t have details — connect your recorder and I’ll use call context.</div></div>
+   <div class="unlock"><div class="ut"><i class="ti ti-chart-line"></i>Product analytics</div><div class="ud">I can prioritise customers by product activity.</div></div>`],
+  actions:[{t:'Got it — finish',primary:true,to:'final'}]},
+
+ // ---------- endings ----------
+ final:{kind:'final',stage:10,cap:'<b>Stage 10.</b> Full context, proactive teammate. The happy-path ending.',
+  html:`<div class="slack-top"><i class="ti ti-brand-slack"></i> EVE <span class="ch">· now fully set up</span></div>
+   <div class="done-banner"><div class="big"><i class="ti ti-sparkles"></i></div>
+   <div class="h2">EVE understands your sales context</div>
+   <div class="sub">From “EVE found a few possible prospects” to a proactive teammate that helps run sales.</div>
+   <div class="caps">
+     <div class="cap"><i class="ti ti-search"></i>Finds &amp; prioritises prospects</div>
+     <div class="cap"><i class="ti ti-filter-off"></i>Excludes known companies</div>
+     <div class="cap"><i class="ti ti-refresh"></i>Surfaces dormant deals</div>
+     <div class="cap"><i class="ti ti-bulb"></i>Explains why it matters now</div>
+     <div class="cap"><i class="ti ti-pencil"></i>Drafts &amp; sends approved outreach</div>
+     <div class="cap"><i class="ti ti-database-cog"></i>Keeps the CRM up to date</div>
+     <div class="cap"><i class="ti ti-bell"></i>Notifies on meaningful changes</div>
+     <div class="cap"><i class="ti ti-users"></i>Shares context with the team</div>
+   </div>
+   <button class="btn btn-primary btn-block" style="margin-top:20px;" onclick="restart()"><i class="ti ti-refresh"></i>Replay the journey</button></div>`},
+ limitedEnd:{kind:'final',stage:4,cap:'Alt ending: <b>limited mode.</b> EVE keeps working without the CRM — and the door stays open.',
+  html:`<div class="slack-top"><i class="ti ti-brand-slack"></i> EVE <span class="ch">· limited mode</span></div>
+   <div class="done-banner"><div class="big warn"><i class="ti ti-bolt"></i></div>
+   <div class="h2">Running in limited mode</div>
+   <div class="sub">EVE keeps finding prospects from public data and your ICP, but can’t dedupe against your pipeline or surface reactivation until you connect a CRM and inbox.</div>
+   <div class="gap cen" style="margin-top:6px;">
+     <button class="btn btn-primary" onclick="go('crmConnect')"><i class="ti ti-database"></i>Connect CRM now</button>
+     <button class="btn btn-ghost" onclick="restart()"><i class="ti ti-refresh"></i>Replay</button></div></div>`},
+ noInboxEnd:{kind:'final',stage:6,cap:'Alt ending: <b>no inbox.</b> Prospecting works on CRM data; reactivation stays locked.',
+  html:`<div class="slack-top"><i class="ti ti-brand-slack"></i> EVE <span class="ch">· CRM only</span></div>
+   <div class="done-banner"><div class="big warn"><i class="ti ti-mail-off"></i></div>
+   <div class="h2">Working on CRM data only</div>
+   <div class="sub">Prospecting is deduped against your pipeline, but reactivation and conversation-aware prioritisation need inbox access.</div>
+   <div class="gap cen" style="margin-top:6px;">
+     <button class="btn btn-primary" onclick="go('inboxConnect')"><i class="ti ti-mail"></i>Connect inbox</button>
+     <button class="btn btn-ghost" onclick="restart()"><i class="ti ti-refresh"></i>Replay</button></div></div>`},
+};
+
+let state={market:'the US market'};
+let transcript=[];
+let mode='web';
+let screenId='home';
+let curTurn=null;
+let curActions=null;
+let history=[];
+
+const scr=document.getElementById('scr');
+const rail=document.getElementById('rail');
+const resolve=m=>typeof m==='function'?m():m;
+
+function snapshot(){
+  history.push(JSON.stringify({transcript,mode,screenId,curTurn,curActions,state}));
+  if(history.length>200) history.shift();
+}
+function go(id){
+  const n=NODES[id];
+  if(n.kind==='turn'){
+    mode='slack'; screenId=null; curTurn=id;
+    (n.msgs||[]).forEach(m=>transcript.push({from:'eve',html:resolve(m)}));
+    curActions=(n.actions||[]).map(a=>({t:a.t,primary:!!a.primary,reply:a.reply||null,set:a.set||null,to:a.to}));
+  } else {
+    mode=(n.kind==='final')?'final':'screen'; screenId=id; curTurn=null; curActions=null;
+  }
+  render();
+}
+function choose(i){
+  const a=curActions[i]; snapshot();
+  if(a.set) Object.assign(state,a.set);
+  if(a.reply) transcript.push({from:'user',html:a.reply});
+  curActions=null;
+  go(a.to);
+}
+function screenNext(){ snapshot(); go(NODES[screenId].to); }
+function back(){ if(history.length){ const s=JSON.parse(history.pop()); transcript=s.transcript;mode=s.mode;screenId=s.screenId;curTurn=s.curTurn;curActions=s.curActions;state=s.state; render(); } }
+function restart(){ history=[];transcript=[];state={market:'the US market'}; mode='web';screenId='home';curTurn=null;curActions=null; render(); }
+
+function jump(stage){
+  // rebuild along the primary (happy) path to the start of a stage
+  history=[];transcript=[];state={market:'the US market'};curActions=null;
+  if(stage===1){ mode='web';screenId='home';curTurn=null; render(); return; }
+  let id='welcome';
+  let guard=0;
+  while(guard++<60){
+    const n=NODES[id];
+    if(n.kind==='web'||n.kind==='webapp'){ id=n.to; continue; }
+    if(n.kind==='final'){ mode='final';screenId=id;curTurn=null; render(); return; }
+    // turn
+    (n.msgs||[]).forEach(m=>transcript.push({from:'eve',html:resolve(m)}));
+    if(n.stage>=stage){ mode='slack';screenId=null;curTurn=id;
+      curActions=(n.actions||[]).map(a=>({t:a.t,primary:!!a.primary,reply:a.reply||null,set:a.set||null,to:a.to}));
+      render(); return; }
+    const prim=(n.actions||[]).find(a=>a.primary)||(n.actions||[])[0];
+    if(prim.set) Object.assign(state,prim.set);
+    if(prim.reply) transcript.push({from:'user',html:prim.reply});
+    id=prim.to;
+  }
+  render();
+}
+
+function renderRail(){
+  const cur=(curTurn?NODES[curTurn].stage:(screenId?NODES[screenId].stage:1));
+  rail.innerHTML='<h3>User journey</h3>'+STAGE_NAMES.map((nm,i)=>{
+    const st=i+1; const cls=st===cur?'active':(st<cur?'done':'');
+    return `<div class="stage-item ${cls}" onclick="jump(${st})"><span class="sdot">${st<cur?'✓':st}</span>${nm}</div>`;
+  }).join('');
+}
+function renderSlack(){
+  let h=`<div class="slack-top"><i class="ti ti-brand-slack"></i> Direct messages <span class="ch">· EVE</span></div><div class="sbody">`;
+  transcript.forEach((g,i)=>{
+    if(g.from==='user'){
+      h+=`<div class="msg user"><div class="ava ava-user">O</div><div><div class="who">Olesia</div><div class="txt">${g.html}</div></div></div>`;
+    }else{
+      h+=`<div class="msg"><div class="ava ava-eve">E</div><div><div class="who">EVE<span class="app">APP</span></div><div class="txt">${g.html}</div></div></div>`;
+    }
+  });
+  if(curActions&&curActions.length){
+    h+=`<div class="choices">`+curActions.map((a,i)=>`<span class="choice ${a.primary?'primary':''}" onclick="choose(${i})">${a.t}</span>`).join('')+`</div>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+function render(){
+  if(mode==='slack') scr.innerHTML=renderSlack();
+  else scr.innerHTML=NODES[screenId].html;
+  const node=curTurn?NODES[curTurn]:NODES[screenId];
+  document.getElementById('caption').innerHTML=node.cap||'';
+  document.getElementById('backBtn').disabled=(history.length===0);
+  document.getElementById('counter').textContent='Stage '+(node.stage||1)+' / 10';
+  renderRail();
+  if(mode==='slack'){ scr.scrollTop=scr.scrollHeight; requestAnimationFrame(()=>scr.scrollTop=scr.scrollHeight); }
+  else scr.scrollTop=0;
+}
+render();
+</script>
+</body>
+</html>
