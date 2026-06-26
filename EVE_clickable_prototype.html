@@ -161,7 +161,7 @@ const STAGES=[
  {name:'Daily & weekly reports'},
  {name:'Continuous optimization'},
 ];
-const ENTRY={1:'site',2:'intro',3:'persona',4:'sample',5:'crmPrompt',6:'goal',7:'channels',8:'cfgEmailBoth',9:'cfgLinkedin',10:'calendar',11:'buildList',12:'campaignPrep',13:'reviewPlan',14:'approve',15:'execute',16:'repliesIntro',17:'booked',18:'report',19:'optimize'};
+const ENTRY={1:'site',2:'intro',3:'persona',4:'sample',5:'crmPrompt',6:'goal',7:'channels',8:'emailAsk',9:'cfgLinkedin',10:'calendar',11:'buildList',12:'campaignPrep',13:'reviewPlan',14:'approve',15:'execute',16:'repliesIntro',17:'booked',18:'report',19:'optimize'};
 
 const NODES={
  site:{kind:'web',stage:1,cap:'<b>Stage 1.</b> Enter your company website; EVE scans it, then connect Slack.',
@@ -184,9 +184,10 @@ const NODES={
      <div class="note"><span><i class="ti ti-scan"></i>Scanning your website…</span></div>
    </div>`,to:'intro'},
 
- intro:{kind:'turn',stage:2,step:'Step 2 — EVE introduces herself',cap:'<b>Stage 2.</b> EVE arrives with an initial profile and ICP — not an empty form.',
-  msgs:[`<p>Hi, I'm <b>EVE</b>, your AI sales teammate. I've reviewed your website and prepared an initial understanding of your business and ideal customer.</p>`,
-   `<p><b>Company:</b> outbound sales platform for B2B SaaS.<br><b>ICP:</b> B2B SaaS, 20–200 employees, US.<br><b>Buyers:</b> founders &amp; Heads of Sales.<br><b>Value:</b> more qualified demos, less manual prospecting.</p><p>Is this right?</p>`],
+ intro:{kind:'turn',stage:2,step:'Step 2 — EVE introduces herself',cap:'<b>Stage 2.</b> EVE introduces herself as a real teammate with her own identity, and explains how email vs. LinkedIn work.',
+  msgs:[`<p>Hi — I'm <b>EVE</b> 👋 Think of me as a new teammate on your sales team, not a tool. I have my own identity: my own email address and my own Slack account, and I'll work right here alongside you.</p>`,
+   `<p>One thing on how I reach people: I send <b>email from my own inbox</b> (on your domain). <b>LinkedIn works differently</b> — it's tied to a real person, so there I act through <b>your</b> LinkedIn account, carefully and at a safe pace.</p>`,
+   `<p>I've already read your website and put together a first take on your business and ideal customer:</p><p><b>Company:</b> outbound sales platform for B2B SaaS.<br><b>ICP:</b> B2B SaaS, 20–200 employees, US.<br><b>Buyers:</b> founders &amp; Heads of Sales.<br><b>Value:</b> more qualified demos, less manual prospecting.</p><p>Did I get this right?</p>`],
   actions:[{t:'This is correct',primary:true,to:'persona'},{t:'Edit ICP',to:'icpEdit'},{t:'Tell EVE what is wrong',to:'icpEdit'}]},
  icpEdit:{kind:'turn',stage:2,step:'Step 2 — Correct the ICP',cap:'Branch: correct the profile in natural language.',
   msgs:[`<p>No problem — tell me in your own words what to change (or type it below).</p>`],
@@ -246,32 +247,53 @@ const NODES={
   msgs:[`<p>To target ~5 demos/week, I estimate contacting <b>180–250 new prospects/week</b>. With one inbox this may take longer — using email + LinkedIn together makes it more achievable.</p>`],
   actions:[{t:'Continue',primary:true,to:'channels'}]},
  goalBig:{kind:'turn',stage:6,step:'Step 6 — Ambitious goal',cap:'Branch: EVE pushes back and recommends adjustments.',
-  msgs:[`<p>10 demos/week is ambitious at current capacity. I'd recommend: add another inbox, use email + LinkedIn, extend the timeline, or start at 5 and scale.</p>`],
+  msgs:[`<p>10 demos/week is ambitious for a single me. I'd recommend: add more <b>EVE teammates</b> (Team plan) — each sends from her own inbox — use email + LinkedIn, extend the timeline, or start at 5 and scale.</p>`],
   actions:[{t:'Start at 5 and scale',primary:true,to:'channels'},{t:'Add capacity later',to:'channels'}]},
 
  channels:{kind:'turn',stage:7,step:'Step 7 — Select channels',cap:'<b>Stage 7.</b> Email, LinkedIn, or both — each routes through its own setup.',
   msgs:[`<p>Where should I contact prospects? You can connect existing tools or let me execute.</p>`],
-  actions:[{t:'Email + LinkedIn',primary:true,to:'cfgEmailBoth'},{t:'Email only',to:'cfgEmailOnly'},{t:'LinkedIn only',to:'cfgLinkedinOnly'}]},
+  actions:[{t:'Email + LinkedIn',primary:true,to:'emailAsk'},{t:'Email only',to:'emailAskOnly'},{t:'LinkedIn only',to:'cfgLinkedinOnly'}]},
 
- cfgEmailBoth:{kind:'webapp',stage:8,cap:'<b>Stage 8.</b> Set up a dedicated inbox for EVE to send from. (Limits are shown after it connects.)',
+ emailAsk:{kind:'turn',stage:8,step:'Step 8 — EVE needs her email',cap:'<b>Stage 8.</b> EVE asks (in her own voice) for a dedicated email on your domain. EVE only ever sends from her own inbox.',
+  msgs:[`<p>To start growing your pipeline, I need my own email address — on your domain, so it lands well and feels like part of your team. What about <b>eve@your-company.com</b>?</p><p>I'll send and reply from this inbox myself — you won't send anything from your personal email.</p>`],
+  actions:[{t:'Set up eve@your-company.com',primary:true,to:'cfgEmailBoth'},{t:'Use a different name',to:'cfgEmailBoth'}]},
+ cfgEmailBoth:{kind:'webapp',stage:8,cap:'<b>Stage 8.</b> Create EVE\'s own mailbox on your domain. (Capacity is shown after it\'s live.)',
   html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/email/setup</span></div>
-   <div class="bbody"><div class="h2">Set up an inbox for EVE</div><div class="sub">A dedicated sales inbox EVE will send from — separate from your personal email.</div>
-   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-sparkles"></i></span>Create a new EVE inbox<br><span style="font-size:11px;color:var(--hint);font-weight:400;">eve@your-company.com</span></span><span class="btn btn-primary" style="padding:7px 14px;">Set up</span></div>
-   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-google"></i></span>Connect a dedicated Gmail</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div>
-   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-windows"></i></span>Connect a dedicated Outlook</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div></div>`,to:'emailVerify'},
- emailVerify:{kind:'turn',stage:8,step:'Step 8 — EVE inbox connected',cap:'<b>Stage 8.</b> Now that the inbox is connected, EVE confirms verification and the safe weekly sending capacity.',
-  msgs:[`<p>Your EVE inbox <b>eve@your-company.com</b> is connected and verified ✓ (sender, signature, reply address, domain).</p>`,
-   `<div class="limitbox"><div class="lt"><i class="ti ti-alert-triangle"></i>Email sending capacity</div><ul><li>Warm-up weeks 1–2: ~20/day → <b>~100 emails/week</b></li><li>After warm-up: ~40–50/day → <b>up to ~250 emails/week</b> per inbox</li><li>I pause automatically if inbox health drops</li><li>Add more EVE inboxes to scale capacity</li></ul></div>`],
-  actions:[{t:'Continue to LinkedIn',primary:true,to:'cfgLinkedin'}]},
- cfgEmailOnly:{kind:'webapp',stage:8,cap:'<b>Stage 8.</b> Email-only path — set up a dedicated inbox for EVE.',
+   <div class="bbody"><div class="h2">Set up EVE's email</div><div class="sub">EVE sends from her own mailbox on your domain. There's no need to connect your personal inbox.</div>
+   <div class="field" style="margin-bottom:10px;"><i class="ti ti-mail"></i>eve@your-company.com</div>
+   <div class="bullets"><div class="c"><i class="ti ti-shield-check"></i>Verify domain (SPF / DKIM)</div><div class="c"><i class="ti ti-signature"></i>Signature &amp; reply address</div></div>
+   <button class="btn btn-primary btn-block" onclick="screenNext()"><i class="ti ti-sparkles"></i>Create EVE's inbox</button></div>`,to:'emailVerify'},
+ emailVerify:{kind:'turn',stage:8,step:'Step 8 — EVE inbox is live',cap:'<b>Stage 8.</b> EVE\'s inbox is live — she confirms the safe weekly sending capacity and offers the Team plan to scale.',
+  msgs:[`<p>Done — <b>eve@your-company.com</b> is live and verified ✓ This inbox is mine; I'll send and reply from it.</p>`,
+   `<div class="limitbox"><div class="lt"><i class="ti ti-alert-triangle"></i>My weekly sending capacity</div><ul><li>Warm-up weeks 1–2: ~20/day → <b>~100 emails/week</b></li><li>After warm-up: ~40–50/day → <b>up to ~250 emails/week</b></li><li>I pause automatically if my inbox health drops</li></ul></div>`,
+   `<div class="unlock"><div class="ut"><i class="ti ti-users"></i>Want more? Add EVE teammates (Team plan)</div><div class="ud">Each EVE is a separate teammate with her own inbox. Add more of us to multiply daily sends — e.g. 3 EVEs ≈ up to <b>~750 emails/week</b> — so we can hit bigger goals together.</div></div>`],
+  actions:[{t:'Continue to LinkedIn',primary:true,to:'cfgLinkedin'},{t:'Add EVE teammates',to:'teamPlan'}]},
+ teamPlan:{kind:'webapp',stage:8,cap:'Team plan: add more EVE teammates, each with her own inbox, to scale email volume.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/team</span></div>
+   <div class="bbody"><div class="h2">Team plan — add EVE teammates</div><div class="sub">Each EVE sends from her own inbox. More EVEs = more daily sends.</div>
+   <div class="prov"><span class="lhs"><span class="ic"><i class="ti ti-robot"></i></span>EVE #1 · eve@your-company.com</span><span class="tag ok">Active</span></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-plus"></i></span>Add EVE #2 · eve2@your-company.com<br><span style="font-size:11px;color:var(--hint);font-weight:400;">+ up to ~250 emails/week</span></span><span class="btn btn-primary" style="padding:7px 14px;">Add</span></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-plus"></i></span>Add EVE #3 · eve3@your-company.com</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div>
+   <button class="btn btn-primary btn-block" style="margin-top:6px;" onclick="screenNext()">Save team &amp; continue</button></div>`,to:'cfgLinkedin'},
+ emailAskOnly:{kind:'turn',stage:8,step:'Step 8 — EVE needs her email',cap:'<b>Stage 8.</b> Email-only path — EVE asks for her own email on your domain.',
+  msgs:[`<p>To start, I need my own email on your domain — something like <b>eve@your-company.com</b>. I'll send and reply from it myself; you won't send from your personal email.</p>`],
+  actions:[{t:'Set up eve@your-company.com',primary:true,to:'cfgEmailOnly'}]},
+ cfgEmailOnly:{kind:'webapp',stage:8,cap:'<b>Stage 8.</b> Email-only path — create EVE\'s own mailbox on your domain.',
   html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/email/setup</span></div>
-   <div class="bbody"><div class="h2">Set up an inbox for EVE</div><div class="sub">A dedicated sales inbox EVE will send from.</div>
-   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-sparkles"></i></span>Create a new EVE inbox<br><span style="font-size:11px;color:var(--hint);font-weight:400;">eve@your-company.com</span></span><span class="btn btn-primary" style="padding:7px 14px;">Set up</span></div>
-   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-google"></i></span>Connect a dedicated Gmail</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div></div>`,to:'emailVerifyOnly'},
- emailVerifyOnly:{kind:'turn',stage:8,step:'Step 8 — EVE inbox connected',cap:'<b>Stage 8.</b> After connecting, EVE confirms the safe weekly sending capacity.',
-  msgs:[`<p>Your EVE inbox <b>eve@your-company.com</b> is connected and verified ✓</p>`,
-   `<div class="limitbox"><div class="lt"><i class="ti ti-alert-triangle"></i>Email sending capacity</div><ul><li>Warm-up: ~20/day → <b>~100 emails/week</b></li><li>After warm-up: ~40–50/day → <b>up to ~250 emails/week</b> per inbox</li><li>Auto-pause if inbox health drops · add inboxes to scale</li></ul></div>`],
-  actions:[{t:'Continue',primary:true,to:'calendar'}]},
+   <div class="bbody"><div class="h2">Set up EVE's email</div><div class="sub">EVE sends from her own mailbox on your domain.</div>
+   <div class="field" style="margin-bottom:10px;"><i class="ti ti-mail"></i>eve@your-company.com</div>
+   <button class="btn btn-primary btn-block" onclick="screenNext()"><i class="ti ti-sparkles"></i>Create EVE's inbox</button></div>`,to:'emailVerifyOnly'},
+ emailVerifyOnly:{kind:'turn',stage:8,step:'Step 8 — EVE inbox is live',cap:'<b>Stage 8.</b> EVE confirms her weekly sending capacity and offers the Team plan to scale.',
+  msgs:[`<p>Done — <b>eve@your-company.com</b> is live and verified ✓ I'll send and reply from it.</p>`,
+   `<div class="limitbox"><div class="lt"><i class="ti ti-alert-triangle"></i>My weekly sending capacity</div><ul><li>Warm-up: ~20/day → <b>~100 emails/week</b></li><li>After warm-up: ~40–50/day → <b>up to ~250 emails/week</b></li><li>Auto-pause if my inbox health drops</li></ul></div>`,
+   `<div class="unlock"><div class="ut"><i class="ti ti-users"></i>Want more? Add EVE teammates (Team plan)</div><div class="ud">Add more EVEs — each with her own inbox — to multiply volume (3 EVEs ≈ up to ~750 emails/week).</div></div>`],
+  actions:[{t:'Continue',primary:true,to:'calendar'},{t:'Add EVE teammates',to:'teamPlanOnly'}]},
+ teamPlanOnly:{kind:'webapp',stage:8,cap:'Team plan: add more EVE teammates to scale email volume.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/team</span></div>
+   <div class="bbody"><div class="h2">Team plan — add EVE teammates</div><div class="sub">Each EVE sends from her own inbox.</div>
+   <div class="prov"><span class="lhs"><span class="ic"><i class="ti ti-robot"></i></span>EVE #1 · eve@your-company.com</span><span class="tag ok">Active</span></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-plus"></i></span>Add EVE #2<br><span style="font-size:11px;color:var(--hint);font-weight:400;">+ up to ~250 emails/week</span></span><span class="btn btn-primary" style="padding:7px 14px;">Add</span></div>
+   <button class="btn btn-primary btn-block" style="margin-top:6px;" onclick="screenNext()">Save team &amp; continue</button></div>`,to:'calendar'},
 
  cfgLinkedin:{kind:'webapp',stage:9,cap:'<b>Stage 9.</b> Connect the LinkedIn account EVE will send from. (Limits are shown after it connects.)',
   html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/linkedin</span></div>
@@ -334,17 +356,20 @@ const NODES={
    <button class="btn btn-primary btn-block" onclick="screenNext()">Back to Slack to approve</button></div>`,to:'reviewPlan'},
 
  approve:{kind:'turn',stage:14,step:'Step 14 — Approve first campaign',cap:'<b>Stage 14.</b> The first campaign always needs explicit approval.',
-  msgs:[`<p>Ready to launch the first campaign to 120 prospects?</p>`],
-  actions:[{t:'Approve and launch',primary:true,to:'autopilotAsk'},{t:'Edit campaign',to:'reviewPlan'},{t:'Reject',to:'rejectCampaign'}]},
+  msgs:[`<p>Ready to approve the first campaign to 120 prospects?</p>`],
+  actions:[{t:'Approve campaign',primary:true,to:'modeAsk'},{t:'Edit campaign',to:'reviewPlan'},{t:'Reject',to:'rejectCampaign'}]},
  rejectCampaign:{kind:'turn',stage:14,step:'Step 14 — Rejected',cap:'Branch: reject — EVE rebuilds the campaign.',
   msgs:[`<p>No problem — I'll rebuild the campaign with a different structure.</p>`],
   actions:[{t:'Rebuild it',primary:true,to:'campaignPrep'}]},
- autopilotAsk:{kind:'turn',stage:14,step:'Step 14 — Autonomy level',cap:'EVE asks how much autonomy future campaigns should have.',
-  msgs:[`<p>Launched 🚀 How should future campaigns work?</p>`],
-  actions:[{t:'Review every campaign',primary:true,to:'execute'},{t:'Autopilot within rules',to:'autopilotRules'}]},
- autopilotRules:{kind:'turn',stage:14,step:'Step 14 — Autopilot guardrails',cap:'Branch: autopilot within approved guardrails; EVE re-asks when outside them.',
-  msgs:[`<p>Autopilot guardrails to approve:</p><ul><li>ICPs, personas &amp; messaging style</li><li>Channels (incl. LinkedIn), weekly volume &amp; senders</li><li>Sending limits, exclusions &amp; reply rules</li></ul><p>I'll ask again whenever something falls outside these. Disable anytime.</p>`],
-  actions:[{t:'Approve guardrails',primary:true,to:'execute'}]},
+ modeAsk:{kind:'turn',stage:14,step:'Step 14 — Autopilot or Copilot?',cap:'<b>Before we start — the most important choice.</b> EVE asks for Autopilot or Copilot, and recommends Autopilot.',
+  msgs:[`<p>Before I start — one important choice. How should I work with you?</p>
+   <div class="unlock"><div class="ut"><i class="ti ti-rocket"></i>Autopilot — recommended</div><div class="ud">I create and run campaigns on my own, within rules you approve, and only check in for exceptions. This is how teams get the most demos.</div></div>
+   <div class="unlock amber"><div class="ut"><i class="ti ti-user-check"></i>Copilot</div><div class="ud">I prepare everything and wait for your approval on every campaign.</div></div>
+   <p>I'd really recommend <b>Autopilot</b> — you'll get far more out of me.</p>`],
+  actions:[{t:'Use Autopilot (recommended)',primary:true,to:'autopilotRules'},{t:'Use Copilot — I\'ll review each',to:'execute'}]},
+ autopilotRules:{kind:'turn',stage:14,step:'Step 14 — Autopilot guardrails',cap:'Autopilot within approved guardrails; EVE re-asks when something falls outside them.',
+  msgs:[`<p>Great — Autopilot it is. Here are the guardrails I'll stay within:</p><ul><li>ICPs, personas &amp; messaging style</li><li>Channels (incl. LinkedIn), weekly volume &amp; senders</li><li>Sending limits, exclusions &amp; reply rules</li></ul><p>I'll ask again whenever something falls outside these, and you can switch me to Copilot anytime.</p>`],
+  actions:[{t:'Approve guardrails &amp; launch',primary:true,to:'execute'}]},
 
  execute:{kind:'turn',stage:15,step:'Step 15 — Execute campaign',cap:'<b>Stage 15.</b> EVE runs on schedule and auto-pauses on replies, bookings, opt-outs or safety limits.',
   msgs:[`<p>Campaign running. Live status:</p><ul><li>Queued: 78 · Emails sent: 30 · LinkedIn requests: 12</li><li>Connections accepted: 5 · Follow-ups: 8</li><li>Auto-stops on reply, booking, unsubscribe, or unsafe sender health</li></ul>`],
