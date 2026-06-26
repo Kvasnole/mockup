@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EVE — End-to-end clickable prototype</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.11.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --purple:#534AB7;--purple-d:#3C3489;--purple-l:#EEEDFE;
+  --ink:#1f1e1c;--muted:#5F5E5A;--hint:#8a897f;
+  --line:#e8e6de;--line-2:#d4d2c8;--surface:#f7f6f1;--white:#fff;
+  --teal:#0F6E56;--teal-l:#E1F5EE;--info:#185FA5;--info-l:#E6F1FB;
+  --amber:#854F0B;--amber-l:#FAEEDA;--red:#A32D2D;--red-l:#FCEBEB;--slack:#4A154B;--blue:#1264A3;--li:#0a66c2;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:#e7e5dd;color:var(--ink);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+.app{max-width:1080px;margin:0 auto;padding:22px 18px 50px;}
+.head{text-align:center;margin-bottom:16px;}
+.head .brand{font-weight:700;letter-spacing:2px;color:var(--purple);font-size:14px;}
+.head h1{font-size:22px;margin:6px 0 2px;font-weight:700;}
+.head p{color:var(--muted);font-size:13px;margin:0;}
+.layout{display:flex;gap:24px;align-items:flex-start;justify-content:center;flex-wrap:wrap;}
+.rail{width:252px;flex-shrink:0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;max-height:680px;overflow-y:auto;}
+.rail h3{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--hint);margin:4px 6px 10px;}
+.stage-item{display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:9px;cursor:pointer;font-size:12.5px;color:var(--muted);}
+.stage-item:hover{background:var(--surface);}
+.stage-item .sdot{width:21px;height:21px;border-radius:50%;background:var(--surface);color:var(--hint);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex-shrink:0;border:1px solid var(--line-2);}
+.stage-item.active{background:var(--purple-l);color:var(--purple-d);font-weight:600;}
+.stage-item.active .sdot{background:var(--purple);color:#fff;border-color:var(--purple);}
+.stage-item.done .sdot{background:var(--teal);color:#fff;border-color:var(--teal);}
+.li-ic{color:var(--li);margin-left:6px;font-size:15px;vertical-align:-2px;}
+.device-col{display:flex;flex-direction:column;align-items:center;}
+.device{width:440px;max-width:94vw;height:680px;background:#fff;border:1px solid var(--line-2);border-radius:26px;overflow:hidden;box-shadow:0 18px 50px rgba(40,30,70,.16);display:flex;flex-direction:column;}
+.scr{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.scr::-webkit-scrollbar{width:8px;}.scr::-webkit-scrollbar-thumb{background:#d8d6cd;border-radius:8px;}
+.controls{display:flex;align-items:center;gap:10px;margin-top:16px;}
+.ctl{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;border:1px solid var(--line-2);background:#fff;border-radius:10px;padding:9px 15px;cursor:pointer;color:var(--ink);}
+.ctl:hover{background:var(--surface);}.ctl[disabled]{opacity:.4;cursor:not-allowed;}
+.caption{font-size:12.5px;color:var(--muted);margin-top:12px;text-align:center;max-width:440px;line-height:1.5;}
+.caption b{color:var(--purple-d);}
+.bbar{display:flex;align-items:center;gap:6px;padding:11px 14px;background:var(--surface);border-bottom:1px solid var(--line);}
+.bdot{width:9px;height:9px;border-radius:50%;background:#cfcdc4;}
+.burl{flex:1;margin-left:8px;font-size:11px;color:var(--hint);font-family:ui-monospace,Menlo,monospace;background:#fff;border:1px solid var(--line);border-radius:30px;padding:4px 12px;}
+.bbody{padding:28px 24px;}
+.center{text-align:center;}
+.logo{font-weight:700;letter-spacing:2px;color:var(--purple);font-size:16px;}
+.h1{font-size:20px;font-weight:700;margin:0 0 6px;line-height:1.25;}
+.h2{font-size:17px;font-weight:700;margin:0 0 6px;}
+.sub{font-size:13.5px;color:var(--muted);margin:0 0 18px;line-height:1.5;}
+.field{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--hint);font-family:ui-monospace,Menlo,monospace;background:var(--surface);border:1px solid var(--line-2);border-radius:10px;padding:12px 13px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;padding:11px 18px;border-radius:11px;border:none;cursor:pointer;transition:transform .05s;}
+.btn:active{transform:scale(.98);}
+.btn-primary{background:var(--purple);color:#fff;}.btn-slack{background:#4A154B;color:#fff;}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line-2);}
+.btn-block{width:100%;}
+.gap{display:flex;gap:10px;flex-wrap:wrap;}.gap.cen{justify-content:center;}
+.note{font-size:11.5px;color:var(--hint);display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:14px;}
+.note span{display:inline-flex;align-items:center;gap:5px;}
+.bullets{text-align:left;background:var(--surface);border-radius:10px;padding:12px 14px;margin:0 0 16px;}
+.bullets .c{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:var(--muted);margin:5px 0;}
+.bullets .c i{color:var(--info);margin-top:1px;}
+.prov{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:11px;padding:12px 14px;margin-bottom:10px;cursor:pointer;}
+.prov:hover{border-color:var(--purple);background:var(--purple-l);}
+.prov .lhs{display:flex;align-items:center;gap:11px;font-size:14px;font-weight:600;}
+.prov .ic{width:30px;height:30px;border-radius:7px;background:var(--surface);display:flex;align-items:center;justify-content:center;}
+.toggle{display:flex;align-items:flex-start;gap:10px;font-size:13px;margin:9px 0;}
+.toggle i{color:var(--teal);margin-top:1px;}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 4px;}
+.stat{background:var(--surface);border-radius:9px;padding:9px 11px;}
+.stat .n{font-size:18px;font-weight:700;}.stat .l{font-size:11px;color:var(--muted);}
+.slack-top{background:#4A154B;color:#fff;padding:13px 16px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.slack-top .ch{opacity:.8;font-weight:400;font-size:13px;}
+.sbody{padding:16px 16px 18px;flex:1;}
+.steptag{font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.5px;margin:0 0 12px;}
+.msg{display:flex;gap:11px;margin:0 0 16px;animation:fade .2s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.ava{flex-shrink:0;width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;}
+.ava-eve{background:var(--purple);}.ava-user{background:#1264A3;}
+.who{font-size:13.5px;font-weight:700;margin-bottom:2px;}
+.who .app{font-size:9.5px;font-weight:600;color:#fff;background:#9a9a9a;border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:1px;}
+.txt{font-size:14px;color:#1d1c1d;}
+.txt p{margin:0 0 7px;}.txt p:last-child{margin-bottom:0;}
+.txt ul{margin:6px 0;padding-left:20px;}.txt li{margin:2px 0;}
+.user{justify-content:flex-end;}
+.user .txt{background:var(--info-l);border-radius:11px;padding:9px 13px;display:inline-block;font-weight:500;max-width:78%;}
+.choices{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 4px 47px;animation:fade .2s ease;}
+.choice{font-size:13px;font-weight:600;border:1px solid var(--line-2);background:#fff;border-radius:9px;padding:8px 13px;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform .05s;}
+.choice:hover{border-color:var(--purple);background:var(--purple-l);color:var(--purple-d);}
+.choice:active{transform:scale(.97);}
+.choice.primary{background:var(--purple);color:#fff;border-color:var(--purple);}
+.choice.primary:hover{background:var(--purple-d);color:#fff;}
+.pcard{border:1px solid var(--line);border-left:3px solid var(--purple);border-radius:9px;padding:11px 13px;margin:9px 0;background:#fff;}
+.pcard.info{border-left-color:var(--info);}
+.pname{font-weight:700;font-size:14px;}.pmeta{font-size:12px;color:var(--muted);margin:1px 0 5px;}
+.pwhy{font-size:13px;color:#3a3a38;}.pwhy b{color:var(--ink);}
+.signal{display:inline-flex;align-items:center;gap:5px;font-size:11px;background:var(--amber-l);color:var(--amber);padding:3px 9px;border-radius:12px;margin-top:7px;font-weight:600;}
+.tag{display:inline-block;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:12px;margin-right:5px;}
+.tag.ok{background:var(--teal-l);color:var(--teal);}.tag.li{background:#e7f0fb;color:#0a66c2;}
+.limitbox{background:var(--red-l);border:1px solid #e7b9b9;border-radius:10px;padding:10px 12px;margin-top:9px;}
+.limitbox .lt{font-weight:700;font-size:12.5px;color:var(--red);display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.limitbox ul{margin:0;padding-left:18px;}.limitbox li{font-size:12.5px;color:#6a2a2a;margin:3px 0;}
+.unlock{border-radius:10px;padding:12px 14px;margin-top:11px;background:var(--info-l);border:1px solid #bcd7f2;}
+.unlock.amber{background:var(--amber-l);border-color:#ecd9b0;}
+.unlock .ut{font-weight:700;font-size:13px;color:var(--info);display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.unlock.amber .ut{color:var(--amber);}
+.unlock .ud{font-size:13px;color:#243;}
+.composer{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:#fff;flex-shrink:0;align-items:center;}
+.composer input{flex:1;border:1px solid var(--line-2);border-radius:20px;padding:9px 14px;font-size:13.5px;font-family:inherit;outline:none;}
+.composer input:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-l);}
+.composer button{border:none;background:var(--purple);color:#fff;border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.done-banner{text-align:center;padding:26px 22px 12px;}
+.done-banner .big{width:54px;height:54px;border-radius:16px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;}
+.cycle{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:12px 0;}
+.cycle span{font-size:11px;font-weight:600;background:var(--surface);border-radius:20px;padding:4px 9px;}
+.cycle i{color:var(--hint);align-self:center;}
+@media(max-width:920px){.rail{display:none;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div class="brand">EVE</div>
+    <h1>End-to-end clickable prototype</h1>
+    <p>Each step is its own screen. Click a button or type your own message; jump to any of the 19 stages on the left.</p>
+  </div>
+  <div class="layout">
+    <div class="rail" id="rail"></div>
+    <div class="device-col">
+      <div class="device"><div class="scr" id="scr"></div></div>
+      <div class="controls">
+        <button class="ctl" id="backBtn" onclick="back()"><i class="ti ti-arrow-left"></i>Back</button>
+        <button class="ctl" onclick="restart()"><i class="ti ti-refresh"></i>Restart</button>
+        <span class="ctl" style="cursor:default;border:none;background:transparent;color:var(--hint);" id="counter"></span>
+      </div>
+      <div class="caption" id="caption"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// rail: name + optional LinkedIn logo
+const STAGES=[
+ {name:'Start on website'},
+ {name:'EVE intro in Slack'},
+ {name:'Confirm persona'},
+ {name:'First prospect sample',li:true},
+ {name:'Connect CRM / exclusions'},
+ {name:'Define sales goal'},
+ {name:'Select channels',li:true},
+ {name:'Configure email'},
+ {name:'Configure LinkedIn',li:true},
+ {name:'Calendar & booking'},
+ {name:'Build full list',li:true},
+ {name:'Prepare campaign',li:true},
+ {name:'Review plan & messages',li:true},
+ {name:'Approve first campaign'},
+ {name:'Execute campaign',li:true},
+ {name:'Manage replies',li:true},
+ {name:'Booked meetings'},
+ {name:'Daily & weekly reports'},
+ {name:'Continuous optimization'},
+];
+const ENTRY={1:'site',2:'intro',3:'persona',4:'sample',5:'crmPrompt',6:'goal',7:'channels',8:'cfgEmailBoth',9:'cfgLinkedin',10:'calendar',11:'buildList',12:'campaignPrep',13:'reviewPlan',14:'approve',15:'execute',16:'repliesIntro',17:'booked',18:'report',19:'optimize'};
+
+const NODES={
+ site:{kind:'web',stage:1,cap:'<b>Stage 1.</b> Enter your company website; EVE scans it, then connect Slack.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">eve.ai</span></div>
+   <div class="bbody center">
+     <span class="logo">EVE</span>
+     <div class="h1" style="margin-top:14px;">Your AI sales teammate</div>
+     <div class="sub">Tell EVE your website. EVE learns what you sell, who you sell to, the problems you solve, and your positioning.</div>
+     <div class="field" style="margin-bottom:14px;"><i class="ti ti-world"></i>https://your-company.com</div>
+     <button class="btn btn-slack btn-block" onclick="screenNext()"><i class="ti ti-brand-slack"></i>Connect EVE to Slack</button>
+     <div class="note"><span><i class="ti ti-credit-card-off"></i>No credit card</span><span><i class="ti ti-shield-check"></i>SOC 2</span></div>
+   </div>`,to:'slackAuth'},
+ slackAuth:{kind:'web',stage:1,cap:'<b>Stage 1.</b> Authorize Slack — the workspace is created while EVE scans your site.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">slack.com/oauth</span></div>
+   <div class="bbody center">
+     <i class="ti ti-brand-slack" style="font-size:32px;color:#4A154B;"></i>
+     <div class="h2" style="margin-top:10px;">EVE is requesting access to your workspace</div>
+     <div class="field" style="text-align:left;margin:6px 0 16px;">your-workspace.slack.com</div>
+     <button class="btn btn-slack btn-block" onclick="screenNext()"><i class="ti ti-check"></i>Allow</button>
+     <div class="note"><span><i class="ti ti-scan"></i>Scanning your website…</span></div>
+   </div>`,to:'intro'},
+
+ intro:{kind:'turn',stage:2,step:'Step 2 — EVE introduces herself',cap:'<b>Stage 2.</b> EVE arrives with an initial profile and ICP — not an empty form.',
+  msgs:[`<p>Hi, I'm <b>EVE</b>, your AI sales teammate. I've reviewed your website and prepared an initial understanding of your business and ideal customer.</p>`,
+   `<p><b>Company:</b> outbound sales platform for B2B SaaS.<br><b>ICP:</b> B2B SaaS, 20–200 employees, US.<br><b>Buyers:</b> founders &amp; Heads of Sales.<br><b>Value:</b> more qualified demos, less manual prospecting.</p><p>Is this right?</p>`],
+  actions:[{t:'This is correct',primary:true,to:'persona'},{t:'Edit ICP',to:'icpEdit'},{t:'Tell EVE what is wrong',to:'icpEdit'}]},
+ icpEdit:{kind:'turn',stage:2,step:'Step 2 — Correct the ICP',cap:'Branch: correct the profile in natural language.',
+  msgs:[`<p>No problem — tell me in your own words what to change (or type it below).</p>`],
+  actions:[{t:'Send a sample correction',primary:true,to:'icpAck'}]},
+ icpAck:{kind:'turn',stage:2,step:'Step 2 — Updated + website note',cap:'EVE confirms and flags a website-messaging mismatch (non-blocking).',
+  msgs:[`<p>Updated — growing B2B SaaS, 20–200 employees. Got it.</p>`,
+   `<div class="unlock amber"><div class="ut"><i class="ti ti-bulb"></i>Website note (optional)</div><div class="ud">Your site reads as enterprise-focused, but your ICP is growing B2B SaaS. I found 3 spots to clarify — this won't block prospecting.</div></div>`],
+  actions:[{t:'Continue',primary:true,to:'persona'}]},
+
+ persona:{kind:'turn',stage:3,step:'Step 3 — Confirm the persona',cap:'<b>Stage 3.</b> Confirm who inside the ICP to contact.',
+  msgs:[`<p>Which people are usually involved in buying your product? From your site I'd suggest:</p><ul><li>Head of Sales</li><li>VP of Revenue</li><li>Founder</li><li>Sales Operations Manager</li></ul>`],
+  actions:[{t:'Head of Sales + VP Revenue',primary:true,to:'sample'},{t:'Add a different persona',to:'personaOther'}]},
+ personaOther:{kind:'turn',stage:3,step:'Step 3 — Custom persona',cap:'Branch: provide a custom persona.',
+  msgs:[`<p>Sure — who else should I target? Type it below or pick a suggestion.</p>`],
+  actions:[{t:'Use: Founders (seed–Series A)',primary:true,to:'sample'}]},
+
+ sample:{kind:'turn',stage:4,step:'Step 4 — First prospect sample',cap:'<b>Stage 4.</b> A small sample with reasons, signals and confidence. Give feedback.',
+  msgs:[`<p>Here's a small sample matching your ICP and personas:</p>
+   <div class="pcard"><div class="pname">Daniel Smith — VP of Sales at Acme</div><div class="pmeta">75 ppl · B2B SaaS · US · Confidence: High</div>
+   <div class="pwhy"><b>Why Acme:</b> hiring AEs, just launched an enterprise plan. <b>Why Daniel:</b> owns sales growth and outbound.</div>
+   <span class="signal"><i class="ti ti-trending-up"></i> Hiring AEs · new enterprise plan</span>
+   <div style="margin-top:7px;"><span class="tag ok">Email available</span><span class="tag li">LinkedIn profile</span></div></div>
+   <p>How do these look?</p>`],
+  actions:[{t:'Good fit',primary:true,to:'crmPrompt'},{t:'Wrong company',to:'sampleRefine'},{t:'Wrong persona',to:'sampleRefine'},{t:'Already a customer',to:'crmUrge'},{t:'Already in conversation',to:'sampleRefine'},{t:'Not enough info',to:'sampleRefine'}]},
+ sampleRefine:{kind:'turn',stage:4,step:'Step 4 — Refined sample',cap:'EVE confirms the learning and updates criteria immediately.',
+  msgs:[`<p>Understood — I'll exclude marketing agencies and focus only on software companies. Updated sample:</p>
+   <div class="pcard"><div class="pname">Mara Lopez — Head of Sales at Lumen</div><div class="pmeta">90 ppl · B2B SaaS · US · Confidence: High</div><div class="pwhy">Closer fit on industry and persona.</div></div>`],
+  actions:[{t:'These are better',primary:true,to:'crmPrompt'}]},
+ crmUrge:{kind:'turn',stage:4,step:'Step 4 — Customer detected',cap:'Branch: marking a customer triggers a CRM recommendation.',
+  msgs:[`<p>Good to know. To avoid contacting existing customers and active deals, the best fix is connecting your CRM.</p>`],
+  actions:[{t:'OK, connect CRM',primary:true,to:'crmPrompt'}]},
+
+ crmPrompt:{kind:'turn',stage:5,step:'Step 5 — Connect CRM / exclusions',cap:'<b>Stage 5.</b> Before the full list, suppress customers, open deals and prior contacts.',
+  msgs:[`<p>Before I build the complete list: connect your CRM so I don't contact existing customers, active opportunities, or people your team already knows.</p>`],
+  actions:[{t:'Connect CRM',primary:true,to:'crmConnect'},{t:'Upload exclusion list',to:'exclusionUpload'},{t:'Continue without CRM',to:'crmWarn'}]},
+ crmConnect:{kind:'webapp',stage:5,cap:'Web app: connect the CRM. EVE analyses accounts, opportunities, owners and prior contacts.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/integrations</span></div>
+   <div class="bbody"><div class="h2">Connect your CRM</div><div class="sub">EVE suppresses customers, open deals and contacted prospects.</div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-hipchat"></i></span>HubSpot</span><span class="btn btn-primary" style="padding:7px 14px;">Connect</span></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-cloud"></i></span>Salesforce</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div></div>`,to:'crmReport'},
+ exclusionUpload:{kind:'webapp',stage:5,cap:'Branch: upload an exclusion list instead of a CRM.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/exclusions</span></div>
+   <div class="bbody"><div class="h2">Upload an exclusion list</div><div class="sub">CSV of domains or emails EVE must never contact.</div>
+   <div class="field" style="justify-content:center;margin-bottom:14px;"><i class="ti ti-upload"></i>exclusions.csv</div>
+   <button class="btn btn-primary btn-block" onclick="screenNext()">Upload &amp; continue</button></div>`,to:'crmReport'},
+ crmWarn:{kind:'turn',stage:5,step:'Step 5 — Continue without CRM',cap:'Branch: continue after a warning; EVE can\'t dedupe against your pipeline.',
+  msgs:[`<p>Proceeding without a CRM. I won't be able to exclude existing customers or active deals automatically, so some overlap is possible. You can connect one any time.</p>`],
+  actions:[{t:'I understand, continue',primary:true,to:'goal'}]},
+ crmReport:{kind:'turn',stage:5,step:'Step 5 — CRM connected',cap:'EVE separates new prospects from existing relationships.',
+  msgs:[`<p>CRM connected. I found <b>243 contacted</b>, <b>37 customers</b>, <b>18 open opportunities</b>. I'll suppress these and remove duplicates.</p>`],
+  actions:[{t:'Continue',primary:true,to:'goal'}]},
+
+ goal:{kind:'turn',stage:6,step:'Step 6 — Define the sales goal',cap:'<b>Stage 6.</b> EVE turns your goal into a prospect-volume range.',
+  msgs:[`<p>How many qualified demos would you like to book each week? (Pick one or type a number.)</p>`],
+  actions:[{t:'5 / week',primary:true,to:'goalEstimate'},{t:'10 / week',to:'goalBig'}]},
+ goalEstimate:{kind:'turn',stage:6,step:'Step 6 — Volume estimate',cap:'EVE estimates volume and flags channel trade-offs.',
+  msgs:[`<p>To target ~5 demos/week, I estimate contacting <b>180–250 new prospects/week</b>. With one inbox this may take longer — using email + LinkedIn together makes it more achievable.</p>`],
+  actions:[{t:'Continue',primary:true,to:'channels'}]},
+ goalBig:{kind:'turn',stage:6,step:'Step 6 — Ambitious goal',cap:'Branch: EVE pushes back and recommends adjustments.',
+  msgs:[`<p>10 demos/week is ambitious at current capacity. I'd recommend: add another inbox, use email + LinkedIn, extend the timeline, or start at 5 and scale.</p>`],
+  actions:[{t:'Start at 5 and scale',primary:true,to:'channels'},{t:'Add capacity later',to:'channels'}]},
+
+ channels:{kind:'turn',stage:7,step:'Step 7 — Select channels',cap:'<b>Stage 7.</b> Email, LinkedIn, or both — each routes through its own setup.',
+  msgs:[`<p>Where should I contact prospects? You can connect existing tools or let me execute.</p>`],
+  actions:[{t:'Email + LinkedIn',primary:true,to:'cfgEmailBoth'},{t:'Email only',to:'cfgEmailOnly'},{t:'LinkedIn only',to:'cfgLinkedinOnly'}]},
+
+ cfgEmailBoth:{kind:'webapp',stage:8,cap:'<b>Stage 8.</b> Set up a dedicated inbox for EVE to send from. (Limits are shown after it connects.)',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/email/setup</span></div>
+   <div class="bbody"><div class="h2">Set up an inbox for EVE</div><div class="sub">A dedicated sales inbox EVE will send from — separate from your personal email.</div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-sparkles"></i></span>Create a new EVE inbox<br><span style="font-size:11px;color:var(--hint);font-weight:400;">eve@your-company.com</span></span><span class="btn btn-primary" style="padding:7px 14px;">Set up</span></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-google"></i></span>Connect a dedicated Gmail</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-windows"></i></span>Connect a dedicated Outlook</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div></div>`,to:'emailVerify'},
+ emailVerify:{kind:'turn',stage:8,step:'Step 8 — EVE inbox connected',cap:'<b>Stage 8.</b> Now that the inbox is connected, EVE confirms verification and the safe weekly sending capacity.',
+  msgs:[`<p>Your EVE inbox <b>eve@your-company.com</b> is connected and verified ✓ (sender, signature, reply address, domain).</p>`,
+   `<div class="limitbox"><div class="lt"><i class="ti ti-alert-triangle"></i>Email sending capacity</div><ul><li>Warm-up weeks 1–2: ~20/day → <b>~100 emails/week</b></li><li>After warm-up: ~40–50/day → <b>up to ~250 emails/week</b> per inbox</li><li>I pause automatically if inbox health drops</li><li>Add more EVE inboxes to scale capacity</li></ul></div>`],
+  actions:[{t:'Continue to LinkedIn',primary:true,to:'cfgLinkedin'}]},
+ cfgEmailOnly:{kind:'webapp',stage:8,cap:'<b>Stage 8.</b> Email-only path — set up a dedicated inbox for EVE.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/email/setup</span></div>
+   <div class="bbody"><div class="h2">Set up an inbox for EVE</div><div class="sub">A dedicated sales inbox EVE will send from.</div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-sparkles"></i></span>Create a new EVE inbox<br><span style="font-size:11px;color:var(--hint);font-weight:400;">eve@your-company.com</span></span><span class="btn btn-primary" style="padding:7px 14px;">Set up</span></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-google"></i></span>Connect a dedicated Gmail</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div></div>`,to:'emailVerifyOnly'},
+ emailVerifyOnly:{kind:'turn',stage:8,step:'Step 8 — EVE inbox connected',cap:'<b>Stage 8.</b> After connecting, EVE confirms the safe weekly sending capacity.',
+  msgs:[`<p>Your EVE inbox <b>eve@your-company.com</b> is connected and verified ✓</p>`,
+   `<div class="limitbox"><div class="lt"><i class="ti ti-alert-triangle"></i>Email sending capacity</div><ul><li>Warm-up: ~20/day → <b>~100 emails/week</b></li><li>After warm-up: ~40–50/day → <b>up to ~250 emails/week</b> per inbox</li><li>Auto-pause if inbox health drops · add inboxes to scale</li></ul></div>`],
+  actions:[{t:'Continue',primary:true,to:'calendar'}]},
+
+ cfgLinkedin:{kind:'webapp',stage:9,cap:'<b>Stage 9.</b> Connect the LinkedIn account EVE will send from. (Limits are shown after it connects.)',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/linkedin</span></div>
+   <div class="bbody"><div class="h2">Connect LinkedIn <i class="ti ti-brand-linkedin" style="color:#0a66c2;"></i></div><div class="sub">Outreach runs through your LinkedIn account with conservative pacing.</div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-linkedin"></i></span>Connect LinkedIn account</span><span class="btn btn-primary" style="padding:7px 14px;">Connect</span></div></div>`,to:'linkedinStatus'},
+ linkedinStatus:{kind:'turn',stage:9,step:'Step 9 — LinkedIn connected',cap:'<b>Stage 9.</b> Now that LinkedIn is connected, EVE confirms readiness and the safe weekly activity capacity.',
+  msgs:[`<p>LinkedIn <i class="ti ti-brand-linkedin" style="color:#0a66c2;"></i> connected ✓ — status: <b>Connected and ready</b>.</p>`,
+   `<div class="limitbox"><div class="lt"><i class="ti ti-brand-linkedin"></i>LinkedIn activity capacity</div><ul><li>Connection requests: ~15–20/day → <b>~100/week</b> (LinkedIn's weekly invite cap)</li><li>Messages to connections: ~20–25/day → <b>up to ~120 messages/week</b></li><li>Higher with Sales Navigator; lower on a new/basic account</li><li>Conservative pacing · auto-pause for verification or reconnection</li></ul></div>`],
+  actions:[{t:'Continue',primary:true,to:'calendar'}]},
+ cfgLinkedinOnly:{kind:'webapp',stage:9,cap:'<b>Stage 9.</b> LinkedIn-only path — connect the account EVE will send from.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/linkedin</span></div>
+   <div class="bbody"><div class="h2">Connect LinkedIn <i class="ti ti-brand-linkedin" style="color:#0a66c2;"></i></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-linkedin"></i></span>Connect LinkedIn account</span><span class="btn btn-primary" style="padding:7px 14px;">Connect</span></div></div>`,to:'linkedinStatusOnly'},
+ linkedinStatusOnly:{kind:'turn',stage:9,step:'Step 9 — LinkedIn connected',cap:'<b>Stage 9.</b> After connecting, EVE confirms the safe weekly activity capacity.',
+  msgs:[`<p>LinkedIn <i class="ti ti-brand-linkedin" style="color:#0a66c2;"></i> connected and ready ✓</p>`,
+   `<div class="limitbox"><div class="lt"><i class="ti ti-brand-linkedin"></i>LinkedIn activity capacity</div><ul><li>Connection requests: ~15–20/day → <b>~100/week</b></li><li>Messages to connections: <b>up to ~120/week</b></li><li>Higher with Sales Navigator · conservative pacing · auto-pause for verification</li></ul></div>`],
+  actions:[{t:'Continue',primary:true,to:'calendar'}]},
+
+ calendar:{kind:'turn',stage:10,step:'Step 10 — Calendar & booking',cap:'<b>Stage 10.</b> EVE inserts a booking link in outreach and watches the calendar for new demos.',
+  msgs:[`<p>How should prospects book meetings?</p>`],
+  actions:[{t:'Connect both link + calendar',primary:true,to:'calBook'},{t:'Calendly / booking link',to:'calBook'},{t:'Connect calendar only',to:'calBook'}]},
+ calBook:{kind:'webapp',stage:10,cap:'New demos on the calendar automatically stop follow-ups to that prospect.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/booking</span></div>
+   <div class="bbody"><div class="h2">Booking setup</div>
+   <div class="field" style="margin-bottom:10px;"><i class="ti ti-link"></i>calendly.com/your-team/demo</div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-google"></i></span>Google Calendar</span><span class="btn btn-primary" style="padding:7px 14px;">Connect</span></div>
+   <div class="prov" onclick="screenNext()"><span class="lhs"><span class="ic"><i class="ti ti-brand-windows"></i></span>Outlook Calendar</span><i class="ti ti-chevron-right" style="color:var(--hint)"></i></div></div>`,to:'buildList'},
+
+ buildList:{kind:'turn',stage:11,step:'Step 11 — Build the full list',cap:'<b>Stage 11.</b> Discovery, enrichment, email verification, LinkedIn matching, CRM suppression, dedupe, qualification, scoring.',
+  msgs:[`<p>I found <b>120 prospects</b> (deduped &amp; CRM-suppressed; emails verified, LinkedIn profiles matched). Strongest matches:</p>
+   <div class="pcard"><div class="pname">Daniel Smith — VP Sales, Acme</div><div class="pmeta">75 ppl · hiring AEs · Confidence: High</div></div>
+   <div class="pcard"><div class="pname">Mara Lopez — Head of Sales, Lumen</div><div class="pmeta">90 ppl · new funding · Confidence: High</div></div>`],
+  actions:[{t:'Continue',primary:true,to:'campaignPrep'},{t:'See full list',to:'listWeb'}]},
+ listWeb:{kind:'webapp',stage:11,cap:'Full list in the web app — filter, remove, approve, inspect sources and personalization.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/prospects</span></div>
+   <div class="bbody"><div class="h2">Prospects — 120</div><div class="sub">Filter by company, role, signal, confidence. Approve or remove in bulk.</div>
+   <div class="pcard"><div class="pname">Daniel Smith · Acme</div><div class="pmeta">VP Sales · Email ✓ · LinkedIn ✓</div></div>
+   <div class="pcard"><div class="pname">Mara Lopez · Lumen</div><div class="pmeta">Head of Sales · Email ✓ · LinkedIn ✓</div></div>
+   <button class="btn btn-primary btn-block" style="margin-top:8px;" onclick="screenNext()">Approve list &amp; continue</button></div>`,to:'campaignPrep'},
+
+ campaignPrep:{kind:'turn',stage:12,step:'Step 12 — Prepare the campaign',cap:'<b>Stage 12.</b> A coordinated email + LinkedIn plan that avoids duplicate or conflicting messages.',
+  msgs:[`<p>I've prepared a coordinated campaign:</p><ul><li>Send LinkedIn connection request</li><li>Send first email</li><li>If connection accepted → personalized LinkedIn message</li><li>Follow-up via the best channel</li><li>Stop on reply, unsubscribe, or booking</li></ul>`],
+  actions:[{t:'Review the plan',primary:true,to:'reviewPlan'}]},
+
+ reviewPlan:{kind:'turn',stage:13,step:'Step 13 — Review plan & messages',cap:'<b>Stage 13.</b> EVE shows the plan and sample messages with personalization explained.',
+  msgs:[`<p><b>Campaign plan</b><br>120 prospects · Email + LinkedIn · 1 inbox + LinkedIn · 4 steps · ~3 weeks · daily limit 40 · stops on reply/booking.</p>
+   <div class="pcard info"><div class="pmeta" style="margin:0;">Email 1 — subject: Scaling Acme's outbound</div><div class="pwhy">Hi Daniel — saw Acme is hiring AEs and launched an enterprise plan…</div>
+   <div style="font-size:11px;color:var(--hint);margin-top:6px;"><i class="ti ti-sparkles"></i> Personalized using role, hiring activity, and sales expansion.</div></div>`],
+  actions:[{t:'Approve campaign',primary:true,to:'approve'},{t:'Edit messaging',to:'editMsg'},{t:'Regenerate drafts',to:'regen'},{t:'Open in web app',to:'planWeb'}]},
+ editMsg:{kind:'turn',stage:13,step:'Step 13 — Edit messaging',cap:'Branch: steer the messaging direction.',
+  msgs:[`<p>Sure — what direction? (more concise, lead with the enterprise-plan signal, warmer tone…) Type it below.</p>`],
+  actions:[{t:'Lead with the signal',primary:true,to:'reviewPlan'}]},
+ regen:{kind:'turn',stage:13,step:'Step 13 — Regenerated',cap:'Branch: EVE regenerates fresh drafts.',
+  msgs:[`<p>Done — fresh drafts with new angles. Take another look.</p>`],
+  actions:[{t:'Back to review',primary:true,to:'reviewPlan'}]},
+ planWeb:{kind:'webapp',stage:13,cap:'Full campaign in the web app — prospects, messages, sequence, limits and exclusions.',
+  html:`<div class="bbar"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span><span class="burl">app.eve.ai/campaigns/new</span></div>
+   <div class="bbody"><div class="h2">Campaign — draft</div><div class="sub">120 prospects · 4 steps · Email + LinkedIn · limits &amp; exclusions configured.</div>
+   <div class="bullets"><div class="c"><i class="ti ti-mail"></i>Email 1 → 2d → LinkedIn → 3d → follow-up</div><div class="c"><i class="ti ti-adjustments"></i>Daily limit 40 · stop on reply/booking</div></div>
+   <button class="btn btn-primary btn-block" onclick="screenNext()">Back to Slack to approve</button></div>`,to:'reviewPlan'},
+
+ approve:{kind:'turn',stage:14,step:'Step 14 — Approve first campaign',cap:'<b>Stage 14.</b> The first campaign always needs explicit approval.',
+  msgs:[`<p>Ready to launch the first campaign to 120 prospects?</p>`],
+  actions:[{t:'Approve and launch',primary:true,to:'autopilotAsk'},{t:'Edit campaign',to:'reviewPlan'},{t:'Reject',to:'rejectCampaign'}]},
+ rejectCampaign:{kind:'turn',stage:14,step:'Step 14 — Rejected',cap:'Branch: reject — EVE rebuilds the campaign.',
+  msgs:[`<p>No problem — I'll rebuild the campaign with a different structure.</p>`],
+  actions:[{t:'Rebuild it',primary:true,to:'campaignPrep'}]},
+ autopilotAsk:{kind:'turn',stage:14,step:'Step 14 — Autonomy level',cap:'EVE asks how much autonomy future campaigns should have.',
+  msgs:[`<p>Launched 🚀 How should future campaigns work?</p>`],
+  actions:[{t:'Review every campaign',primary:true,to:'execute'},{t:'Autopilot within rules',to:'autopilotRules'}]},
+ autopilotRules:{kind:'turn',stage:14,step:'Step 14 — Autopilot guardrails',cap:'Branch: autopilot within approved guardrails; EVE re-asks when outside them.',
+  msgs:[`<p>Autopilot guardrails to approve:</p><ul><li>ICPs, personas &amp; messaging style</li><li>Channels (incl. LinkedIn), weekly volume &amp; senders</li><li>Sending limits, exclusions &amp; reply rules</li></ul><p>I'll ask again whenever something falls outside these. Disable anytime.</p>`],
+  actions:[{t:'Approve guardrails',primary:true,to:'execute'}]},
+
+ execute:{kind:'turn',stage:15,step:'Step 15 — Execute campaign',cap:'<b>Stage 15.</b> EVE runs on schedule and auto-pauses on replies, bookings, opt-outs or safety limits.',
+  msgs:[`<p>Campaign running. Live status:</p><ul><li>Queued: 78 · Emails sent: 30 · LinkedIn requests: 12</li><li>Connections accepted: 5 · Follow-ups: 8</li><li>Auto-stops on reply, booking, unsubscribe, or unsafe sender health</li></ul>`],
+  actions:[{t:'Continue',primary:true,to:'repliesIntro'}]},
+
+ repliesIntro:{kind:'turn',stage:16,step:'Step 16 — Manage replies',cap:'<b>Stage 16.</b> EVE classifies replies, stops the sequence, and drafts a response.',
+  msgs:[`<p><b>New reply from Daniel Smith</b><br>"This looks relevant. Can you send more information?"</p>
+   <div class="unlock"><div class="ut"><i class="ti ti-message-2"></i>Recommended action</div><div class="ud">Send the one-pager and suggest a 20-minute demo with your booking link.</div></div>`],
+  actions:[{t:'Approve response',primary:true,to:'booked'},{t:'Edit',to:'repliesEdit'},{t:'Open conversation',to:'repliesOpen'}]},
+ repliesEdit:{kind:'turn',stage:16,step:'Step 16 — Edit reply',cap:'Branch: edit before EVE sends.',
+  msgs:[`<p>Go ahead and adjust the wording — I'll send it once you approve.</p>`],
+  actions:[{t:'Send edited reply',primary:true,to:'booked'}]},
+ repliesOpen:{kind:'turn',stage:16,step:'Step 16 — Open conversation',cap:'Branch: high-value threads are escalated to you.',
+  msgs:[`<p>Opening the thread. I've paused the sequence for Daniel and flagged this as high-value for your attention.</p>`],
+  actions:[{t:'Send the one-pager',primary:true,to:'booked'}]},
+
+ booked:{kind:'turn',stage:17,step:'Step 17 — Booked meeting',cap:'<b>Stage 17.</b> A booking appears — EVE attributes it, stops outreach and notifies you.',
+  msgs:[`<p><b>Daniel Smith booked a demo</b> for Tuesday 2:00 PM. I stopped all outreach to Daniel and marked the result as a booked demo.</p>`],
+  actions:[{t:'Continue',primary:true,to:'report'}]},
+
+ report:{kind:'turn',stage:18,step:'Step 18 — Daily & weekly reports',cap:'<b>Stage 18.</b> Daily Slack updates and a weekly comparison against your goal.',
+  msgs:[`<p><b>Today's sales update</b></p>`,
+   `<div class="statgrid"><div class="stat"><div class="n">42</div><div class="l">emails sent</div></div><div class="stat"><div class="n">18</div><div class="l">LinkedIn requests</div></div><div class="stat"><div class="n">7</div><div class="l">replies</div></div><div class="stat"><div class="n">3</div><div class="l">positive</div></div><div class="stat"><div class="n">1</div><div class="l">demo booked</div></div><div class="stat"><div class="n">2</div><div class="l">need review</div></div></div>`,
+   `<p><b>Weekly vs goal:</b> goal 5 · booked 3. Positive-reply rate is healthy, but sender capacity is too low for 5 consistently — add another inbox or extend the campaign.</p>`],
+  actions:[{t:'Continue',primary:true,to:'optimize'}]},
+
+ optimize:{kind:'final',stage:19,cap:'<b>Stage 19.</b> EVE keeps learning. Material changes need approval unless covered by autopilot. Type a request below to ask EVE for anything.',
+  html:`<div class="slack-top"><i class="ti ti-brand-slack"></i> EVE <span class="ch">· optimizing</span></div>
+   <div class="sbody">
+   <div class="done-banner"><div class="big"><i class="ti ti-refresh"></i></div>
+   <div class="h2">Continuous optimization</div>
+   <div class="sub">EVE improves prospect selection, ICP, messaging, channel order and timing from your feedback.</div>
+   <div class="cycle"><span>Find</span><i class="ti ti-chevron-right"></i><span>Qualify</span><i class="ti ti-chevron-right"></i><span>Campaign</span><i class="ti ti-chevron-right"></i><span>Execute</span><i class="ti ti-chevron-right"></i><span>Replies</span><i class="ti ti-chevron-right"></i><span>Book</span><i class="ti ti-chevron-right"></i><span>Report</span><i class="ti ti-chevron-right"></i><span>Learn</span></div>
+   <div class="gap cen" style="margin-top:6px;">
+     <button class="btn btn-ghost" onclick="go('buildList')"><i class="ti ti-player-play"></i>Run next cycle</button>
+     <button class="btn btn-ghost" onclick="restart()"><i class="ti ti-refresh"></i>Replay</button></div>
+   <div id="finlog" style="margin-top:14px;text-align:left;"></div>
+   </div>
+   <div class="composer"><input id="composer-in" placeholder="Ask EVE anything…" onkeydown="if(event.key==='Enter')sendChatFinal()"><button onclick="sendChatFinal()" aria-label="Send"><i class="ti ti-arrow-up"></i></button></div>`},
+};
+
+let mode='web', screenId='site', curTurn=null, curActions=null, typed=[], history=[];
+const scr=document.getElementById('scr');
+const rail=document.getElementById('rail');
+const resolve=m=>typeof m==='function'?m():m;
+
+function snapshot(){ history.push(JSON.stringify({mode,screenId,curTurn,curActions,typed})); if(history.length>300)history.shift(); }
+function go(id){
+  const n=NODES[id]; typed=[];
+  if(n.kind==='turn'){ mode='slack';screenId=null;curTurn=id; curActions=(n.actions||[]).map(a=>({t:a.t,primary:!!a.primary,to:a.to})); }
+  else { mode=(n.kind==='final')?'final':'screen'; screenId=id; curTurn=null; curActions=null; }
+  render();
+}
+function choose(i){ snapshot(); go(curActions[i].to); }
+function screenNext(){ snapshot(); go(NODES[screenId].to); }
+function back(){ if(history.length){ const s=JSON.parse(history.pop()); mode=s.mode;screenId=s.screenId;curTurn=s.curTurn;curActions=s.curActions;typed=s.typed||[]; render(); } }
+function restart(){ history=[];typed=[]; mode='web';screenId='site';curTurn=null;curActions=null; render(); }
+function jump(stage){ history=[];typed=[]; go(ENTRY[stage]); }
+
+function sendChat(){
+  const inp=document.getElementById('composer-in'); if(!inp)return;
+  const v=inp.value.trim(); if(!v)return;
+  typed.push({from:'user',html:v.replace(/</g,'&lt;')});
+  typed.push({from:'eve',html:`Got it — I'll take that into account: "<b>${v.replace(/</g,'&lt;')}</b>". You can keep going with the buttons above.`});
+  render();
+}
+function sendChatFinal(){
+  const inp=document.getElementById('composer-in'); if(!inp)return;
+  const v=inp.value.trim(); if(!v)return;
+  const log=document.getElementById('finlog');
+  log.innerHTML += `<div class="msg user"><div class="txt">${v.replace(/</g,'&lt;')}</div></div>`+
+    `<div class="msg"><div class="ava ava-eve">E</div><div><div class="who">EVE<span class="app">APP</span></div><div class="txt">On it — I'll work on "<b>${v.replace(/</g,'&lt;')}</b>" and report back here.</div></div></div>`;
+  inp.value=''; log.scrollTop=log.scrollHeight;
+}
+function renderRail(){
+  const cur=(curTurn?NODES[curTurn].stage:(screenId?NODES[screenId].stage:1));
+  rail.innerHTML='<h3>End-to-end journey</h3>'+STAGES.map((s,i)=>{
+    const st=i+1; const cls=st===cur?'active':(st<cur?'done':'');
+    const li=s.li?'<i class="ti ti-brand-linkedin li-ic"></i>':'';
+    return `<div class="stage-item ${cls}" onclick="jump(${st})"><span class="sdot">${st<cur?'✓':st}</span><span>${s.name}${li}</span></div>`;
+  }).join('');
+}
+function renderSlack(){
+  const n=NODES[curTurn];
+  let h=`<div class="slack-top"><i class="ti ti-brand-slack"></i> Direct messages <span class="ch">· EVE</span></div><div class="sbody">`;
+  if(n.step) h+=`<div class="steptag">${n.step}</div>`;
+  (n.msgs||[]).forEach(m=>{ h+=`<div class="msg"><div class="ava ava-eve">E</div><div><div class="who">EVE<span class="app">APP</span></div><div class="txt">${resolve(m)}</div></div></div>`; });
+  if(curActions&&curActions.length) h+=`<div class="choices">`+curActions.map((a,i)=>`<span class="choice ${a.primary?'primary':''}" onclick="choose(${i})">${a.t}</span>`).join('')+`</div>`;
+  typed.forEach(g=>{ if(g.from==='user') h+=`<div class="msg user"><div class="txt">${g.html}</div></div>`; else h+=`<div class="msg"><div class="ava ava-eve">E</div><div><div class="who">EVE<span class="app">APP</span></div><div class="txt">${g.html}</div></div></div>`; });
+  h+=`</div>`;
+  h+=`<div class="composer"><input id="composer-in" placeholder="Type a message to EVE…" onkeydown="if(event.key==='Enter')sendChat()"><button onclick="sendChat()" aria-label="Send"><i class="ti ti-arrow-up"></i></button></div>`;
+  return h;
+}
+function render(){
+  if(mode==='slack') scr.innerHTML=renderSlack();
+  else scr.innerHTML=NODES[screenId].html;
+  const node=curTurn?NODES[curTurn]:NODES[screenId];
+  document.getElementById('caption').innerHTML=node.cap||'';
+  document.getElementById('backBtn').disabled=(history.length===0);
+  document.getElementById('counter').textContent='Stage '+(node.stage||1)+' / 19';
+  renderRail();
+  scr.scrollTop=0;
+}
+render();
+</script>
+</body>
+</html>
