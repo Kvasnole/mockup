@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVE — Generate Initial Prospect Sample (interactive flow)</title>
+<style>
+  :root{
+    --slack-bg:#ffffff;--text:#1d1c1d;--text-muted:#616061;--divider:#e8e8e8;
+    --link:#1264a3;--green:#2eb67d;--green-bg:#e8f7f0;--eve:#5b3df5;--eve-bg:#f3f0ff;
+    --chip:#f4f4f4;--chip-border:#dcdcdc;--hover:#f8f8f8;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Lato,Helvetica,Arial,sans-serif;
+    background:#f0eef0;color:var(--text);-webkit-font-smoothing:antialiased;}
+  .frame{max-width:860px;margin:24px auto;background:var(--slack-bg);border-radius:12px;overflow:hidden;
+    box-shadow:0 8px 40px rgba(0,0,0,.16);border:1px solid #e3e3e3;display:flex;flex-direction:column;height:calc(100vh - 48px);}
+  .chan-header{display:flex;align-items:center;gap:8px;padding:14px 20px;border-bottom:1px solid var(--divider);}
+  .chan-header .hash{color:var(--text-muted);font-size:20px;font-weight:700}
+  .chan-header .name{font-weight:800;font-size:16px}
+  .chan-header .meta{color:var(--text-muted);font-size:13px;margin-left:6px}
+  .chan-header .spacer{flex:1}
+  .chan-header .badge{font-size:12px;color:var(--text-muted);background:var(--chip);border:1px solid var(--chip-border);padding:3px 8px;border-radius:12px;}
+  .restart{font-size:12px;font-weight:700;color:var(--eve);background:var(--eve-bg);border:1px solid #ddd5ff;border-radius:12px;padding:4px 10px;cursor:pointer;margin-left:8px}
+  .restart:hover{filter:brightness(.97)}
+  .messages{padding:8px 0 20px;overflow-y:auto;flex:1}
+  .msg{display:flex;gap:12px;padding:10px 20px;animation:fade .25s ease}
+  .msg:hover{background:var(--hover)}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .avatar{width:38px;height:38px;border-radius:9px;flex:0 0 38px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;}
+  .avatar.eve{background:linear-gradient(135deg,#5b3df5,#8b5cf6)}
+  .avatar.user{background:#0b8043}
+  .body{flex:1;min-width:0}
+  .line1{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+  .author{font-weight:800;font-size:15px}
+  .bot-tag{font-size:10px;font-weight:700;letter-spacing:.04em;background:var(--eve-bg);color:var(--eve);padding:1px 5px;border-radius:3px;text-transform:uppercase;position:relative;top:-1px;}
+  .time{font-size:12px;color:var(--text-muted)}
+  .text{font-size:15px;line-height:1.46}
+  .text p{margin:0 0 8px}.text p:last-child{margin-bottom:0}
+  .picker{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .btn{font-family:inherit;font-size:14px;font-weight:700;border:1px solid var(--chip-border);background:#fff;border-radius:8px;padding:9px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .12s;}
+  .btn:hover{background:var(--hover);border-color:#bdbdbd;transform:translateY(-1px)}
+  .btn.primary{background:var(--green);color:#fff;border-color:var(--green)}
+  .btn.primary:hover{filter:brightness(.95)}
+  .btn:disabled{opacity:.5;cursor:default;transform:none}
+  .reply-pill{display:inline-flex;align-items:center;gap:6px;background:var(--eve-bg);color:var(--eve);border:1px solid #ddd5ff;border-radius:14px;font-size:13px;font-weight:700;padding:4px 12px;}
+  .progress{margin-top:10px;border:1px solid var(--divider);border-radius:10px;padding:12px 14px;background:#fbfbfc;}
+  .progress .step{display:flex;align-items:center;gap:10px;font-size:14px;padding:4px 0;color:var(--text-muted);opacity:.45;transition:opacity .3s}
+  .progress .step.done{opacity:1;color:var(--text)}
+  .progress .tick{color:var(--green);font-weight:800;width:16px;display:inline-block}
+  .progress .step.pending .tick{color:#bbb}
+  .spin{display:inline-block;width:13px;height:13px;border:2px solid #ddd;border-top-color:var(--eve);border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .summary{font-size:14px;color:var(--text-muted);margin:10px 0 4px}
+  .card{border:1px solid var(--divider);border-radius:12px;margin-top:12px;overflow:hidden;box-shadow:var(--shadow);background:#fff;transition:opacity .3s,transform .3s}
+  .card.removing{opacity:0;transform:scale(.96)}
+  .card.kept{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset,var(--shadow)}
+  .card-top{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--divider);}
+  .pavatar{width:40px;height:40px;border-radius:50%;flex:0 0 40px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;}
+  .pname{font-weight:800;font-size:15px;line-height:1.2}
+  .ptitle{font-size:13px;color:var(--text-muted)}
+  .keptbadge{display:none;font-size:11px;font-weight:800;color:#0b6b4f;background:var(--green-bg);border:1px solid #b6e3cd;border-radius:10px;padding:2px 8px;margin-left:6px}
+  .card.kept .keptbadge{display:inline-block}
+  .fit{margin-left:auto;text-align:center}
+  .fit .num{font-weight:800;font-size:18px;color:var(--green)}
+  .fit .lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+  .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;padding:12px 16px;}
+  .field{padding:6px 0;border-bottom:1px solid #f3f3f3;font-size:13.5px}
+  .field.full{grid-column:1 / -1;border-bottom:none}
+  .field .k{color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:1px}
+  .field .v{color:var(--text);word-break:break-word}
+  .field .v a{color:var(--link);text-decoration:none}.field .v a:hover{text-decoration:underline}
+  .req{color:var(--text-muted);font-style:italic}
+  .signals{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px}
+  .signal{font-size:12px;background:#fff4e5;color:#b25e00;border:1px solid #ffe0b2;padding:2px 8px;border-radius:10px;}
+  .reason{background:var(--eve-bg);border-radius:8px;padding:8px 10px;color:#3a2f6b}
+  .enrich-block{grid-column:1 / -1;margin-top:6px;border-top:1px dashed #d6cffb;padding-top:8px;display:none}
+  .enrich-block.show{display:block;animation:fade .25s ease}
+  .enrich-title{font-size:11px;font-weight:800;color:var(--eve);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+  .enrich-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+  .card-actions{display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--divider);background:#fbfbfc;}
+  .mini{font-size:12.5px;font-weight:700;border:1px solid var(--chip-border);background:#fff;border-radius:7px;padding:6px 11px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;color:var(--text);transition:all .12s}
+  .mini:hover{background:var(--hover)}
+  .mini.active{background:var(--green-bg);border-color:var(--green);color:#0b6b4f}
+  .mini.danger:hover{border-color:#e06b6b;color:#c0392b}
+  .batch{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px dashed var(--divider);}
+  .footnote{font-size:12px;color:var(--text-muted);margin-top:10px}
+  .legend{background:#fafafa;border-top:1px solid var(--divider);padding:10px 20px;font-size:12px;color:var(--text-muted)}
+  .composer{margin:0 20px 18px;border:1px solid var(--chip-border);border-radius:10px;padding:10px 12px;color:#9b9b9b;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .composer .send{margin-left:auto;color:var(--green);font-weight:800}
+  .hint{font-size:12px;color:var(--eve);font-weight:700;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="chan-header">
+    <span class="hash">#</span><span class="name">eve-prospecting</span>
+    <span class="meta">· Acme Corp · Initial prospect sample</span>
+    <span class="spacer"></span>
+    <span class="badge">EVE · AI SDR</span>
+    <button class="restart" onclick="restart()">↻ Restart flow</button>
+  </div>
+  <div class="messages" id="feed"></div>
+  <div class="legend" id="legend">Tip: click the channel buttons, then try <b>Enrich</b>, <b>Remove</b>, <b>Replace</b>, and the bottom actions.</div>
+  <div class="composer"><span>＋</span><span>Message EVE…</span><span class="send">➤</span></div>
+</div>
+
+<script>
+const feed = document.getElementById('feed');
+const legend = document.getElementById('legend');
+let channel = null;
+
+// ---------- data ----------
+const colors = ['#e0567a','#3b82f6','#8b5cf6','#0ea5e9','#f59e0b','#10b981','#ef4444','#6366f1'];
+const sample = [
+  {n:'Sarah Mitchell',t:'VP of Revenue Operations',c:'Northbeam',loc:'San Francisco, CA',fit:96,
+   li:'linkedin.com/in/sarahmitchell',em:'sarah.mitchell@northbeam.io',
+   sig:['Series B · 2 wks ago','Hiring 3 RevOps roles'],
+   why:'Owns RevOps at a fast-scaling martech firm matching your ICP size and stage. Just raised Series B and is expanding the team — strong intent to invest in pipeline tooling.',
+   en:{web:'northbeam.io',size:'180 employees',ind:'Marketing analytics',fund:'Series B ($45M)',rev:'$22M ARR',tech:'Salesforce, Outreach, Segment'}},
+  {n:'David Kim',t:'Head of Sales',c:'Lattice Logistics',loc:'Austin, TX',fit:94,
+   li:'linkedin.com/in/davidkim-sales',em:'dkim@latticelogistics.com',
+   sig:['Opened new EMEA office'],
+   why:'Leads sales at a mid-market logistics company in your target vertical. Recent geographic expansion signals a growing team and need for outbound efficiency.',
+   en:{web:'latticelogistics.com',size:'320 employees',ind:'Logistics tech',fund:'Series C',rev:'$60M ARR',tech:'HubSpot, Gong, Apollo'}},
+  {n:'Priya Raman',t:'Director of Growth',c:'Cobalt Health',loc:'Boston, MA',fit:93,
+   li:'linkedin.com/in/priyaraman',em:'priya.raman@cobalthealth.com',
+   sig:['Posted about pipeline goals','New CRO joined'],
+   why:'Drives growth at a digital-health scale-up matching your ICP. A new CRO and public posts about aggressive pipeline targets suggest active evaluation of new tooling.',
+   en:{web:'cobalthealth.com',size:'140 employees',ind:'Digital health',fund:'Series A ($18M)',rev:'$9M ARR',tech:'Salesforce, Marketo'}},
+  {n:'James Carter',t:'Chief Revenue Officer',c:'Vela Software',loc:'Denver, CO',fit:92,
+   li:'linkedin.com/in/jamescarter-cro',em:'jcarter@velasoftware.com',
+   sig:['Attended SaaStr 2026'],
+   why:'Senior revenue decision-maker at a B2B SaaS company squarely in your ICP. Conference activity and a recent round point to budget and appetite for new sales infrastructure.',
+   en:{web:'velasoftware.com',size:'260 employees',ind:'B2B SaaS',fund:'Series B ($30M)',rev:'$35M ARR',tech:'Salesforce, Salesloft, Clari'}},
+  {n:'Elena Novak',t:'VP of Marketing',c:'Brightline AI',loc:'New York, NY',fit:91,
+   li:'linkedin.com/in/elenanovak',em:'elena@brightline.ai',
+   sig:['Launched new product line','Team grew 40% YoY'],
+   why:'Owns demand gen at an AI company matching your ICP. Rapid headcount growth and a new product launch indicate scaling pressure and likely interest in pipeline acceleration.',
+   en:{web:'brightline.ai',size:'95 employees',ind:'Artificial intelligence',fund:'Seed ($8M)',rev:'$4M ARR',tech:'HubSpot, Apollo, Clay'}},
+];
+const replacements = [
+  {n:'Marcus Webb',t:'VP Sales',c:'Tideline Data',loc:'Seattle, WA',fit:90,
+   li:'linkedin.com/in/marcuswebb',em:'marcus@tideline.io',sig:['Just hired 2 AEs'],
+   why:'Scaling sales org at a data-infra company in your ICP; recent AE hires signal pipeline pressure.',
+   en:{web:'tideline.io',size:'150 employees',ind:'Data infrastructure',fund:'Series A',rev:'$11M ARR',tech:'HubSpot, Outreach'}},
+  {n:'Aisha Bello',t:'Director of Sales Ops',c:'Quanta Labs',loc:'Chicago, IL',fit:91,
+   li:'linkedin.com/in/aishabello',em:'aisha@quantalabs.com',sig:['Evaluating new CRM'],
+   why:'Owns sales ops at a fast-growing lab-software firm; active CRM evaluation is a strong buying signal.',
+   en:{web:'quantalabs.com',size:'210 employees',ind:'Lab software',fund:'Series B',rev:'$28M ARR',tech:'Salesforce, Gong'}},
+];
+let repIdx = 0;
+
+// ---------- helpers ----------
+function msgEVE(html){
+  const m=document.createElement('div');m.className='msg';
+  m.innerHTML=`<div class="avatar eve">E</div><div class="body">
+    <div class="line1"><span class="author">EVE</span><span class="bot-tag">App</span><span class="time">${now()}</span></div>
+    <div class="text">${html}</div></div>`;
+  feed.appendChild(m);scroll();return m;
+}
+function msgUser(html){
+  const m=document.createElement('div');m.className='msg';
+  m.innerHTML=`<div class="avatar user">O</div><div class="body">
+    <div class="line1"><span class="author">Olesia</span><span class="time">${now()}</span></div>
+    <div class="text">${html}</div></div>`;
+  feed.appendChild(m);scroll();return m;
+}
+function now(){const d=new Date();let h=d.getHours(),m=d.getMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return `${h}:${String(m).padStart(2,'0')} ${ap}`;}
+function scroll(){feed.scrollTop=feed.scrollHeight;}
+
+// ---------- flow ----------
+function start(){
+  feed.innerHTML='';channel=null;
+  msgEVE(`<p>Your ICP is confirmed and I've locked in your target persona. 🎯 Which channel do you want to run this first campaign on?</p>
+    <div class="picker">
+      <button class="btn" onclick="pick('LinkedIn only',this)">in&nbsp; LinkedIn only</button>
+      <button class="btn" onclick="pick('Email only',this)">✉️ Email only</button>
+      <button class="btn" onclick="pick('LinkedIn + Email',this)">✅ LinkedIn + Email</button>
+    </div>
+    <div class="hint">↑ pick one to continue</div>`);
+}
+function pick(ch,btn){
+  channel=ch;
+  btn.parentElement.parentElement.querySelectorAll('.btn').forEach(b=>b.disabled=true);
+  msgUser(`<span class="reply-pill">${ch.includes('+')?'✅':ch.includes('Email')?'✉️':'in'} ${ch}</span>`);
+  setLegend();
+  const pm=msgEVE(`<p>On it — running prospect discovery against your confirmed ICP.</p>
+    <div class="progress" id="prog">
+      <div class="step pending"><span class="tick"><span class="spin"></span></span> Matching prospects to ICP &amp; persona</div>
+      <div class="step pending"><span class="tick">○</span> Scoring with fit model</div>
+      <div class="step pending"><span class="tick">○</span> Pulling external buying signals</div>
+      <div class="step pending"><span class="tick">○</span> Selecting top 5</div>
+    </div>`);
+  const steps=pm.querySelectorAll('.step');
+  let i=0;
+  const iv=setInterval(()=>{
+    steps[i].classList.remove('pending');steps[i].classList.add('done');
+    steps[i].querySelector('.tick').innerHTML='✓';
+    i++;
+    if(i<steps.length){steps[i].querySelector('.tick').innerHTML='<span class="spin"></span>';}
+    scroll();
+    if(i>=steps.length){clearInterval(iv);setTimeout(showResults,450);}
+  },520);
+}
+function fieldsFor(p){
+  const li = channel!=='Email only'
+    ? `<div class="field"><span class="k">LinkedIn</span><span class="v"><a href="#" onclick="return false">${p.li}</a></span></div>` : '';
+  const em = channel!=='LinkedIn only'
+    ? `<div class="field"><span class="k">Email</span><span class="v">${p.em}</span></div>` : '';
+  return `
+    <div class="field"><span class="k">Company</span><span class="v">${p.c}</span></div>
+    <div class="field"><span class="k">Location</span><span class="v">${p.loc}</span></div>
+    <div class="field"><span class="k">Job title</span><span class="v">${p.t}</span></div>
+    <div class="field"><span class="k">Persona</span><span class="v">${p.n}</span></div>
+    ${li}${em}
+    <div class="field"><span class="k">Phone</span><span class="v req">By request</span></div>
+    <div class="field"><span class="k">External signals</span><span class="v"><div class="signals">${p.sig.map(s=>`<span class="signal">${s}</span>`).join('')}</div></span></div>
+    <div class="field full"><span class="k">Why they're a fit</span><span class="v"><div class="reason">${p.why}</div></span></div>
+    <div class="enrich-block"><div class="enrich-title">✨ Enriched data</div>
+      <div class="enrich-grid">
+        <div class="field"><span class="k">Website</span><span class="v">${p.en.web}</span></div>
+        <div class="field"><span class="k">Company size</span><span class="v">${p.en.size}</span></div>
+        <div class="field"><span class="k">Industry</span><span class="v">${p.en.ind}</span></div>
+        <div class="field"><span class="k">Funding stage</span><span class="v">${p.en.fund}</span></div>
+        <div class="field"><span class="k">Annual revenue</span><span class="v">${p.en.rev}</span></div>
+        <div class="field"><span class="k">Tech stack</span><span class="v">${p.en.tech}</span></div>
+      </div></div>`;
+}
+function cardHTML(p,idx){
+  return `<div class="card" id="card${idx}">
+    <div class="card-top">
+      <div class="pavatar" style="background:${colors[idx%colors.length]}">${p.n.split(' ').map(w=>w[0]).join('')}</div>
+      <div><div class="pname">${p.n} <span class="keptbadge">✓ Kept</span></div><div class="ptitle">${p.t} · ${p.c}</div></div>
+      <div class="fit"><div class="num">${p.fit}%</div><div class="lbl">Fit</div></div>
+    </div>
+    <div class="card-grid">${fieldsFor(p)}</div>
+    <div class="card-actions">
+      <button class="mini" onclick="keep(${idx},this)">✓ Keep</button>
+      <button class="mini danger" onclick="remove(${idx})">✕ Remove</button>
+      <button class="mini" onclick="replace(${idx})">⟳ Replace</button>
+      <button class="mini" onclick="enrich(${idx},this)">✨ Enrich</button>
+    </div></div>`;
+}
+function showResults(){
+  const avg=Math.round(sample.reduce((a,b)=>a+b.fit,0)/sample.length);
+  const cards=sample.map((p,i)=>cardHTML(p,i)).join('');
+  msgEVE(`<p>Here are <strong>5 prospects</strong> that closely match your ICP (all 90%+ fit) — ready for <strong>${channel}</strong> outreach. 👇</p>
+    <div class="summary">Showing 5 of 5 · Channel: ${channel} · Avg fit ${avg}%</div>
+    <div id="cards">${cards}</div>
+    <div class="footnote" style="margin-top:12px"><b style="color:var(--eve)">Want more depth?</b> Tap ✨ Enrich on any card for website, size, industry, funding, revenue &amp; tech stack. Need direct dials? Ask and I'll add phone numbers.</div>
+    <div class="batch">
+      <button class="btn primary" onclick="approve()">✓ Approve all &amp; build full list</button>
+      <button class="btn" onclick="followup('Refine ICP','Sure — what should I adjust? You can tighten company size, vertical, geography, or seniority.')">✏️ Refine ICP</button>
+      <button class="btn" onclick="followup('Change persona','Got it. Which persona should I target instead — e.g. CRO, VP Sales, or RevOps lead?')">👤 Change persona</button>
+      <button class="btn" onclick="followup('Add filters','Which filters? I can add headcount, funding stage, tech stack, region, or recent-hiring signals.')">⚙️ Add filters</button>
+      <button class="btn" onclick="followup('Connect CRM','Connect your CRM and I will dedupe these against existing accounts and contacts before building the full list.')">🔗 Connect CRM (dedupe)</button>
+    </div>`);
+}
+function keep(i,btn){
+  const c=document.getElementById('card'+i);c.classList.toggle('kept');
+  btn.classList.toggle('active');btn.textContent=c.classList.contains('kept')?'✓ Kept':'✓ Keep';
+}
+function remove(i){
+  const c=document.getElementById('card'+i);c.classList.add('removing');
+  setTimeout(()=>{c.remove();},300);
+}
+function replace(i){
+  const p=replacements[repIdx%replacements.length];repIdx++;
+  const c=document.getElementById('card'+i);
+  c.classList.add('removing');
+  setTimeout(()=>{
+    const wrap=document.createElement('div');wrap.innerHTML=cardHTML(p,i);
+    const nc=wrap.firstElementChild;c.replaceWith(nc);
+  },300);
+}
+function enrich(i,btn){
+  const c=document.getElementById('card'+i);const blk=c.querySelector('.enrich-block');
+  blk.classList.toggle('show');
+  btn.classList.toggle('active');btn.textContent=blk.classList.contains('show')?'✨ Enriched':'✨ Enrich';
+}
+function approve(){
+  msgUser(`<span class="reply-pill">✓ Approve all</span>`);
+  msgEVE(`<p>🚀 Approved! I'll use this feedback to generate your full prospect list for <strong>${channel}</strong>, then draft the first-touch sequence. I'll post the full list here shortly.</p>`);
+}
+function followup(label,reply){
+  msgUser(`<span class="reply-pill">${label}</span>`);
+  msgEVE(`<p>${reply}</p>`);
+}
+function setLegend(){
+  const map={
+    'LinkedIn only':'Company · Location · Fit · Persona · Job title · <b>LinkedIn URL</b> · Reasoning · Signals · Phone (by request)',
+    'Email only':'Company · Location · Fit · Persona · Job title · <b>Email</b> · Reasoning · Signals · Phone (by request)',
+    'LinkedIn + Email':'Company · Location · Fit · Persona · Job title · <b>LinkedIn URL</b> · <b>Email</b> · Reasoning · Signals · Phone (by request)'
+  };
+  legend.innerHTML=`Fields shown for <b>${channel}</b>: ${map[channel]}`;
+}
+function restart(){legend.innerHTML='Tip: click the channel buttons, then try <b>Enrich</b>, <b>Remove</b>, <b>Replace</b>, and the bottom actions.';repIdx=0;start();}
+start();
+</script>
+</body>
+</html>
