@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVE — LinkedIn Outreach Campaign Prototype (Copilot vs Autopilot)</title>
+<style>
+  :root{
+    --eve1:#6d5efc; --eve2:#a855f7; --eve-ink:#1d1b2e;
+    --slack-aubergine:#3f0e40; --slack-aubergine2:#350d36;
+    --slack-green:#007a5a; --slack-blue:#1264a3;
+    --bg:#eef0f4; --panel:#ffffff; --line:#e4e6ec; --line2:#eceef3;
+    --ink:#1d2433; --muted:#6b7280; --muted2:#8a91a0;
+    --ok:#1a7f53; --okbg:#e7f6ee; --warn:#b45309; --warnbg:#fdf2e3;
+    --chip:#f1f0fe; --shadow:0 10px 30px rgba(20,20,50,.10);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+  .app{display:flex;height:100vh;overflow:hidden}
+
+  /* ---------- Left index ---------- */
+  .index{width:330px;flex:0 0 330px;background:#fff;color:#1d2433;height:100vh;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:10px;padding:18px 20px 10px;flex:0 0 auto}
+  .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--eve1),var(--eve2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:16px;box-shadow:0 4px 12px rgba(109,94,252,.35)}
+  .brand b{font-size:15px;color:var(--ink);letter-spacing:.2px}
+  .brand small{display:block;color:var(--muted);font-size:11px;font-weight:500}
+  .idx-note{font-size:11px;color:var(--muted);padding:0 20px 12px;line-height:1.5;flex:0 0 auto}
+  .journey-h{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:#8a91a0;font-weight:800;padding:13px 20px 2px;flex:0 0 auto;border-top:1px solid var(--line2)}
+  .nav{flex:1 1 auto;overflow-y:auto;min-height:0;padding:6px 0 26px}
+  .phase{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#aab0bd;padding:15px 20px 4px;font-weight:800}
+  .nav a{display:flex;gap:12px;align-items:center;padding:9px 12px;margin:1px 10px;border-radius:10px;font-size:14px;color:#3a4151;cursor:pointer;font-weight:500;line-height:1.3}
+  .nav a .num{width:27px;height:27px;border-radius:50%;border:1.5px solid #dde0e8;color:#828a99;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 27px;font-variant-numeric:tabular-nums}
+  .nav a .lbl{flex:1 1 auto}
+  .nav a:hover{background:#f5f5fb}
+  .nav a.active{background:#ece9fe;color:#4a3bd0;font-weight:700}
+  .nav a.active .num{background:var(--eve1);border-color:var(--eve1);color:#fff}
+  .li-badge{flex:0 0 auto;width:19px;height:19px;border-radius:4px;background:#0a66c2;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;font-family:Georgia,'Times New Roman',serif}
+
+  /* ---------- Stage ---------- */
+  .stage{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+  .topbar{display:flex;align-items:center;gap:14px;padding:12px 22px;background:#fff;border-bottom:1px solid var(--line)}
+  .topbar h1{font-size:14.5px;margin:0;font-weight:700}
+  .topbar .sub{font-size:12px;color:var(--muted)}
+  .surface-pill{margin-left:auto;display:flex;gap:6px;background:#f1f2f6;padding:4px;border-radius:10px}
+  .surface-pill span{font-size:11px;padding:4px 12px;border-radius:7px;color:var(--muted);font-weight:600}
+  .surface-pill span.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .navbtns{display:flex;gap:8px;margin-left:14px}
+  .navbtns button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--ink);font-weight:600}
+  .navbtns button:hover{background:#f6f6fb}
+  .navbtns button:disabled{opacity:.4;cursor:default}
+
+  .canvas{flex:1;overflow-y:auto;padding:30px;display:flex;justify-content:center}
+  .screen-wrap{width:100%;max-width:940px}
+  .screen-caption{font-size:12.5px;color:var(--muted);margin:0 4px 16px;line-height:1.5}
+  .screen-caption b{color:var(--ink)}
+
+  /* ---------- Slack frame ---------- */
+  .slack{display:flex;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);background:#fff;min-height:560px}
+  .slack-rail{width:64px;background:#2d0a2e;flex:0 0 64px;display:flex;flex-direction:column;align-items:center;padding-top:14px;gap:14px}
+  .slack-rail .ws{width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,var(--eve1),var(--eve2));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+  .slack-rail .ic{width:36px;height:36px;border-radius:50%;background:#511452;display:flex;align-items:center;justify-content:center;color:#d9a9da;font-size:16px}
+  .slack-side{width:210px;flex:0 0 210px;background:var(--slack-aubergine);color:#cfa9cf;padding:0}
+  .slack-side .wsname{color:#fff;font-weight:800;font-size:14px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:6px}
+  .slack-side .grp{font-size:11.5px;color:#bd9bbd;padding:12px 16px 4px;font-weight:600}
+  .slack-side .ch{font-size:13.5px;padding:5px 16px;color:#d8bcd8;display:flex;align-items:center;gap:8px}
+  .slack-side .ch.active{background:#1164a3;color:#fff;font-weight:600}
+  .slack-side .ch .dot{width:16px;text-align:center;opacity:.8}
+  .slack-side .ch .av{width:16px;height:16px;border-radius:4px;background:linear-gradient(135deg,var(--eve1),var(--eve2));font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .slack-side .badge{margin-left:auto;background:#cd2553;color:#fff;font-size:10px;border-radius:9px;padding:0 6px;font-weight:700}
+  .slack-main{flex:1;display:flex;flex-direction:column;background:#fff;min-width:0}
+  .slack-head{padding:12px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+  .slack-head .av{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,var(--eve1),var(--eve2));color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .slack-head b{font-size:14.5px}
+  .slack-head .pres{font-size:11px;color:var(--muted);margin-left:2px}
+  .slack-body{flex:1;padding:18px;overflow-y:auto}
+  .slack-compose{margin:0 16px 16px;border:1px solid #d7dae0;border-radius:9px;padding:10px 12px;color:#9aa0ab;font-size:13px;display:flex;align-items:center;gap:8px}
+
+  .msg{display:flex;gap:11px;margin-bottom:18px}
+  .msg .av{width:36px;height:36px;border-radius:8px;flex:0 0 36px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px}
+  .av.eve{background:linear-gradient(135deg,var(--eve1),var(--eve2))}
+  .av.user{background:#0b8043}
+  .msg .who{font-weight:800;font-size:13.5px}
+  .msg .who .bot{background:#e8e6fb;color:#5b4bd6;font-size:9px;font-weight:700;border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:middle}
+  .msg .when{color:var(--muted2);font-size:11px;margin-left:6px;font-weight:500}
+  .msg .text{font-size:13.6px;line-height:1.55;color:#1d1c1d;margin-top:2px}
+  .msg .text p{margin:0 0 8px}
+
+  /* Slack block-kit-ish card */
+  .skcard{border:1px solid #e1e3e8;border-left:4px solid var(--eve1);border-radius:8px;padding:14px 16px;margin-top:8px;background:#fff;max-width:560px}
+  .skcard h4{margin:0 0 4px;font-size:14.5px}
+  .skcard .kv{font-size:13px;margin:7px 0;line-height:1.5}
+  .skcard .kv b{color:#3a3a45}
+  .skfields{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;margin:10px 0}
+  .skfields div{font-size:12.7px}
+  .skfields .lbl{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
+  .seq{margin:10px 0;border-top:1px solid var(--line2);padding-top:10px}
+  .seq .step{display:flex;gap:10px;font-size:12.7px;margin:6px 0;align-items:flex-start}
+  .seq .step .num{flex:0 0 22px;height:22px;border-radius:50%;background:var(--chip);color:#5b4bd6;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center}
+  .seq .step .d{font-size:11px;color:var(--muted);margin-left:auto;white-space:nowrap}
+
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .sbtn{border:1px solid #c9cdd4;background:#fff;border-radius:7px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;color:#1d1c1d}
+  .sbtn:hover{background:#f6f6f8}
+  .sbtn.green{background:var(--slack-green);border-color:var(--slack-green);color:#fff}
+  .sbtn.green:hover{background:#066c50}
+  .sbtn.primary{background:var(--eve1);border-color:var(--eve1);color:#fff}
+  .sbtn.primary:hover{background:#5a4bf0}
+  .sbtn.link{border:none;background:none;color:var(--slack-blue);padding:8px 4px}
+  .inputline{display:flex;gap:8px;margin-top:10px;max-width:560px}
+  .inputline input{flex:1;border:1px solid #c9cdd4;border-radius:7px;padding:9px 12px;font-size:13px}
+
+  .quote{border-left:3px solid #d7dae0;padding:2px 0 2px 12px;margin:6px 0;color:#3a3a45;font-size:13px;line-height:1.5}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{background:var(--chip);color:#5b4bd6;font-size:11.5px;padding:3px 9px;border-radius:20px;font-weight:600}
+  .chip.gray{background:#f1f2f5;color:#5a6172}
+
+  /* message preview bubble */
+  .mprev{border:1px solid #e1e3e8;border-radius:8px;margin-top:8px;overflow:hidden;max-width:560px}
+  .mprev .h{background:#f7f7fb;padding:7px 12px;font-size:11px;font-weight:700;color:#5b4bd6;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #ececf3}
+  .mprev .b{padding:11px 12px;font-size:13px;line-height:1.55;white-space:pre-line;color:#23222a}
+  .mprev .b .ev{background:#fff7e6;border-bottom:1px dashed #e3b341}
+
+  /* ---------- Web app frame ---------- */
+  .browser{border-radius:14px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);background:#fff}
+  .chrome{background:#e9eaee;padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #dcdde2}
+  .chrome .dots{display:flex;gap:6px}
+  .chrome .dots i{width:11px;height:11px;border-radius:50%;display:block}
+  .chrome .dots i:nth-child(1){background:#ff5f57}.chrome .dots i:nth-child(2){background:#febc2e}.chrome .dots i:nth-child(3){background:#28c840}
+  .chrome .url{flex:1;background:#fff;border-radius:7px;padding:5px 12px;font-size:12px;color:#5b6270;border:1px solid #dcdde2;max-width:520px;margin:0 auto}
+  .chrome .url b{color:var(--ink)}
+  .web{display:flex;min-height:560px}
+  .web-side{width:210px;flex:0 0 210px;background:#fbfbfd;border-right:1px solid var(--line);padding:14px 0}
+  .web-side .b{display:flex;align-items:center;gap:9px;padding:0 16px 14px;font-weight:800;font-size:14px}
+  .web-side .b .logo{width:26px;height:26px;font-size:14px;border-radius:8px}
+  .web-side a{display:flex;align-items:center;gap:10px;font-size:13px;color:#525a6a;padding:8px 16px;cursor:pointer;font-weight:500}
+  .web-side a .i{width:16px;text-align:center;opacity:.7}
+  .web-side a.active{background:#f0effe;color:#5b4bd6;font-weight:700;box-shadow:inset 3px 0 var(--eve1)}
+  .web-side a:hover{background:#f3f3f8}
+  .web-main{flex:1;padding:24px 28px;overflow-y:auto;min-width:0;background:#fff;position:relative}
+  .web-h{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px}
+  .web-h h2{margin:0;font-size:20px}
+  .web-h .desc{font-size:13px;color:var(--muted);margin-top:3px}
+  .web-h .right{margin-left:auto;display:flex;gap:8px}
+  .wbtn{border:1px solid #d4d7e0;background:#fff;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink)}
+  .wbtn:hover{background:#f7f7fb}
+  .wbtn.primary{background:var(--eve1);border-color:var(--eve1);color:#fff}
+  .wbtn.primary:hover{background:#5a4bf0}
+  .wbtn.danger{color:#b42318;border-color:#f1c6c1}
+  .wbtn.danger:hover{background:#fdf1f0}
+  .wbtn.ghost{border-color:transparent;color:var(--muted)}
+
+  .card{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px;background:#fff}
+  .card h3{margin:0 0 10px;font-size:15px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+  .stat{border:1px solid var(--line);border-radius:11px;padding:13px 15px;background:#fff}
+  .stat .lab{font-size:11.5px;color:var(--muted);font-weight:600}
+  .stat .val{font-size:24px;font-weight:800;margin-top:4px;letter-spacing:-.5px}
+  .stat .sub{font-size:11px;color:var(--muted2);margin-top:2px}
+  .stat.good .val{color:var(--ok)} .stat.warn .val{color:var(--warn)}
+
+  .prospect{display:flex;gap:13px;border:1px solid var(--line);border-radius:11px;padding:13px 15px;margin-bottom:11px;align-items:flex-start}
+  .prospect .pav{width:42px;height:42px;border-radius:10px;flex:0 0 42px;background:#ece9fd;color:#5b4bd6;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .prospect .pn{font-weight:800;font-size:14px}
+  .prospect .role{font-size:12.5px;color:var(--muted)}
+  .prospect .reason{font-size:12.3px;color:#444b59;margin-top:6px;line-height:1.5}
+  .prospect .signals{margin-top:7px;display:flex;flex-wrap:wrap;gap:6px}
+  .fit{margin-left:auto;text-align:center;flex:0 0 auto}
+  .fit .ring{font-size:13px;font-weight:800;color:#fff;border-radius:20px;padding:3px 10px;background:var(--ok)}
+  .fit .ring.mid{background:#caa206}
+  .fit .lbl{font-size:10px;color:var(--muted);margin-top:3px}
+  .xbtn{border:1px solid var(--line);background:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;color:#9098a6;font-size:14px;flex:0 0 28px;margin-left:6px}
+  .xbtn:hover{background:#fdf1f0;color:#b42318;border-color:#f1c6c1}
+  a.plink{color:var(--slack-blue);font-size:12px;text-decoration:none}
+
+  .ptable{width:100%;border-collapse:collapse;font-size:12.8px}
+  .ptable th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:1px solid var(--line)}
+  .ptable td{padding:10px;border-bottom:1px solid var(--line2);vertical-align:middle}
+  .ptable tr:hover{background:#fafaff}
+  .ftag{font-size:11px;font-weight:800;color:#fff;border-radius:14px;padding:2px 9px;background:var(--ok)}
+  .ftag.mid{background:#caa206}
+
+  /* duration / safety card */
+  .infocard{border:1px solid #e2dcff;background:linear-gradient(180deg,#faf9ff,#f4f1ff);border-radius:12px;padding:15px 17px;margin:14px 0}
+  .infocard h4{margin:0 0 4px;font-size:14px;color:#4a3bd0}
+  .infocard p{margin:0;font-size:12.8px;color:#54506e;line-height:1.5}
+
+  .wseq{border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  .wseq .row{display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid var(--line2);align-items:center}
+  .wseq .row:last-child{border-bottom:none}
+  .wseq .num{width:28px;height:28px;border-radius:50%;background:#f0effe;color:#5b4bd6;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 28px;font-size:13px}
+  .wseq .ti{font-weight:700;font-size:13.5px}
+  .wseq .de{font-size:12.3px;color:var(--muted);margin-top:2px}
+  .wseq .timing{margin-left:auto;font-size:12px;color:#5b4bd6;background:#f3f1ff;padding:4px 10px;border-radius:20px;font-weight:600;white-space:nowrap}
+
+  /* popup overlay inside web frame */
+  .overlay{position:absolute;inset:0;background:rgba(20,18,40,.45);backdrop-filter:blur(1px);padding:30px;display:flex;align-items:center;justify-content:center;z-index:5}
+  .popup{background:#fff;border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.3);width:100%;max-width:680px;overflow:hidden}
+  .popup.wide{max-width:780px}
+  .popup .ph{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .popup .ph h3{margin:0;font-size:16px}
+  .popup .ph .x{margin-left:auto;color:var(--muted);cursor:pointer;font-size:18px}
+  .popup .pb{padding:18px 20px;max-height:62vh;overflow-y:auto}
+  .popup .pf{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;background:#fbfbfd}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+  .pill.run{background:#e7f6ee;color:#1a7f53}
+  .pill.paused{background:#fdf2e3;color:#b45309}
+  .pill.attn{background:#fdecea;color:#b42318}
+  .pill.draft{background:#f3f1ff;color:#6a5bd0}
+  .pill.done{background:#eaeef5;color:#54607a}
+  .camprow{transition:.15s}
+  .camprow.click{cursor:pointer}
+  .camprow.click:hover{border-color:var(--eve1);box-shadow:0 6px 18px rgba(109,94,252,.14)}
+  .camprow .cmeta{display:flex;align-items:center;gap:12px}
+  .camprow .cav{width:40px;height:40px;border-radius:11px;flex:0 0 40px;background:#ece9fd;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .ministat{font-size:12px;color:var(--muted)}
+  .ministat b{display:block;font-size:18px;color:var(--ink);font-weight:800;margin-top:2px}
+  .open-cue{font-size:12px;color:var(--eve1);font-weight:700;margin-left:auto}
+
+  .legend{font-size:11px;color:var(--muted);margin-top:4px}
+  .hint{font-size:11.5px;color:var(--eve1);background:#f3f1ff;border:1px dashed #cfc7fb;border-radius:8px;padding:7px 11px;margin-top:12px;display:inline-block}
+  .progress{height:8px;border-radius:6px;background:#eceaf9;overflow:hidden;margin-top:6px}
+  .progress i{display:block;height:100%;background:linear-gradient(90deg,var(--eve1),var(--eve2));border-radius:6px}
+  .timeline{margin-top:6px}
+  .timeline .t{display:flex;gap:10px;font-size:12.5px;padding:6px 0;align-items:center}
+  .timeline .t .dot{width:9px;height:9px;border-radius:50%;background:var(--eve1);flex:0 0 9px}
+  .timeline .t .dot.done{background:var(--ok)} .timeline .t .dot.next{background:#cbd0da}
+  @media (max-width:1100px){.index{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- LEFT INDEX -->
+  <aside class="index">
+    <div class="brand">
+      <div class="logo">e</div>
+      <div><b>EVE</b><small>LinkedIn Outreach · Interactive Mockup</small></div>
+    </div>
+    <div class="idx-note">Click any step to jump to it. Buttons inside the mockups are live and advance the flow.</div>
+    <div class="journey-h">End-to-end journey</div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+
+  <!-- STAGE -->
+  <main class="stage">
+    <header class="topbar">
+      <div>
+        <h1 id="scr-title">—</h1>
+        <div class="sub" id="scr-step">—</div>
+      </div>
+      <div class="surface-pill" id="surface-pill">
+        <span data-s="slack">Slack</span><span data-s="web">Web app</span>
+      </div>
+      <div class="navbtns">
+        <button id="prevBtn">‹ Prev</button>
+        <button id="nextBtn">Next ›</button>
+      </div>
+    </header>
+    <div class="canvas"><div class="screen-wrap">
+      <div class="screen-caption" id="caption"></div>
+      <div id="screen"></div>
+    </div></div>
+  </main>
+</div>
+
+<script>
+/* ============================ Helpers ============================ */
+const eveAv = '<div class="av eve">e</div>';
+const userAv = '<div class="av user">O</div>';
+
+function slack(channelLabel, bodyHtml, opts={}){
+  const badge = opts.badge ? `<span class="badge">${opts.badge}</span>` : '';
+  return `
+  <div class="slack">
+    <div class="slack-rail">
+      <div class="ws">e</div>
+      <div class="ic">🏠</div><div class="ic">✉️</div><div class="ic">⋯</div>
+    </div>
+    <div class="slack-side">
+      <div class="wsname">Acme GTM ⌄</div>
+      <div class="grp">Channels</div>
+      <div class="ch"><span class="dot">#</span> general</div>
+      <div class="ch"><span class="dot">#</span> revenue</div>
+      <div class="grp">Direct messages</div>
+      <div class="ch active"><span class="av">e</span> EVE ${badge}</div>
+      <div class="ch"><span class="dot">●</span> Olesia (you)</div>
+    </div>
+    <div class="slack-main">
+      <div class="slack-head"><div class="av">e</div><b>EVE</b><span class="pres">● active · AI teammate</span></div>
+      <div class="slack-body">${bodyHtml}</div>
+      <div class="slack-compose">✏️ Message EVE…</div>
+    </div>
+  </div>`;
+}
+function eveMsg(when, html){return `<div class="msg">${eveAv}<div><div class="who">EVE <span class="bot">APP</span><span class="when">${when}</span></div><div class="text">${html}</div></div></div>`;}
+function userMsg(when, html){return `<div class="msg">${userAv}<div><div class="who">Olesia <span class="when">${when}</span></div><div class="text">${html}</div></div></div>`;}
+
+function browser(url, sideActive, mainHtml){
+  const nav=[['chat','💬','Chat with EVE'],['campaigns','🎯','Campaigns'],['prospects','👥','Prospects'],['integrations','🔌','Integrations'],['settings','⚙️','Settings']];
+  const side=nav.map(([id,i,l])=>`<a class="${sideActive===id?'active':''}"><span class="i">${i}</span>${l}</a>`).join('');
+  return `
+  <div class="browser">
+    <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">🔒 app.joineve.ai<b>${url}</b></div></div>
+    <div class="web">
+      <div class="web-side"><div class="b"><span class="logo" style="width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--eve1),var(--eve2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">e</span> EVE</div>${side}</div>
+      <div class="web-main">${mainHtml}</div>
+    </div>
+  </div>`;
+}
+function campaignsList(mode, detailId){
+  return browser('/campaigns','campaigns',`
+  <div class="web-h"><div><h2>Campaigns</h2><div class="desc">All your outreach campaigns. Click one to open its analytics.</div></div>
+    <div class="right"><button class="wbtn primary">+ New campaign</button></div></div>
+
+  <div class="card camprow click" onclick="go('${detailId}')">
+    <div class="cmeta">
+      <div class="cav">🎯</div>
+      <div><div style="font-weight:800;font-size:15px">Series-B SaaS RevOps Q3</div>
+        <div style="font-size:12.5px;color:var(--muted)">LinkedIn · ${mode} mode · 142 prospects</div></div>
+      <span class="pill run" style="margin-left:auto">● In progress</span>
+    </div>
+    <div class="grid4" style="margin-top:14px">
+      <div class="ministat">Progress<b>15%</b></div>
+      <div class="ministat">Replies<b>6</b></div>
+      <div class="ministat">Meetings booked<b>1</b></div>
+      <div class="ministat">Needs attention<b>1</b></div>
+    </div>
+    <div class="progress"><i style="width:15%"></i></div>
+    <div style="margin-top:8px"><span class="open-cue">Open analytics →</span></div>
+  </div>
+
+  <div class="card camprow">
+    <div class="cmeta">
+      <div class="cav" style="background:#eef0f4">📝</div>
+      <div><div style="font-weight:800;font-size:15px">Enterprise Expansion — FinServ</div>
+        <div style="font-size:12.5px;color:var(--muted)">LinkedIn · not started · 0 prospects</div></div>
+      <span class="pill draft" style="margin-left:auto">Draft</span>
+    </div>
+  </div>
+
+  <div class="card camprow">
+    <div class="cmeta">
+      <div class="cav" style="background:#eaf6ef">✅</div>
+      <div><div style="font-weight:800;font-size:15px">Dormant Lead Reactivation</div>
+        <div style="font-size:12.5px;color:var(--muted)">LinkedIn · ran Apr–May · 96 prospects</div></div>
+      <span class="pill done" style="margin-left:auto">Completed</span>
+    </div>
+    <div class="grid4" style="margin-top:14px">
+      <div class="ministat">Connected<b>54</b></div>
+      <div class="ministat">Replies<b>21</b></div>
+      <div class="ministat">Meetings booked<b>7</b></div>
+      <div class="ministat">Reply rate<b>29%</b></div>
+    </div>
+  </div>
+`);}
+
+function go(id){location.hash=id;}
+
+/* ============================ Screens ============================ */
+const SCREENS = [];
+function S(o){SCREENS.push(o);}
+
+/* ---------- PHASE: SETUP ---------- */
+S({id:'setup-1',phase:'Shared setup',surface:'slack',title:'Return to Slack — create first campaign?',step:'Setup · Step 1',
+caption:'After LinkedIn is connected and safety limits are set, EVE brings the user back into Slack and offers to create the first campaign.',
+render:()=>slack('EVE',
+  eveMsg('9:02 AM',`<p>🎉 LinkedIn is connected and your <b>safety limits</b> are ready.</p><p>Do you want me to create your first campaign?</p>
+  <div class="btnrow"><button class="sbtn green" onclick="go('setup-2')">Yes, create campaign</button><button class="sbtn" onclick="go('setup-2')">Not now</button></div>`)
+)});
+
+S({id:'setup-2',phase:'Shared setup',surface:'slack',title:'Meeting booking setup',step:'Setup · Step 2',
+caption:'EVE asks for the scheduling link it will use as the call-to-action in outreach messages.',
+render:()=>slack('EVE',
+  eveMsg('9:02 AM',`<p>Great — let’s set this up. First, where should I send interested prospects to book a meeting with you?</p><p>Please share your <b>meeting booking link</b> — for example, Calendly, HubSpot Meetings, SavvyCal, or your own scheduling page.</p>`)+
+  userMsg('9:04 AM',`https://calendly.com/olesia/30min`)+
+  eveMsg('9:04 AM',`Perfect. I’ll use <b>calendly.com/olesia/30min</b> as the call-to-action whenever it makes sense in a conversation. ✅
+  <div class="btnrow"><button class="sbtn primary" onclick="go('setup-3')">Continue</button></div>`)
+)});
+
+S({id:'setup-3',phase:'Shared setup',surface:'slack',title:'Calendar connection',step:'Setup · Step 2 (calendar)',
+caption:'EVE explains why calendar access helps — attributing booked meetings to campaigns and celebrating wins in daily updates.',
+render:()=>slack('EVE',
+  eveMsg('9:05 AM',`<p>One more thing. If you connect your calendar, I’ll know whenever one of our prospects books a meeting.</p>
+  <p>That means I can tell you which campaigns are actually generating demos, celebrate every booking with you, and include everything in your daily updates. Sounds good?</p>
+  <div class="btnrow"><button class="sbtn green" onclick="go('setup-4')">Connect Calendar</button><button class="sbtn" onclick="go('setup-5')">Skip for now</button></div>`)+
+  `<div class="hint">↳ “Connect Calendar” redirects from Slack to the EVE web app (Integrations page).</div>`
+)});
+
+S({id:'setup-4',phase:'Shared setup',surface:'web',title:'Integrations — Connect Calendar popup',step:'Setup · Step 2 (calendar)',
+caption:'User is redirected from Slack to the EVE web app. The Integrations page opens with a Connect Calendar popup. After a successful connection the user is sent back to Slack.',
+render:()=>browser('/integrations','integrations',`
+  <div class="web-h"><div><h2>Integrations</h2><div class="desc">Connect the tools EVE works across.</div></div></div>
+  <div class="grid2">
+    <div class="card"><h3>LinkedIn</h3><span class="pill run">● Connected</span><p style="font-size:12.5px;color:var(--muted);margin:10px 0 0">Safety limits configured · 100 invites / week</p></div>
+    <div class="card"><h3>Calendar</h3><span class="pill paused">○ Not connected</span><p style="font-size:12.5px;color:var(--muted);margin:10px 0 0">Needed to attribute booked meetings to campaigns.</p></div>
+  </div>
+  <div class="overlay"><div class="popup" style="max-width:440px">
+    <div class="ph"><div class="av eve" style="width:26px;height:26px;border-radius:7px">e</div><h3>Connect your calendar</h3><span class="x" onclick="go('setup-5')">✕</span></div>
+    <div class="pb" style="text-align:center">
+      <p style="font-size:13px;color:#444b59;line-height:1.6">EVE will read availability and meeting events so it can detect when a prospect books — it never creates or edits meetings on your behalf.</p>
+      <div class="grid2" style="margin-top:14px">
+        <button class="wbtn" style="padding:14px">📅 Google Calendar</button>
+        <button class="wbtn" style="padding:14px">📆 Outlook / Microsoft 365</button>
+      </div>
+    </div>
+    <div class="pf"><button class="wbtn ghost" onclick="go('setup-5')">Cancel</button><button class="wbtn primary" onclick="go('setup-5')">Connect & return to Slack</button></div>
+  </div></div>
+`)});
+
+S({id:'setup-5',phase:'Shared setup',surface:'slack',title:'Public evidence collection',step:'Setup · Step 3',
+caption:'EVE analyzes the website and public sources for credible proof points, then asks the user to confirm which can be used in outreach.',
+render:()=>slack('EVE',
+  eveMsg('9:08 AM',`Calendar connected ✅ I’ll flag any prospect booking right here.`)+
+  eveMsg('9:09 AM',`<p>I went through your website and public sources and found some credible proof points we could use in outreach. Which of these can I reference?</p>
+  <div class="skcard"><h4>Public evidence I found</h4>
+    <div class="chips">
+      <span class="chip">#1 in mid-market G2 grid</span>
+      <span class="chip">Logos: June Homes, 3DLOOK, Leadature</span>
+      <span class="chip">Case study: $630K surfaced</span>
+      <span class="chip">SOC 2 Type II</span>
+      <span class="chip">3.2× pipeline growth</span>
+      <span class="chip">Featured in TechCrunch</span>
+      <span class="chip">EU-US DPF compliant</span>
+    </div>
+    <div class="btnrow"><button class="sbtn green" onclick="go('setup-6')">Use all of these</button><button class="sbtn" onclick="go('setup-6')">Let me pick</button></div>
+  </div>`)
+)});
+
+S({id:'setup-6',phase:'Shared setup',surface:'slack',title:'Mode selection — Autopilot or Copilot',step:'Setup · Step 4',
+caption:'EVE pitches Autopilot. Choosing it enters the Autopilot flow; declining leads to the Copilot explanation. Pick a path below.',
+render:()=>slack('EVE',
+  eveMsg('9:11 AM',`<p>Here’s how we can run this. I can run the whole campaign on <b>autopilot</b> — I’ll find prospects, prepare outreach, connect with them, follow up, monitor replies, and book meetings. You’ll get daily reports in Slack and see booked meetings right in your calendar.</p>
+  <p>Want me to run it on autopilot?</p>
+  <div class="btnrow">
+    <button class="sbtn green" onclick="go('auto-1')">▶ Run on Autopilot</button>
+    <button class="sbtn" onclick="go('copilot-intro')">I’d rather review steps (Copilot)</button>
+  </div>`)+
+  `<div class="hint">↳ Two branches from here: <b>Autopilot</b> (hands-off) or <b>Copilot</b> (confirm before launch).</div>`
+)});
+
+/* ---------- PHASE: COPILOT ---------- */
+S({id:'copilot-intro',phase:'Copilot flow',surface:'slack',title:'Copilot mode explained',step:'Copilot · Intro',
+caption:'When the user declines Autopilot, EVE describes Copilot: it confirms the prospect list, campaign plan, and message examples before launch, but still does the work and reports daily.',
+render:()=>slack('EVE',
+  userMsg('9:12 AM',`I’d rather review the key steps first.`)+
+  eveMsg('9:12 AM',`<p>No problem. I’ll work in <b>Copilot mode</b>. Before I start the campaign, I’ll ask you to confirm the <b>prospect list</b>, <b>campaign plan</b>, and <b>message examples</b>. I’ll still handle all the work and send you daily reports.</p>
+  <div class="btnrow"><button class="sbtn green" onclick="go('copilot-proposal')">Sounds good — let’s go</button></div>`)
+)});
+
+S({id:'copilot-proposal',phase:'Copilot flow',surface:'slack',title:'Step 1 — Campaign proposal',step:'Copilot · Step 1',
+caption:'EVE proposes a campaign in Slack: name, audience, reasoning, goal, sequence, timeline, channel. The campaign cannot move forward until the user confirms.',
+render:()=>slack('EVE',
+  eveMsg('9:13 AM',`Here’s the campaign I’d recommend starting with 👇`)+
+  eveMsg('9:13 AM',`<div class="skcard"><h4>📋 Campaign proposal</h4>
+    <div class="skfields">
+      <div><div class="lbl">Campaign name</div>Series-B SaaS RevOps Q3</div>
+      <div><div class="lbl">Channel</div>LinkedIn</div>
+      <div><div class="lbl">Target audience</div>RevOps & Sales leaders, 50–500 employees</div>
+      <div><div class="lbl">Goal</div>Book 8–12 demos in 6 weeks</div>
+    </div>
+    <div class="kv"><b>Why this campaign:</b> Recently funded SaaS companies are scaling GTM and feel dropped-lead pain most acutely — strong fit for EVE’s reactivation story.</div>
+    <div class="seq">
+      <div class="step"><span class="num">1</span><div>Visit profile + send connection request</div><span class="d">Day 0</span></div>
+      <div class="step"><span class="num">2</span><div>Thank-you + soft intro on accept</div><span class="d">Day 1–2</span></div>
+      <div class="step"><span class="num">3</span><div>Value follow-up with proof point</div><span class="d">Day 4–5</span></div>
+      <div class="step"><span class="num">4</span><div>Final follow-up + booking link</div><span class="d">Day 8–10</span></div>
+    </div>
+    <div class="kv"><b>Expected timeline:</b> ~6 weeks based on your LinkedIn safety limits.</div>
+    <div class="btnrow"><button class="sbtn green" onclick="go('copilot-style')">Confirm campaign</button><button class="sbtn" onclick="go('copilot-style')">Ask for changes</button><button class="sbtn" onclick="go('copilot-style')">Add comments</button></div>
+  </div>`)+
+  `<div class="hint">🔒 The campaign can’t move forward until you confirm.</div>`
+)});
+
+S({id:'copilot-style',phase:'Copilot flow',surface:'slack',title:'Step 2 — Message style confirmation',step:'Copilot · Step 2',
+caption:'EVE shows sample personalized messages for one approved prospect — connection request, first follow-up, optional second follow-up. The approved style is applied to all campaign messages.',
+render:()=>slack('EVE',
+  eveMsg('9:15 AM',`Campaign confirmed ✅ Here’s how the messaging would read for <b>Sarah Chen, VP RevOps @ Acme</b> (from your approved sample). Take a look at tone, personalization, the proof point, the CTA, and length.`)+
+  eveMsg('9:15 AM',`
+  <div class="mprev"><div class="h">1 · Connection request</div><div class="b">Hi Sarah — saw Acme just closed your Series B, congrats. I work with RevOps leaders scaling GTM after a raise. Would love to connect.</div></div>
+  <div class="mprev"><div class="h">2 · First follow-up (on accept)</div><div class="b">Thanks for connecting, Sarah! Quick reason I reached out: teams scaling post-raise usually have warm deals going quiet faster than anyone can chase. <span class="ev">We recently surfaced $630K in buried pipeline for a similar SaaS team.</span> Worth a look for Acme?</div></div>
+  <div class="mprev"><div class="h">3 · Second follow-up (if needed)</div><div class="b">No worries if timing’s off, Sarah. If useful, here’s a 30-min slot to see how it’d map to Acme’s pipeline: calendly.com/olesia/30min</div></div>
+  <div class="legend">Highlighted text = confirmed public evidence.</div>
+  <div class="btnrow"><button class="sbtn green" onclick="go('copilot-generating')">Confirm style</button><button class="sbtn" onclick="go('copilot-generating')">Edit</button><button class="sbtn" onclick="go('copilot-generating')">Leave comments</button></div>`)
+)});
+
+S({id:'copilot-generating',phase:'Copilot flow',surface:'slack',title:'Step 3 — Prospect list generating',step:'Copilot · Step 3',
+caption:'EVE applies the approved style to all messages, then goes off to build the full prospect list. Sizing is based on goals, weekly LinkedIn limits, timeline, ICP size, and persona availability.',
+render:()=>slack('EVE',
+  eveMsg('9:16 AM',`Style locked in — I’ll apply it across every message. 🎯`)+
+  eveMsg('9:16 AM',`Great. You can go do your thing — I’ll let you know when the prospect list is ready to review.`)+
+  eveMsg('9:41 AM',`<div class="skcard"><h4>⚙️ Building your prospect list…</h4>
+  <div class="progress"><i style="width:78%"></i></div>
+  <p style="font-size:12.5px;color:var(--muted);margin:10px 0 0">Sizing the list from your goals, weekly LinkedIn limits, the 6-week timeline, ICP size and persona availability.</p>
+  <div class="btnrow"><button class="sbtn primary" onclick="go('copilot-prospects')">See it ready →</button></div>
+  </div>`,'')
+)});
+
+S({id:'copilot-prospects',phase:'Copilot flow',surface:'slack',title:'Step 4 — Prospect review in Slack',step:'Copilot · Step 4',
+caption:'When the list is ready EVE posts 3 sample prospects — company, fit score, persona, title, profile link, reasoning, external signals — with a CTA to review all in the web app.',
+render:()=>slack('EVE',
+  eveMsg('10:05 AM',`✅ Your prospect list is ready — <b>142 prospects</b> across your ICP. Here are 3 to give you a feel:`)+
+  eveMsg('10:05 AM',`
+  <div class="skcard" style="border-left-color:var(--ok)"><h4>Sarah Chen — Acme <span style="float:right;font-size:12px;background:var(--ok);color:#fff;border-radius:14px;padding:2px 9px">Fit 94</span></h4>
+    <div class="kv"><b>VP RevOps</b> · ICP persona: RevOps leader · <a class="plink">View LinkedIn ↗</a></div>
+    <div class="kv">Series B 3 weeks ago; hiring 4 AEs — classic post-raise scaling pain.</div>
+    <div class="chips"><span class="chip">Series B · 3wk</span><span class="chip">Hiring AEs</span></div>
+  </div>
+  <div class="skcard" style="border-left-color:var(--ok)"><h4>Marcus Webb — NovaGroup <span style="float:right;font-size:12px;background:var(--ok);color:#fff;border-radius:14px;padding:2px 9px">Fit 88</span></h4>
+    <div class="kv"><b>Director of Sales Ops</b> · ICP persona: RevOps leader · <a class="plink">View LinkedIn ↗</a></div>
+    <div class="kv">Posted about CRM hygiene last week; evaluating tooling.</div>
+    <div class="chips"><span class="chip">Tooling intent</span><span class="chip">120 emp</span></div>
+  </div>
+  <div class="skcard" style="border-left-color:#caa206"><h4>Dana Liu — Meridian <span style="float:right;font-size:12px;background:#caa206;color:#fff;border-radius:14px;padding:2px 9px">Fit 76</span></h4>
+    <div class="kv"><b>Head of Growth</b> · ICP persona: GTM leader · <a class="plink">View LinkedIn ↗</a></div>
+    <div class="kv">Adjacent persona; strong company fit, slightly off-title.</div>
+    <div class="chips"><span class="chip">Company fit</span><span class="chip gray">off-persona</span></div>
+  </div>
+  <div class="btnrow"><button class="sbtn primary" onclick="go('copilot-list')">Show all prospects →</button></div>`)
+)});
+
+S({id:'copilot-list',phase:'Copilot flow',surface:'web',title:'Step 5 — Full prospect review (web app)',step:'Copilot · Step 5',
+caption:'Clicking “Show all prospects” opens the campaign prospect list in the web app. The user can review everyone, exclude prospects (X button on each row), and confirm the list.',
+render:()=>{
+  const rows=[
+    ['SC','Sarah Chen','VP RevOps','Acme','RevOps leader','94','',''],
+    ['MW','Marcus Webb','Director Sales Ops','NovaGroup','RevOps leader','88','',''],
+    ['DL','Dana Liu','Head of Growth','Meridian','GTM leader','76','mid',''],
+    ['JP','Jordan Park','VP Sales','Axis','Sales leader','85','',''],
+    ['AF','Amanda Foster','RevOps Manager','Orbit','RevOps leader','82','',''],
+    ['TK','Tom Klein','Founder','Zenith','Founder','71','mid','']
+  ].map(([i,n,t,c,p,f,m])=>`<tr>
+    <td><div style="display:flex;gap:10px;align-items:center"><span class="pav" style="width:32px;height:32px;font-size:12px">${i}</span><div><div style="font-weight:700">${n}</div><a class="plink">LinkedIn ↗</a></div></div></td>
+    <td>${t}</td><td>${c}</td><td>${p}</td>
+    <td><span class="ftag ${m}">${f}</span></td>
+    <td style="text-align:right"><button class="xbtn" onclick="go('copilot-exclude')">✕</button></td></tr>`).join('');
+  return browser('/campaigns/series-b-saas/prospects','prospects',`
+  <div class="web-h"><div><h2>Prospects · Series-B SaaS RevOps Q3</h2><div class="desc">142 prospects · review, exclude anyone who isn’t a fit, then confirm.</div></div>
+    <div class="right"><button class="wbtn primary" onclick="go('copilot-plan')">Confirm List ✓</button></div></div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="ptable"><thead><tr><th>Prospect</th><th>Title</th><th>Company</th><th>Persona</th><th>Fit</th><th style="text-align:right">Exclude</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>
+  <div class="legend">Showing 6 of 142 · each row has an <b>✕</b> to exclude. Try clicking one.</div>
+`)}});
+
+S({id:'copilot-exclude',phase:'Copilot flow',surface:'web',title:'Step 6 — Excluding a prospect (EVE chat)',step:'Copilot · Step 6',
+caption:'Clicking X redirects to EVE chat in the web app. EVE asks for the reason, may ask follow-ups, then removes the prospect, adds them to the Excluded list in settings, and learns from the reason.',
+render:()=>browser('/chat?context=exclude:tom-klein','chat',`
+  <div class="web-h"><div><h2>Chat with EVE</h2><div class="desc">Excluding: <b>Tom Klein · Founder, Zenith</b></div></div></div>
+  <div style="max-width:640px">
+    ${eveMsg('now',`What’s the reason you want to exclude this prospect? I’ll use this feedback to avoid similar companies in the future.`).replace(/class="msg"/,'class="msg" style="margin-bottom:14px"')}
+    ${userMsg('now',`Too small / pre-revenue. Founders at &lt;20-person companies don’t convert for us.`)}
+    ${eveMsg('now',`Got it — I’ll deprioritize sub-20-employee, founder-led companies for this ICP. Want me to apply that as a standing rule across future campaigns too?
+    <div class="btnrow"><button class="sbtn green" onclick="go('copilot-list')">Yes, make it a rule</button><button class="sbtn" onclick="go('copilot-list')">Just this campaign</button></div>`)}
+  </div>
+  <div class="card" style="margin-top:16px;background:#fbfbfd"><h3>What happens on confirm</h3>
+    <div class="timeline">
+      <div class="t"><span class="dot done"></span>Prospect removed from the active list</div>
+      <div class="t"><span class="dot done"></span>Added to <b>Excluded Prospects</b> in Settings</div>
+      <div class="t"><span class="dot done"></span>EVE learns from the reason for future targeting</div>
+    </div></div>
+`)});
+
+S({id:'copilot-plan',phase:'Copilot flow',surface:'web',title:'Step 8 — Campaign plan confirmation',step:'Copilot · Steps 7–8',
+caption:'After confirming the list the user lands on the Campaign page. A wide popup shows the prefilled sequence (from the Slack-confirmed plan), timing, LinkedIn actions, and a duration card linking to safety limits.',
+render:()=>browser('/campaigns/series-b-saas','campaigns',`
+  <div class="web-h"><div><h2>Series-B SaaS RevOps Q3</h2><div class="desc">Draft · review the plan before launch</div></div></div>
+  <div class="overlay"><div class="popup wide">
+    <div class="ph"><h3>📋 Confirm campaign plan</h3><span class="x" onclick="go('copilot-messages')">✕</span></div>
+    <div class="pb">
+      <div class="grid2" style="margin-bottom:14px">
+        <div class="stat"><div class="lab">Campaign name</div><div style="font-weight:800;font-size:15px;margin-top:4px">Series-B SaaS RevOps Q3</div></div>
+        <div class="stat"><div class="lab">Target persona</div><div style="font-weight:800;font-size:15px;margin-top:4px">RevOps & Sales leaders</div></div>
+      </div>
+      <div class="wseq">
+        <div class="row"><span class="num">1</span><div><div class="ti">Visit profile + Connection request</div><div class="de">LinkedIn action · personalized invite note</div></div><span class="timing">Day 0</span></div>
+        <div class="row"><span class="num">2</span><div><div class="ti">Thank-you + soft intro</div><div class="de">LinkedIn message · sent on accept</div></div><span class="timing">+1–2 days</span></div>
+        <div class="row"><span class="num">3</span><div><div class="ti">Value follow-up w/ proof point</div><div class="de">LinkedIn message</div></div><span class="timing">+4–5 days</span></div>
+        <div class="row"><span class="num">4</span><div><div class="ti">Final follow-up + booking link</div><div class="de">LinkedIn message · calendly.com/olesia/30min</div></div><span class="timing">+8–10 days</span></div>
+      </div>
+      <div class="infocard"><h4>⏱ Campaign Duration</h4><p>This campaign will take approximately <b>6 weeks</b> based on your LinkedIn safety limits. <a class="plink" onclick="go('copilot-safety')">Check LinkedIn Safety Limits ↗</a></p></div>
+    </div>
+    <div class="pf"><button class="wbtn" onclick="go('copilot-plan')">Edit sequence steps</button><button class="wbtn primary" onclick="go('copilot-messages')">Confirm campaign plan ✓</button></div>
+  </div></div>
+`)});
+
+S({id:'copilot-safety',phase:'Copilot flow',surface:'web',title:'LinkedIn Safety Limits (linked)',step:'Copilot · Step 8 (link)',
+caption:'The “Check LinkedIn Safety Limits” link routes to Integrations → LinkedIn Safety Limits.',
+render:()=>browser('/integrations/linkedin/safety-limits','integrations',`
+  <div class="web-h"><div><h2>LinkedIn · Safety Limits</h2><div class="desc">EVE keeps every campaign within these limits and randomizes timing to reduce risk.</div></div>
+    <div class="right"><button class="wbtn" onclick="go('copilot-plan')">← Back to campaign</button></div></div>
+  <div class="grid3">
+    <div class="stat"><div class="lab">Connection requests / week</div><div class="val">100</div><div class="sub">~14 / day</div></div>
+    <div class="stat"><div class="lab">Messages / day</div><div class="val">40</div></div>
+    <div class="stat"><div class="lab">Profile visits / day</div><div class="val">60</div></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h3>Activity randomization</h3><p style="font-size:13px;color:var(--muted);margin:0">Actions are spread across working hours with randomized intervals and natural pauses, never in bursts.</p></div>
+`)});
+
+S({id:'copilot-messages',phase:'Copilot flow',surface:'web',title:'Step 9 — Message confirmation',step:'Copilot · Step 9',
+caption:'After confirming the plan, a popup shows the campaign message examples. Editing the style triggers EVE to analyze the change and apply it across all messages. The user clicks Start Campaign.',
+render:()=>browser('/campaigns/series-b-saas','campaigns',`
+  <div class="web-h"><div><h2>Series-B SaaS RevOps Q3</h2><div class="desc">Plan confirmed · final step before launch</div></div></div>
+  <div class="overlay"><div class="popup wide">
+    <div class="ph"><h3>✉️ Review campaign messages</h3><span class="x" onclick="go('copilot-analytics')">✕</span></div>
+    <div class="pb">
+      <div class="mprev"><div class="h">Connection request</div><div class="b">Hi {{firstName}} — saw {{company}} just closed your Series B, congrats. I work with RevOps leaders scaling GTM after a raise. Would love to connect.</div></div>
+      <div class="mprev"><div class="h">First follow-up</div><div class="b">Thanks for connecting, {{firstName}}! Teams scaling post-raise usually have warm deals going quiet faster than anyone can chase. <span class="ev">We recently surfaced $630K in buried pipeline for a similar SaaS team.</span> Worth a look for {{company}}?</div></div>
+      <div class="mprev"><div class="h">Later follow-up</div><div class="b">No worries if timing’s off. If useful, here’s a 30-min slot to see how it’d map to {{company}}’s pipeline: calendly.com/olesia/30min</div></div>
+      <div class="hint">✎ If you edit the style here, EVE analyzes the change and re-applies it across <b>all</b> campaign messages.</div>
+    </div>
+    <div class="pf"><button class="wbtn" onclick="go('copilot-messages')">Edit messages</button><button class="wbtn primary" onclick="go('copilot-campaigns')">Start Campaign ▶</button></div>
+  </div></div>
+`)});
+
+S({id:'copilot-campaigns',phase:'Copilot flow',surface:'web',title:'Step 10 — Campaigns list',step:'Copilot · Step 10',
+caption:'After the user clicks Start Campaign, EVE begins outreach in the background. The Campaigns page lists all campaigns — the new one shows status “In progress”. Click it to open full analytics.',
+render:()=>campaignsList('Copilot','copilot-analytics')});
+
+S({id:'copilot-analytics',phase:'Copilot flow',surface:'web',title:'Step 11 — Campaign analytics',step:'Copilot · Step 11',
+caption:'Opening the campaign shows full analytics: actions completed/scheduled, prospects contacted, connections, messages, replies, positive replies, meetings booked, paused prospects, and items needing attention.',
+render:()=>browser('/campaigns/series-b-saas','campaigns',`
+  <div class="web-h"><div><h2>Series-B SaaS RevOps Q3</h2><div class="desc"><span class="pill run">● In progress</span> &nbsp;Started today · Copilot mode</div></div>
+    <div class="right"><button class="wbtn" onclick="go('copilot-campaigns')">← Campaigns</button><button class="wbtn" onclick="go('copilot-report')">View daily report</button></div></div>
+  <div class="grid4">
+    <div class="stat"><div class="lab">Actions completed</div><div class="val">63</div></div>
+    <div class="stat"><div class="lab">Actions scheduled</div><div class="val">410</div></div>
+    <div class="stat"><div class="lab">Prospects contacted</div><div class="val">42</div></div>
+    <div class="stat"><div class="lab">Connection requests</div><div class="val">38</div></div>
+  </div>
+  <div class="grid4" style="margin-top:12px">
+    <div class="stat good"><div class="lab">Accepted connections</div><div class="val">19</div></div>
+    <div class="stat"><div class="lab">Messages sent</div><div class="val">25</div></div>
+    <div class="stat good"><div class="lab">Replies received</div><div class="val">6</div></div>
+    <div class="stat good"><div class="lab">Positive replies</div><div class="val">3</div></div>
+  </div>
+  <div class="grid4" style="margin-top:12px">
+    <div class="stat good"><div class="lab">Meetings booked</div><div class="val">1</div><div class="sub">Thu 2:00 PM · via calendar</div></div>
+    <div class="stat warn"><div class="lab">Prospects paused</div><div class="val">2</div></div>
+    <div class="stat warn"><div class="lab">Needs your attention</div><div class="val">1</div><div class="sub">Pricing question</div></div>
+    <div class="stat"><div class="lab">Reply rate</div><div class="val">24%</div></div>
+  </div>
+`)});
+
+S({id:'copilot-report',phase:'Copilot flow',surface:'slack',title:'Step 12 — Daily Slack report',step:'Copilot · Step 12',
+caption:'EVE posts a daily summary that reads like a teammate, not a system notification: what it did, replies, attention items, meetings booked, and what’s next.',
+render:()=>slack('EVE',
+  eveMsg('5:30 PM',`<p>Quick update from today 👇</p>
+  <p>I sent <b>18 connection requests</b>, followed up with <b>7 prospects</b>, and got <b>2 replies</b>. One looks promising — <b>Sarah from Acme</b> asked for more details. I also booked one meeting for <b>Thursday at 2 PM</b>. 🎉</p>
+  <p>Tomorrow I’ll continue with the next batch based on your LinkedIn safety limits.</p>
+  <div class="skcard"><div class="skfields">
+    <div><div class="lbl">Connection requests</div>18 sent</div>
+    <div><div class="lbl">Follow-ups</div>7 sent</div>
+    <div><div class="lbl">Replies</div>2 (1 promising)</div>
+    <div><div class="lbl">Meetings booked</div>1 · Thu 2:00 PM</div>
+  </div>
+  <div class="kv">⚠️ <b>1 reply needs you:</b> a pricing question from Marcus @ NovaGroup.</div>
+  <div class="btnrow"><button class="sbtn primary" onclick="go('copilot-analytics')">Open campaign</button><button class="sbtn" onclick="go('copilot-report')">Reply to Marcus</button></div>
+  </div>`)
+)});
+
+/* ---------- PHASE: AUTOPILOT ---------- */
+S({id:'auto-1',phase:'Autopilot flow',surface:'slack',title:'Step 1 — Autopilot confirmation',step:'Autopilot · Step 1',
+caption:'If the user chooses Autopilot, EVE confirms the working mode and that no step-by-step approval is required.',
+render:()=>slack('EVE',
+  userMsg('9:11 AM',`Run it on autopilot.`)+
+  eveMsg('9:11 AM',`<p>Perfect. I’ll run this campaign on autopilot. I’ll find the right prospects, prepare the outreach, send connection requests and follow-ups, monitor replies, and track booked meetings.</p>
+  <p>You don’t need to approve every step — I’ll keep you updated with daily reports in Slack.</p>
+  <div class="btnrow"><button class="sbtn green" onclick="go('auto-2')">Confirm Autopilot</button></div>`)
+)});
+
+S({id:'auto-2',phase:'Autopilot flow',surface:'slack',title:'Step 2 — Background campaign creation',step:'Autopilot · Step 2',
+caption:'After confirmation EVE builds everything in the background: name, audience, strategy, sequence, prospect list, personalized messages with confirmed evidence and the booking link — all within safety limits.',
+render:()=>slack('EVE',
+  eveMsg('9:11 AM',`On it. Building the whole campaign now — I’ll ping you when it’s live. 🚀`)+
+  eveMsg('9:38 AM',`<div class="skcard"><h4>⚙️ Setting up your campaign (autopilot)</h4>
+  <div class="timeline">
+    <div class="t"><span class="dot done"></span>Defined campaign name & target audience</div>
+    <div class="t"><span class="dot done"></span>Built campaign strategy & sequence steps</div>
+    <div class="t"><span class="dot done"></span>Generated prospect list (142 prospects)</div>
+    <div class="t"><span class="dot done"></span>Prepared personalized messages</div>
+    <div class="t"><span class="dot done"></span>Applied confirmed public evidence + booking link</div>
+    <div class="t"><span class="dot next"></span>Respecting LinkedIn safety limits</div>
+  </div>
+  <div class="btnrow"><button class="sbtn primary" onclick="go('auto-3')">Start execution →</button></div>
+  </div>`)
+)});
+
+S({id:'auto-3',phase:'Autopilot flow',surface:'slack',title:'Step 3 — Background execution',step:'Autopilot · Step 3',
+caption:'EVE starts executing without additional approval — visiting profiles, sending requests and follow-ups, monitoring replies, detecting positive responses, tracking booked meetings, and pausing risky cases.',
+render:()=>slack('EVE',
+  eveMsg('9:39 AM',`✅ Campaign <b>Series-B SaaS RevOps Q3</b> is live and running on autopilot. I’ll work through it within your safety limits and send your first daily report this evening.`)+
+  eveMsg('9:39 AM',`<div class="skcard"><h4>🤖 Now running in the background</h4>
+  <div class="chips">
+    <span class="chip">Visiting profiles</span><span class="chip">Sending connection requests</span><span class="chip">Sending follow-ups</span>
+    <span class="chip">Monitoring replies</span><span class="chip">Detecting positive responses</span><span class="chip">Tracking booked meetings</span>
+    <span class="chip gray">Pauses risky/unclear cases</span><span class="chip gray">Randomized timing</span>
+  </div>
+  <div class="btnrow"><button class="sbtn primary" onclick="go('auto-4')">See tonight’s report →</button><button class="sbtn" onclick="go('auto-campaigns')">Open in web app</button></div>
+  </div>`)
+)});
+
+S({id:'auto-4',phase:'Autopilot flow',surface:'slack',title:'Step 4 — Daily Slack report',step:'Autopilot · Step 4',
+caption:'The user receives a daily report: profiles visited, requests and messages sent, who replied, promising replies, meetings booked, and what EVE plans next.',
+render:()=>slack('EVE',
+  eveMsg('6:00 PM',`<p>Quick update from today 👇</p>
+  <p>I visited <b>34 profiles</b>, sent <b>18 connection requests</b>, and followed up with <b>7 prospects</b>. Two people replied. One looks promising — <b>Sarah from Acme</b> asked for more details, so I’ll continue the conversation tomorrow. I also detected one booked meeting for <b>Thursday at 2 PM</b>. 🎉</p>
+  <div class="skcard"><div class="skfields">
+    <div><div class="lbl">Profiles visited</div>34</div>
+    <div><div class="lbl">Connection requests</div>18</div>
+    <div><div class="lbl">Follow-ups</div>7</div>
+    <div><div class="lbl">Replies</div>2 (1 promising)</div>
+    <div><div class="lbl">Meetings booked</div>1 · Thu 2:00 PM</div>
+    <div><div class="lbl">Next</div>Continue Sarah + next batch</div>
+  </div>
+  <div class="btnrow"><button class="sbtn primary" onclick="go('auto-campaigns')">Open campaign in web app</button></div>
+  </div>`)
+)});
+
+S({id:'auto-campaigns',phase:'Autopilot flow',surface:'web',title:'Step 5 — Campaigns list',step:'Autopilot · Step 5',
+caption:'Even in Autopilot, the user can open the Campaigns page anytime. The running campaign shows status “In progress”. Click it to open full analytics.',
+render:()=>campaignsList('Autopilot','auto-web')});
+
+S({id:'auto-web',phase:'Autopilot flow',surface:'web',title:'Step 5 — Visibility in web app',step:'Autopilot · Step 5',
+caption:'Opening the campaign shows strategy, prospects, messages, completed/scheduled actions, replies, meetings, and analytics — and the user can pause or stop at any time.',
+render:()=>browser('/campaigns/series-b-saas','campaigns',`
+  <div class="web-h"><div><h2>Series-B SaaS RevOps Q3</h2><div class="desc"><span class="pill run">● In progress · Autopilot</span></div></div>
+    <div class="right"><button class="wbtn" onclick="go('auto-campaigns')">← Campaigns</button><button class="wbtn" onclick="go('auto-web')">Pause</button><button class="wbtn danger" onclick="go('auto-web')">Stop</button></div></div>
+  <div class="grid4">
+    <div class="stat"><div class="lab">Profiles visited</div><div class="val">34</div></div>
+    <div class="stat"><div class="lab">Completed actions</div><div class="val">59</div></div>
+    <div class="stat"><div class="lab">Scheduled actions</div><div class="val">414</div></div>
+    <div class="stat good"><div class="lab">Replies</div><div class="val">2</div></div>
+    <div class="stat good"><div class="lab">Meetings booked</div><div class="val">1</div></div>
+    <div class="stat"><div class="lab">Connection requests</div><div class="val">18</div></div>
+    <div class="stat good"><div class="lab">Accepted</div><div class="val">9</div></div>
+    <div class="stat warn"><div class="lab">Needs attention</div><div class="val">1</div></div>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="card"><h3>Campaign strategy</h3><p style="font-size:12.8px;color:#444b59;line-height:1.55;margin:0">Target recently funded SaaS RevOps leaders; lead with post-raise scaling pain and the $630K reactivation proof point; 4-step LinkedIn sequence over ~6 weeks.</p></div>
+    <div class="card"><h3>Message examples</h3>
+      <div class="mprev" style="margin-top:0"><div class="h">Connection request</div><div class="b">Hi {{firstName}} — saw {{company}} just closed your Series B, congrats…</div></div>
+    </div>
+  </div>
+  <div class="legend">Tabs available: Strategy · Prospect list · Messages · Actions · Replies · Meetings · Analytics. You can pause or stop anytime.</div>
+`)});
+
+S({id:'auto-6',phase:'Autopilot flow',surface:'slack',title:'Step 6 — Human escalation',step:'Autopilot · Step 6',
+caption:'EVE asks for help only when needed — e.g. a question it can’t answer confidently, a pricing/proposal request, a sensitive reply, LinkedIn risk, or a booking it can’t match to a prospect.',
+render:()=>slack('EVE',
+  eveMsg('2:14 PM',`<p>👋 Quick one — I need your call on this. <b>Marcus @ NovaGroup</b> replied asking for <b>pricing for a 40-seat team</b>. That’s above what I’ll quote on my own.</p>
+  <div class="quote">“Looks interesting. What would this run us for ~40 seats?”</div>
+  <div class="btnrow"><button class="sbtn green" onclick="go('auto-6')">Draft a reply for me</button><button class="sbtn" onclick="go('auto-6')">I’ll handle it</button></div></p>`)+
+  eveMsg('2:14 PM',`<div class="skcard" style="border-left-color:var(--warn)"><h4>When I’ll escalate to you</h4>
+  <div class="timeline">
+    <div class="t"><span class="dot next"></span>A question I can’t answer confidently</div>
+    <div class="t"><span class="dot next"></span>Pricing approval or a custom proposal request</div>
+    <div class="t"><span class="dot next"></span>A negative or sensitive response</div>
+    <div class="t"><span class="dot next"></span>Risk of a LinkedIn restriction</div>
+    <div class="t"><span class="dot next"></span>A booking I can’t match to a prospect</div>
+  </div></div>`)
+)});
+
+/* ============================ Render engine ============================ */
+const nav=document.getElementById('nav');
+const LI=new Set(['setup-1','copilot-proposal','copilot-style','copilot-prospects','copilot-list','copilot-plan','copilot-safety','copilot-messages','copilot-analytics','auto-2','auto-3','auto-web','auto-6']);
+function shortLabel(t){return t.replace(/^Steps?[^—]*—\s*/,'').replace(/\s*\([^)]*\)\s*$/,'');}
+let lastPhase='';
+SCREENS.forEach((s,i)=>{
+  if(s.phase!==lastPhase){const p=document.createElement('div');p.className='phase';p.textContent=s.phase;nav.appendChild(p);lastPhase=s.phase;}
+  const a=document.createElement('a');a.dataset.id=s.id;
+  a.innerHTML=`<span class="num">${i+1}</span><span class="lbl">${shortLabel(s.title)}</span>`;
+  a.onclick=()=>go(s.id);
+  nav.appendChild(a);
+});
+
+function render(){
+  let id=location.hash.replace('#','')||SCREENS[0].id;
+  let idx=SCREENS.findIndex(s=>s.id===id); if(idx<0){idx=0;id=SCREENS[0].id;}
+  const s=SCREENS[idx];
+  document.getElementById('scr-title').textContent=s.title;
+  document.getElementById('scr-step').textContent=s.step;
+  document.getElementById('caption').innerHTML=s.caption;
+  document.getElementById('screen').innerHTML=s.render();
+  document.querySelectorAll('#surface-pill span').forEach(el=>el.classList.toggle('on',el.dataset.s===s.surface));
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active',a.dataset.id===s.id));
+  const active=document.querySelector('.nav a.active'); if(active)active.scrollIntoView({block:'nearest'});
+  const prev=document.getElementById('prevBtn'),next=document.getElementById('nextBtn');
+  prev.disabled=idx===0; next.disabled=idx===SCREENS.length-1;
+  prev.onclick=()=>go(SCREENS[Math.max(0,idx-1)].id);
+  next.onclick=()=>go(SCREENS[Math.min(SCREENS.length-1,idx+1)].id);
+  document.querySelector('.canvas').scrollTop=0;
+}
+window.addEventListener('hashchange',render);
+render();
+</script>
+</body>
+</html>
