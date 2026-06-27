@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EVE — Connect LinkedIn (Mockup)</title>
+<style>
+  :root{
+    --bg:#f4f3f0; --surface:#ffffff; --ink:#1c1b19; --muted:#6b6a64;
+    --line:#e4e2db; --line2:#d2d0c8; --eve:#5b4ad6; --eve-soft:#efedfd;
+    --li:#0a66c2; --li-soft:#e8f1fb; --ok:#1d8a5e; --ok-soft:#e6f5ee;
+    --err:#c0392b; --err-soft:#fbeceb; --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px}
+  h1{font-size:18px;font-weight:600}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px}
+
+  /* Toolbar */
+  .toolbar{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .toolbar .label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-right:6px}
+  .chip{font-size:12.5px;border:1px solid var(--line2);background:var(--surface);color:var(--ink);padding:6px 11px;border-radius:20px;cursor:pointer;transition:.12s}
+  .chip:hover{border-color:var(--eve);color:var(--eve)}
+  .chip.active{background:var(--eve);color:#fff;border-color:var(--eve)}
+
+  .stage{max-width:760px;margin:0 auto}
+  .win{display:none}
+  .win.show{display:block;animation:fade .22s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .win-slack{max-width:420px;margin:0 auto}
+
+  .panel-title{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px 2px}
+
+  /* Slack */
+  .slack{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .slack-head{background:#3f0e40;color:#fff;padding:10px 14px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .slack-body{padding:14px}
+  .msg{display:flex;gap:10px}
+  .msg .ava{width:36px;height:36px;border-radius:8px;background:var(--eve);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+  .msg .who{font-weight:700;font-size:13.5px}
+  .msg .who span{font-size:10px;font-weight:600;background:#e3e1f9;color:var(--eve);padding:1px 5px;border-radius:4px;margin-left:6px;vertical-align:middle}
+  .msg .time{color:var(--muted);font-size:11px;margin-left:6px;font-weight:400}
+  .msg .text{font-size:13.5px;margin-top:3px;color:#222}
+  .li-card{margin-top:10px;border:1px solid var(--line2);border-left:3px solid var(--li);border-radius:8px;padding:11px 12px;background:#fcfcfb}
+  .li-card .t{font-weight:600;font-size:13px;display:flex;align-items:center;gap:7px}
+  .li-card .d{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .cta{margin-top:11px;display:inline-flex;align-items:center;gap:7px;background:var(--li);color:#fff;border:none;font-size:13px;font-weight:600;padding:8px 14px;border-radius:7px;cursor:pointer}
+  .cta:hover{background:#085196}
+
+  /* Browser frame */
+  .browser{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;min-height:520px;position:relative}
+  .chrome{background:#ecebe6;border-bottom:1px solid var(--line);padding:9px 12px;display:flex;align-items:center;gap:8px}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .url{flex:1;background:#fff;border:1px solid var(--line2);border-radius:7px;font-size:12px;color:var(--muted);padding:5px 11px;margin-left:6px}
+
+  /* Integrations page */
+  .app{display:flex;min-height:471px}
+  .side{width:172px;background:#faf9f6;border-right:1px solid var(--line);padding:16px 12px;flex-shrink:0}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin-bottom:18px}
+  .brand .logo{width:26px;height:26px;border-radius:7px;background:var(--eve);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+  .nav a{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);padding:8px 10px;border-radius:7px;text-decoration:none;margin-bottom:2px}
+  .nav a.on{background:var(--eve-soft);color:var(--eve);font-weight:600}
+  .ico{width:15px;text-align:center}
+  .content{flex:1;padding:22px 26px;overflow:auto}
+  .content h2{font-size:18px;font-weight:600}
+  .content .lede{color:var(--muted);font-size:13px;margin-top:3px;margin-bottom:20px}
+  .sect{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:22px 0 10px}
+
+  .integ{display:flex;align-items:center;gap:13px;border:1px solid var(--line);border-radius:10px;padding:13px 15px;background:#fff;margin-bottom:10px}
+  .integ .badge{width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
+  .badge-li{background:var(--li);color:#fff}
+  .integ .info{flex:1;min-width:0}
+  .integ .name{font-weight:600;font-size:14px}
+  .integ .meta{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .status-pill{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:20px}
+  .pill-off{background:#f0efe9;color:var(--muted)}
+  .pill-on{background:var(--ok-soft);color:var(--ok)}
+  .btn{font-size:13px;font-weight:600;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--line2);background:#fff;color:var(--ink)}
+  .btn:hover{border-color:var(--eve);color:var(--eve)}
+  .btn-primary{background:var(--li);border-color:var(--li);color:#fff}
+  .btn-primary:hover{background:#085196;color:#fff}
+  .btn-danger{color:var(--err);border-color:#eccac6}
+  .btn-danger:hover{background:var(--err-soft);color:var(--err);border-color:var(--err)}
+  .avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #fff;box-shadow:0 0 0 1px var(--line2)}
+  .acct-actions{display:flex;gap:8px}
+  .empty{color:var(--muted);font-size:13px;font-style:italic;padding:6px 2px}
+
+  /* Modal */
+  .overlay{position:absolute;inset:0;background:rgba(28,27,25,.42);display:flex;align-items:center;justify-content:center;z-index:5}
+  .modal{width:380px;background:var(--surface);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.25);overflow:hidden;animation:pop .18s ease}
+  @keyframes pop{from{transform:translateY(8px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+  .modal-head{padding:18px 20px 4px;display:flex;align-items:center;gap:10px}
+  .modal-head .badge{width:34px;height:34px;border-radius:8px;background:var(--li);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+  .modal-head h3{font-size:16px;font-weight:600}
+  .modal-body{padding:14px 20px 20px}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:#333;margin-bottom:5px}
+  .field input{width:100%;font-size:14px;padding:10px 11px;border:1px solid var(--line2);border-radius:8px;outline:none}
+  .field input:focus{border-color:var(--li);box-shadow:0 0 0 3px var(--li-soft)}
+  .helper{font-size:12px;color:var(--muted);margin:-4px 0 12px}
+  .modal-actions{display:flex;gap:9px;margin-top:6px}
+  .modal-actions .btn{flex:1;justify-content:center;text-align:center}
+  .alert{font-size:12.5px;border-radius:8px;padding:9px 11px;margin-bottom:13px;display:flex;gap:8px;align-items:flex-start}
+  .alert-err{background:var(--err-soft);color:var(--err);border:1px solid #f0cdc9}
+
+  .center{text-align:center;padding:26px 10px 12px}
+  .spinner{width:42px;height:42px;border:3px solid var(--li-soft);border-top-color:var(--li);border-radius:50%;margin:0 auto 16px;animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .center .big{font-size:15px;font-weight:600}
+  .center .small{font-size:13px;color:var(--muted);margin-top:5px}
+  .success-ava{width:74px;height:74px;border-radius:50%;margin:0 auto 14px;display:block;border:3px solid var(--ok);object-fit:cover}
+  .check{position:absolute;transform:translate(24px,-22px);width:26px;height:26px;border-radius:50%;background:var(--ok);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid #fff}
+
+  .note{font-size:12px;color:var(--muted);margin-top:14px;padding:10px 12px;background:#faf9f6;border:1px solid var(--line);border-radius:9px}
+  .step-tag{display:inline-block;font-size:11px;font-weight:700;color:var(--eve);background:var(--eve-soft);padding:2px 8px;border-radius:6px;margin-bottom:10px}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>EVE — Connect LinkedIn flow</h1>
+  <p class="sub">Interactive mockup. Walk the happy path by clicking, or jump to any state below.</p>
+
+  <div class="toolbar">
+    <span class="label">States</span>
+    <button class="chip active" data-state="slack">1 · Slack entry</button>
+    <button class="chip" data-state="login">2 · Login popup</button>
+    <button class="chip" data-state="2fa">3 · Auth code</button>
+    <button class="chip" data-state="loading">4 · Connecting</button>
+    <button class="chip" data-state="success">5 · Success</button>
+    <button class="chip" data-state="connected">6 · Connected</button>
+    <button class="chip" data-state="err-login">Err · Login</button>
+    <button class="chip" data-state="err-2fa">Err · Code</button>
+    <button class="chip" data-state="err-expired">Err · Expired</button>
+    <button class="chip" data-state="err-conn">Err · Connect</button>
+  </div>
+
+  <div class="stage">
+    <!-- WINDOW 1: Slack -->
+    <div class="win show win-slack" id="win-slack">
+      <p class="panel-title">Entry point — Slack</p>
+      <div class="slack">
+        <div class="slack-head"><span style="opacity:.8">#</span> eve-assistant</div>
+        <div class="slack-body">
+          <div class="msg">
+            <div class="ava">E</div>
+            <div>
+              <div class="who">EVE <span>APP</span><span class="time">9:14 AM</span></div>
+              <div class="text">Hey Olesia 👋 To find relevant prospects and track conversations, I’ll need access to your LinkedIn.</div>
+              <div class="li-card">
+                <div class="t"><span style="color:var(--li)">in</span> Connect your LinkedIn account</div>
+                <div class="d">Lets EVE identify prospects, read prior conversations, monitor signals, and support outreach.</div>
+                <button class="cta" onclick="go('login')">Connect LinkedIn →</button>
+              </div>
+            </div>
+          </div>
+          <div class="note">Clicking <b>Connect LinkedIn</b> redirects to the EVE web app → Integrations page, and opens the connect popup.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WINDOW 2: Web app -->
+    <div class="win" id="win-app">
+      <p class="panel-title">EVE web app</p>
+      <div class="browser">
+        <div class="chrome">
+          <div class="dot" style="background:#f25f57"></div>
+          <div class="dot" style="background:#fbbe2e"></div>
+          <div class="dot" style="background:#2bca44"></div>
+          <div class="url" id="url">app.eve.ai/integrations</div>
+        </div>
+
+        <div class="app">
+          <div class="side">
+            <div class="brand"><span class="logo">E</span> EVE</div>
+            <nav class="nav">
+              <a href="#"><span class="ico">▦</span> Dashboard</a>
+              <a href="#"><span class="ico">◎</span> Prospects</a>
+              <a href="#"><span class="ico">✉</span> Outreach</a>
+              <a class="on" href="#"><span class="ico">⚿</span> Integrations</a>
+              <a href="#"><span class="ico">⚙</span> Settings</a>
+            </nav>
+          </div>
+
+          <div class="content">
+            <h2>Integrations</h2>
+            <p class="lede">Connect your tools so EVE can work across your stack.</p>
+
+            <div class="sect">Active connections</div>
+            <div id="active-area">
+              <div class="empty" id="active-empty">No active connections yet.</div>
+              <div class="integ hide" id="active-li">
+                <img class="avatar" src="https://i.pravatar.cc/120?img=47" alt="Olesia Kovalenko" />
+                <div class="info">
+                  <div class="name">Olesia Kovalenko</div>
+                  <div class="meta"><span class="status-pill pill-on">● Connected</span> · LinkedIn</div>
+                </div>
+                <div class="acct-actions">
+                  <button class="btn" onclick="alert('Opens Settings & Limits')">Settings &amp; Limits</button>
+                  <button class="btn btn-danger" onclick="disconnect()">Disconnect</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="sect">Available integrations</div>
+            <div class="integ" id="avail-li">
+              <div class="badge badge-li">in</div>
+              <div class="info">
+                <div class="name">LinkedIn</div>
+                <div class="meta"><span class="status-pill pill-off">Not connected</span> · Prospecting &amp; outreach</div>
+              </div>
+              <button class="btn btn-primary" onclick="go('login')">Connect</button>
+            </div>
+            <div class="integ">
+              <div class="badge" style="background:#ea4335;color:#fff">G</div>
+              <div class="info">
+                <div class="name">Gmail</div>
+                <div class="meta"><span class="status-pill pill-off">Not connected</span> · Email</div>
+              </div>
+              <button class="btn">Connect</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL HOST -->
+        <div class="overlay hide" id="overlay">
+          <div class="modal" id="modal"><!-- injected --></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var AVATAR = "https://i.pravatar.cc/120?img=47";
+  var connected = false;
+
+  var modalEl = document.getElementById('modal');
+  var overlay = document.getElementById('overlay');
+  var urlEl = document.getElementById('url');
+
+  function setActive(connectedState){
+    document.getElementById('active-empty').classList.toggle('hide', connectedState);
+    document.getElementById('active-li').classList.toggle('hide', !connectedState);
+    document.getElementById('avail-li').classList.toggle('hide', connectedState);
+    connected = connectedState;
+  }
+
+  function closeModal(){ overlay.classList.add('hide'); }
+  function openModal(html){ modalEl.innerHTML = html; overlay.classList.remove('hide'); }
+
+  function tpl_login(err){
+    return ''+
+    (err?'<div class="modal-head"><div class="badge">in</div><h3>Connect LinkedIn account</h3></div>':
+         '<div class="modal-head"><div class="badge">in</div><h3>Connect LinkedIn account</h3></div>')+
+    '<div class="modal-body">'+
+      (err?'<div class="alert alert-err"><span>⚠</span><span>We couldn’t log in. Please check your email and password.</span></div>':'')+
+      '<div class="field"><label>Email</label><input type="email" placeholder="you@company.com" value="olesia@joineve.ai"></div>'+
+      '<div class="field"><label>Password</label><input type="password" placeholder="••••••••" value="password123"></div>'+
+      '<p class="helper">EVE uses your credentials only to establish the connection.</p>'+
+      '<div class="modal-actions">'+
+        '<button class="btn" onclick="go(\'slack\')">Cancel</button>'+
+        '<button class="btn btn-primary" onclick="go(\'2fa\')">Login</button>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function tpl_2fa(kind){
+    var alertHtml = '';
+    if(kind==='wrong') alertHtml='<div class="alert alert-err"><span>⚠</span><span>The authentication code is incorrect. Please try again.</span></div>';
+    if(kind==='expired') alertHtml='<div class="alert alert-err"><span>⚠</span><span>This code has expired. Please request a new one and try again.</span></div>';
+    return ''+
+    '<div class="modal-head"><div class="badge">in</div><h3>Fill your authentication code</h3></div>'+
+    '<div class="modal-body">'+
+      alertHtml+
+      '<p class="helper" style="margin-top:0">Enter the verification code LinkedIn sent to your device.</p>'+
+      '<div class="field"><label>Authentication code</label><input type="text" inputmode="numeric" placeholder="6-digit code" value="123456" style="letter-spacing:4px"></div>'+
+      (kind==='expired'?'<a href="#" onclick="return false" style="font-size:12.5px;color:var(--li);text-decoration:none">Request a new code</a>':'')+
+      '<div class="modal-actions" style="margin-top:14px">'+
+        '<button class="btn" onclick="go(\'slack\')">Cancel</button>'+
+        '<button class="btn btn-primary" onclick="go(\'loading\')">Login</button>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function tpl_loading(){
+    return ''+
+    '<div class="modal-head"><div class="badge">in</div><h3>Connecting</h3></div>'+
+    '<div class="modal-body"><div class="center">'+
+      '<div class="spinner"></div>'+
+      '<div class="big">Connecting to LinkedIn…</div>'+
+      '<div class="small">This may take a few moments.</div>'+
+    '</div></div>';
+  }
+
+  function tpl_success(){
+    return ''+
+    '<div class="modal-body"><div class="center">'+
+      '<img class="success-ava" src="'+AVATAR+'" alt="profile">'+
+      '<span class="check">✓</span>'+
+      '<div class="big" style="margin-top:4px">You are now connected to LinkedIn</div>'+
+      '<div class="small">Olesia Kovalenko</div>'+
+    '</div>'+
+    '<div class="modal-actions" style="margin-top:6px"><button class="btn btn-primary" style="flex:1;justify-content:center" onclick="finishSuccess()">Done</button></div>'+
+    '</div>';
+  }
+
+  function tpl_connError(){
+    return ''+
+    '<div class="modal-head"><div class="badge">in</div><h3>Connection failed</h3></div>'+
+    '<div class="modal-body">'+
+      '<div class="alert alert-err"><span>⚠</span><span>We couldn’t connect your LinkedIn account. Please try again.</span></div>'+
+      '<div class="modal-actions">'+
+        '<button class="btn" onclick="go(\'slack\')">Cancel</button>'+
+        '<button class="btn btn-primary" onclick="go(\'login\')">Try again</button>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function finishSuccess(){ setActive(true); closeModal(); setChip('connected'); urlEl.textContent='app.eve.ai/integrations'; }
+  function disconnect(){ if(confirm('Disconnect LinkedIn account?')){ setActive(false); showWindow('app'); setChip('slack'); } }
+
+  function setChip(state){
+    document.querySelectorAll('.chip').forEach(function(c){ c.classList.toggle('active', c.dataset.state===state); });
+  }
+
+  function showWindow(which){
+    document.getElementById('win-slack').classList.toggle('show', which==='slack');
+    document.getElementById('win-app').classList.toggle('show', which==='app');
+  }
+
+  function go(state){
+    setChip(state);
+    urlEl.textContent = 'app.eve.ai/integrations';
+    if(state==='slack'){ showWindow('slack'); closeModal(); return; }
+    showWindow('app');
+    if(state==='connected'){ setActive(true); closeModal(); return; }
+    if(state!=='connected') if(!connected) setActive(false);
+
+    switch(state){
+      case 'login': openModal(tpl_login(false)); break;
+      case '2fa': openModal(tpl_2fa('first')); break;
+      case 'loading':
+        openModal(tpl_loading());
+        setTimeout(function(){ if(document.querySelector('.chip.active').dataset.state==='loading'){ go('success'); } }, 1800);
+        break;
+      case 'success': openModal(tpl_success()); break;
+      case 'err-login': openModal(tpl_login(true)); break;
+      case 'err-2fa': openModal(tpl_2fa('wrong')); break;
+      case 'err-expired': openModal(tpl_2fa('expired')); break;
+      case 'err-conn': openModal(tpl_connError()); break;
+    }
+  }
+
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.addEventListener('click', function(){ go(c.dataset.state); });
+  });
+
+  setActive(false);
+</script>
+</body>
+</html>
