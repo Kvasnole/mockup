@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVE — LinkedIn Safety Limits</title>
+<style>
+  :root{
+    --bg:#f5f5f3; --surface:#ffffff; --surface-2:#f3f2ee;
+    --text:#1c1c1a; --text-2:#6b6a64; --text-3:#9b9a92;
+    --border:rgba(0,0,0,.10); --border-2:rgba(0,0,0,.18);
+    --info:#185fa5; --info-bg:#e6f1fb;
+    --success:#0f6e56; --success-bg:#e1f5ee;
+    --warning:#854f0b; --warning-bg:#faeeda;
+    --radius-md:8px; --radius-lg:12px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6;
+    -webkit-font-smoothing:antialiased;padding:32px 16px;}
+  .wrap{max-width:680px;margin:0 auto;}
+  h3{margin:0;font-size:16px;font-weight:500;}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+  .crumb{display:flex;align-items:center;gap:10px;margin-bottom:4px;color:var(--text-2);font-size:13px;}
+  .crumb .here{color:var(--text);}
+  .banner{display:flex;align-items:center;gap:10px;border-radius:var(--radius-md);
+    padding:10px 14px;font-size:13px;}
+  .banner-success{background:var(--success-bg);color:var(--success);}
+  .card{background:var(--surface);border-radius:var(--radius-lg);
+    border:.5px solid var(--border);padding:1.25rem 1.5rem;margin-top:20px;}
+  .head{display:flex;align-items:flex-start;gap:12px;margin-bottom:6px;}
+  .head .ico{width:40px;height:40px;border-radius:var(--radius-md);background:var(--info-bg);
+    display:flex;align-items:center;justify-content:center;color:var(--info);flex-shrink:0;}
+  .head p{margin:4px 0 0;font-size:13px;color:var(--text-2);}
+  .sub-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;margin:18px 0;}
+  .sub-row .left{display:flex;align-items:center;gap:10px;}
+  .label-sm{font-size:12px;color:var(--text-2);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+  .metric{background:var(--surface-2);border-radius:var(--radius-md);padding:14px;}
+  .metric .cap{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);}
+  .metric .val{font-size:24px;font-weight:500;margin-top:6px;}
+  select,input[type=number],button{font-family:inherit;font-size:14px;}
+  select,input[type=number]{height:36px;border:.5px solid var(--border-2);border-radius:var(--radius-md);
+    padding:0 10px;background:var(--surface);color:var(--text);}
+  select:focus,input:focus{outline:none;box-shadow:0 0 0 2px var(--info-bg);border-color:var(--info);}
+  button{border:.5px solid var(--border-2);background:transparent;color:var(--text);
+    border-radius:var(--radius-md);padding:9px 14px;cursor:pointer;transition:background .15s,transform .05s;}
+  button:hover{background:var(--surface-2);}
+  button:active{transform:scale(.98);}
+  .toggle{display:flex;align-items:center;gap:6px;width:100%;justify-content:center;margin-top:18px;font-size:13px;}
+  .panel{overflow:hidden;max-height:0;transition:max-height .25s ease;}
+  .panel-inner{border-top:.5px solid var(--border);margin-top:18px;padding-top:18px;}
+  .field{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .field label{flex:1;font-size:14px;}
+  .field .rec{color:var(--text-3);font-size:12px;}
+  .field input{width:90px;}
+  .warn{display:none;align-items:flex-start;gap:8px;background:var(--warning-bg);color:var(--warning);
+    border-radius:var(--radius-md);padding:10px 12px;font-size:13px;margin-top:14px;}
+  .restore{display:flex;align-items:center;gap:6px;margin-top:14px;font-size:13px;}
+  .foot{display:flex;align-items:center;gap:10px;margin-top:20px;padding-top:18px;border-top:.5px solid var(--border);}
+  .save{background:var(--info);color:#fff;border-color:var(--info);font-weight:500;padding:9px 18px;}
+  .save:hover{background:#14507f;}
+  .hint{font-size:12px;color:var(--text-3);}
+  .success{display:none;align-items:center;gap:10px;background:var(--success-bg);color:var(--success);
+    border-radius:var(--radius-md);padding:12px 14px;font-size:14px;margin-top:16px;}
+  .i{display:inline-block;line-height:1;}
+  svg{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2 class="sr-only">EVE LinkedIn Safety Limits settings — auto-detected subscription and recommended weekly outreach limits with optional advanced editing.</h2>
+
+  <div class="crumb">
+    <span class="i">⚙</span><span>Settings</span><span>›</span><span class="here">LinkedIn</span>
+  </div>
+
+  <div class="banner banner-success">
+    <span class="i">✓</span>
+    <span>LinkedIn account connected. EVE analyzed your account and set the limits below.</span>
+  </div>
+
+  <div class="card">
+    <div class="head">
+      <div class="ico"><span class="i">🛡</span></div>
+      <div>
+        <h3>LinkedIn safety limits</h3>
+        <p>We've automatically configured safe outreach limits for your account. These reduce the risk of restrictions while maximizing outreach performance.</p>
+      </div>
+    </div>
+
+    <div class="sub-row">
+      <div class="left">
+        <span class="i" style="color:var(--info);font-size:18px;">in</span>
+        <div>
+          <div class="label-sm">Detected subscription</div>
+          <div style="font-size:15px;font-weight:500;" id="sub-name">Sales Navigator</div>
+        </div>
+      </div>
+      <select id="sub-select" aria-label="Detected subscription (demo)">
+        <option value="free">Free</option>
+        <option value="premium">Premium</option>
+        <option value="sales" selected>Sales Navigator</option>
+        <option value="recruiter">Recruiter</option>
+      </select>
+    </div>
+
+    <div class="label-sm" style="margin-bottom:10px;">Weekly limits</div>
+    <div class="grid">
+      <div class="metric">
+        <div class="cap">Connection requests</div>
+        <div class="val" id="disp-conn">120</div>
+      </div>
+      <div class="metric">
+        <div class="cap">Messages</div>
+        <div class="val" id="disp-msg">150</div>
+      </div>
+      <div class="metric">
+        <div class="cap">Profile visits</div>
+        <div class="val" id="disp-visit">250</div>
+      </div>
+    </div>
+
+    <button class="toggle" id="adv-toggle" aria-expanded="false">
+      <span>Advanced settings</span><span id="adv-chev">▾</span>
+    </button>
+
+    <div class="panel" id="adv-panel">
+      <div class="panel-inner">
+        <p style="font-size:12px;color:var(--text-2);margin:0 0 14px;">Customize your weekly limits. EVE's recommended safe value is shown beside each field.</p>
+
+        <div class="field">
+          <label for="in-conn">Connection requests <span class="rec">(rec. <span id="rec-conn">120</span>)</span></label>
+          <input type="number" id="in-conn" value="120" min="0" step="1">
+        </div>
+        <div class="field">
+          <label for="in-msg">Messages <span class="rec">(rec. <span id="rec-msg">150</span>)</span></label>
+          <input type="number" id="in-msg" value="150" min="0" step="1">
+        </div>
+        <div class="field" style="margin-bottom:6px;">
+          <label for="in-visit">Profile visits <span class="rec">(rec. <span id="rec-visit">250</span>)</span></label>
+          <input type="number" id="in-visit" value="250" min="0" step="1">
+        </div>
+
+        <div class="warn" id="warn">
+          <span class="i">⚠</span>
+          <span>These limits may increase the risk of LinkedIn account restrictions.</span>
+        </div>
+
+        <button class="restore" id="restore"><span class="i">↻</span><span>Restore EVE recommendations</span></button>
+      </div>
+    </div>
+
+    <div class="foot">
+      <button class="save" id="save">Save safety limits</button>
+      <span class="hint">Recommended limits are applied by default.</span>
+    </div>
+
+    <div class="success" id="success">
+      <span class="i">✓</span>
+      <span>Your LinkedIn safety limits have been configured successfully. EVE will respect these across all LinkedIn activities.</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var REC = {
+    free:      {name:"Free",            conn:40,  msg:60,  visit:100},
+    premium:   {name:"Premium",         conn:80,  msg:120, visit:180},
+    sales:     {name:"Sales Navigator", conn:120, msg:150, visit:250},
+    recruiter: {name:"Recruiter",       conn:150, msg:200, visit:300}
+  };
+  var $ = function(id){return document.getElementById(id);};
+  var current = "sales";
+
+  function applyRec(key){
+    current = key;
+    var r = REC[key];
+    $("sub-name").textContent = r.name;
+    $("rec-conn").textContent = r.conn;
+    $("rec-msg").textContent = r.msg;
+    $("rec-visit").textContent = r.visit;
+    $("in-conn").value = r.conn;
+    $("in-msg").value = r.msg;
+    $("in-visit").value = r.visit;
+    checkWarn();
+    syncDisplay();
+  }
+  function syncDisplay(){
+    $("disp-conn").textContent = Math.round(+$("in-conn").value||0);
+    $("disp-msg").textContent = Math.round(+$("in-msg").value||0);
+    $("disp-visit").textContent = Math.round(+$("in-visit").value||0);
+  }
+  function checkWarn(){
+    var r = REC[current];
+    var over = (+$("in-conn").value > r.conn) || (+$("in-msg").value > r.msg) || (+$("in-visit").value > r.visit);
+    $("warn").style.display = over ? "flex" : "none";
+  }
+  $("sub-select").addEventListener("change", function(){ applyRec(this.value); });
+  ["in-conn","in-msg","in-visit"].forEach(function(id){
+    $(id).addEventListener("input", function(){ checkWarn(); syncDisplay(); });
+  });
+  $("restore").addEventListener("click", function(){ applyRec(current); });
+
+  var open=false;
+  $("adv-toggle").addEventListener("click", function(){
+    open=!open;
+    $("adv-panel").style.maxHeight = open ? "500px" : "0";
+    $("adv-chev").textContent = open ? "▴" : "▾";
+    this.setAttribute("aria-expanded", open);
+  });
+  $("save").addEventListener("click", function(){
+    $("success").style.display="flex";
+    this.textContent="Saved";
+    this.disabled=true;
+    this.style.opacity=.7;
+  });
+})();
+</script>
+</body>
+</html>
