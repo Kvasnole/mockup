@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVE × NextGen Security — Onboarding (interactive mockup)</title>
+<style>
+:root{
+  --eve:#6D4AFF; --eve-deep:#4f30d9; --eve-soft:#efeaff; --eve-soft2:#f6f3ff;
+  --slack-aubergine:#3F0E40; --slack-aubergine-2:#350d36; --slack-hover:#4a154b;
+  --slack-active:#1164A3; --slack-active-bg:#1164A3;
+  --ink:#1d1c1d; --ink-2:#454245; --muted:#616061; --muted-2:#868686;
+  --line:#e8e8e8; --line-2:#dddddd; --bg:#ffffff; --bg-2:#f8f8f8;
+  --green:#2eb67d; --green-deep:#157a51; --amber:#e8912d; --red:#e01e5a;
+  --blue:#1264a3; --chip:#f2f2f2;
+  --radius:10px; --shadow:0 4px 16px rgba(0,0,0,.10); --shadow-lg:0 18px 48px rgba(0,0,0,.22);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Lato,Helvetica,Arial,sans-serif;
+  color:var(--ink); background:#dcdcdc; -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column; height:100vh; overflow:hidden;
+}
+
+/* ---------- Top control bar ---------- */
+.topbar{
+  display:flex; align-items:center; gap:14px; padding:8px 16px;
+  background:#1a1320; color:#fff; flex:0 0 auto; border-bottom:1px solid #000;
+}
+.brand{display:flex; align-items:center; gap:9px; font-weight:800; letter-spacing:.2px}
+.brand .logo{
+  width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--eve),#9b7bff);
+  display:grid;place-items:center;font-weight:900;color:#fff;font-size:14px;box-shadow:0 2px 8px rgba(109,74,255,.5)
+}
+.brand small{font-weight:500;opacity:.6;font-size:11px;margin-left:2px}
+.topbar .spacer{flex:1}
+.viewtoggle{display:flex;background:#2c2333;border-radius:8px;padding:3px;gap:2px}
+.viewtoggle button{
+  border:0;background:transparent;color:#cdbfe0;font-size:12px;font-weight:700;
+  padding:6px 14px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:6px
+}
+.viewtoggle button.on{background:var(--eve);color:#fff}
+.progresswrap{display:flex;align-items:center;gap:10px;color:#cdbfe0;font-size:12px;font-weight:600}
+.progressbar{width:140px;height:6px;border-radius:6px;background:#2c2333;overflow:hidden}
+.progressbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--eve),#9b7bff);transition:width .4s ease}
+.btn-ghost{border:1px solid #3d3346;background:transparent;color:#e9e2f2;font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;cursor:pointer}
+.btn-ghost:hover{background:#2c2333}
+
+/* ---------- App frame ---------- */
+.frame{flex:1;display:flex;min-height:0;position:relative;background:#fff}
+
+/* ===== SLACK VIEW ===== */
+.slack{display:flex;flex:1;min-height:0}
+.sidebar{
+  width:230px;flex:0 0 230px;background:var(--slack-aubergine);color:#cfc3d0;
+  display:flex;flex-direction:column;min-height:0
+}
+.ws-head{
+  padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.12);color:#fff;font-weight:800;font-size:15px;
+  display:flex;align-items:center;justify-content:space-between
+}
+.ws-head .dot{width:9px;height:9px;border-radius:50%;background:var(--green);display:inline-block;margin-right:7px}
+.side-scroll{overflow:auto;padding:10px 8px;flex:1}
+.side-sec{font-size:12px;color:#b3a0b4;font-weight:700;padding:8px 10px 4px;text-transform:none}
+.chan{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;font-size:14px;cursor:default;color:#cfc3d0}
+.chan .hash{opacity:.7;font-weight:600}
+.chan.active{background:var(--slack-active-bg);color:#fff;font-weight:700}
+.chan.dm .av{width:18px;height:18px;border-radius:4px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff}
+.chan .badge{margin-left:auto;background:#cd2553;color:#fff;font-size:11px;font-weight:800;border-radius:9px;padding:1px 7px}
+
+.channel{flex:1;display:flex;flex-direction:column;min-width:0;background:#fff}
+.channel-head{
+  height:58px;flex:0 0 58px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 18px
+}
+.channel-head .title{font-weight:900;font-size:16px;display:flex;align-items:center;gap:6px}
+.channel-head .sub{color:var(--muted);font-size:13px;border-left:1px solid var(--line);padding-left:12px;margin-left:6px}
+.channel-head .right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.pill{font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:var(--eve-soft);color:var(--eve-deep)}
+
+.messages{flex:1;overflow:auto;padding:18px 0 28px}
+.daydiv{display:flex;align-items:center;gap:12px;margin:6px 24px 14px;color:var(--muted);font-size:12px;font-weight:700}
+.daydiv:before,.daydiv:after{content:"";height:1px;background:var(--line);flex:1}
+
+.msg{display:flex;gap:12px;padding:8px 24px;position:relative}
+.msg:hover{background:#f8f8f8}
+.msg .avatar{width:38px;height:38px;border-radius:9px;flex:0 0 38px;display:grid;place-items:center;font-weight:900;color:#fff;font-size:15px}
+.av-eve{background:linear-gradient(135deg,var(--eve),#9b7bff)}
+.av-user{background:#1f7a5c}
+.msg .body{min-width:0;flex:1}
+.msg .name{font-weight:900;font-size:15px;margin-right:8px}
+.msg .name .bot{background:#e1e1e1;color:#4a4a4a;font-size:10px;font-weight:800;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:middle;text-transform:uppercase;letter-spacing:.4px}
+.msg .ts{color:var(--muted-2);font-size:12px;font-weight:500}
+.msg .text{font-size:15px;line-height:1.55;color:var(--ink);margin-top:2px}
+.msg .text p{margin:0 0 8px}
+.msg .text ul{margin:4px 0 8px;padding-left:20px}
+.msg .text li{margin:3px 0}
+.msg .text b,.msg .text strong{font-weight:800}
+.msg .text code{background:#f3f0ff;color:var(--eve-deep);padding:1px 6px;border-radius:5px;font-size:13px;font-family:ui-monospace,Menlo,monospace}
+
+/* Slack action buttons */
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.sbtn{
+  border:1px solid var(--line-2);background:#fff;color:var(--ink);font-weight:800;font-size:13px;
+  padding:9px 14px;border-radius:8px;cursor:pointer;transition:.12s;display:flex;align-items:center;gap:7px
+}
+.sbtn:hover{background:#f6f6f6;border-color:#c9c9c9}
+.sbtn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.sbtn.primary:hover{background:var(--green-deep)}
+.sbtn.eve{background:var(--eve);border-color:var(--eve);color:#fff}
+.sbtn.eve:hover{background:var(--eve-deep)}
+.sbtn.danger{color:var(--red);border-color:#f3c5d4}
+.sbtn.danger:hover{background:#fdeef3}
+.sbtn:disabled{opacity:.5;cursor:default}
+.actions.locked .sbtn{pointer-events:none}
+.sbtn.chosen{background:var(--eve-deep);border-color:var(--eve-deep);color:#fff}
+.actions.locked .sbtn:not(.chosen){opacity:.4}
+
+/* cards / attachments */
+.attach{border-left:4px solid var(--eve);background:#fbfaff;border:1px solid #ece8fb;border-left-width:4px;border-radius:8px;padding:14px 16px;margin-top:10px;max-width:720px}
+.attach h4{margin:0 0 4px;font-size:14px;font-weight:900;display:flex;align-items:center;gap:8px}
+.attach .kv{display:flex;flex-wrap:wrap;gap:6px 22px;margin:8px 0 0;font-size:13px;color:var(--ink-2)}
+.attach .kv span b{color:var(--muted);font-weight:700;margin-right:5px;font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{background:var(--chip);border:1px solid var(--line);font-size:12px;font-weight:700;border-radius:20px;padding:4px 11px;color:var(--ink-2)}
+.chip.eve{background:var(--eve-soft);border-color:#e0d7ff;color:var(--eve-deep)}
+.chip.green{background:#e7f7ef;border-color:#c4ecd9;color:var(--green-deep)}
+.chip.amber{background:#fdf2e3;border-color:#f6dcb4;color:#9a5b14}
+
+/* prospect cards */
+.prospect{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px;max-width:740px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.prospect.removed{opacity:.45;filter:grayscale(.4)}
+.prospect .ph{display:flex;align-items:flex-start;gap:12px}
+.prospect .pa{width:42px;height:42px;border-radius:50%;flex:0 0 42px;display:grid;place-items:center;font-weight:900;color:#fff;font-size:15px;background:#7a7a7a}
+.prospect .pn{font-weight:900;font-size:15px}
+.prospect .pt{color:var(--muted);font-size:13px}
+.fit{margin-left:auto;text-align:right;flex:0 0 auto}
+.fit .score{font-weight:900;font-size:18px;color:var(--green-deep)}
+.fit .lbl{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.prospect .reason{font-size:13px;color:var(--ink-2);line-height:1.5;margin-top:10px;background:#fafafa;border-radius:8px;padding:9px 11px}
+.prospect .reason b{color:var(--eve-deep)}
+.prospect .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.prospect .contact{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:12.5px;color:var(--blue);font-weight:700}
+.prospect .contact a{color:var(--blue);text-decoration:none}
+.prospect .pact{display:flex;gap:7px;margin-top:11px}
+.minib{border:1px solid var(--line-2);background:#fff;font-size:12px;font-weight:800;padding:6px 11px;border-radius:7px;cursor:pointer;color:var(--ink-2)}
+.minib:hover{background:#f5f5f5}
+.minib.danger{color:var(--red);border-color:#f3c5d4}
+.enrichbox{margin-top:9px;border-top:1px dashed var(--line);padding-top:9px;display:none;font-size:12.5px}
+.enrichbox.show{display:block}
+.enrichbox .kv{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px}
+.enrichbox .kv span b{color:var(--muted);font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.3px;margin-right:5px}
+
+/* typing */
+.typing{display:flex;gap:12px;padding:8px 24px}
+.typing .avatar{width:38px;height:38px;border-radius:9px;flex:0 0 38px}
+.typing .bubble{display:flex;align-items:center;gap:5px;background:#f0eefb;border-radius:14px;padding:12px 16px;align-self:center}
+.typing .bubble i{width:7px;height:7px;border-radius:50%;background:#b3a6e6;animation:bounce 1.2s infinite}
+.typing .bubble i:nth-child(2){animation-delay:.18s}.typing .bubble i:nth-child(3){animation-delay:.36s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+
+/* composer */
+.composer{flex:0 0 auto;padding:0 24px 22px}
+.composer .box{border:1px solid var(--line-2);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;color:var(--muted-2);box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.composer .box .plus{width:26px;height:26px;border-radius:6px;border:1px solid var(--line-2);display:grid;place-items:center;font-size:16px;color:var(--muted)}
+.composer .send{margin-left:auto;width:30px;height:30px;border-radius:7px;background:#e8e8e8;display:grid;place-items:center;color:#fff;font-size:14px}
+
+/* analyzing splash */
+.analyzing{padding:8px 24px}
+.analyzing .card{max-width:560px;border:1px solid var(--line);border-radius:14px;padding:18px;background:linear-gradient(180deg,#fbfaff,#fff)}
+.analyzing .row{display:flex;align-items:center;gap:11px;font-size:14px;color:var(--ink-2);padding:7px 0}
+.analyzing .row .ic{width:22px;height:22px;border-radius:50%;border:2px solid #e0d7ff;border-top-color:var(--eve);animation:spin 1s linear infinite;flex:0 0 22px}
+.analyzing .row.done .ic{border:0;background:var(--green);color:#fff;display:grid;place-items:center;font-size:13px;animation:none}
+.analyzing .row.pending{opacity:.45}
+.analyzing .row.pending .ic{border-color:#e8e8e8;border-top-color:#e8e8e8;animation:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== WEB APP VIEW ===== */
+.webapp{position:absolute;inset:0;display:none;background:#f4f5f9}
+.webapp.show{display:flex}
+.wa-side{width:230px;flex:0 0 230px;background:#fff;border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column}
+.wa-brand{display:flex;align-items:center;gap:9px;font-weight:900;font-size:17px;padding:4px 8px 18px}
+.wa-brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--eve),#9b7bff);display:grid;place-items:center;color:#fff;font-weight:900}
+.wa-nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;color:var(--ink-2);font-weight:700;font-size:14px;text-decoration:none;margin-bottom:2px}
+.wa-nav a .gi{width:18px;text-align:center;opacity:.7}
+.wa-nav a.active{background:var(--eve-soft);color:var(--eve-deep)}
+.wa-main{flex:1;overflow:auto;padding:30px 40px}
+.wa-bc{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:6px}
+.wa-h1{font-size:24px;font-weight:900;margin:0 0 4px}
+.wa-sub{color:var(--muted);font-size:14px;margin:0 0 24px}
+.wa-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px;max-width:680px}
+.wa-card h3{margin:0 0 3px;font-size:16px;font-weight:900;display:flex;align-items:center;gap:9px}
+.wa-card .desc{color:var(--muted);font-size:13.5px;margin:0 0 14px;line-height:1.5}
+.integ-row{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--line);border-radius:11px;margin-top:10px}
+.integ-row .ilogo{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;font-weight:900;color:#fff;font-size:16px;flex:0 0 42px}
+.integ-row .iname{font-weight:800;font-size:14.5px}
+.integ-row .istat{font-size:12.5px;color:var(--muted)}
+.integ-row .iact{margin-left:auto}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.status-dot.on{background:var(--green)}.status-dot.off{background:#c7c7c7}
+.wbtn{border:1px solid var(--eve);background:var(--eve);color:#fff;font-weight:800;font-size:13px;padding:9px 16px;border-radius:9px;cursor:pointer}
+.wbtn:hover{background:var(--eve-deep)}
+.wbtn.ghost{background:#fff;color:var(--ink-2);border-color:var(--line-2)}
+.wbtn.ghost:hover{background:#f6f6f6}
+.wbtn.green{background:var(--green);border-color:var(--green)}
+.wbtn.green:hover{background:var(--green-deep)}
+.wbtn:disabled{opacity:.5;cursor:default}
+
+/* popup */
+.overlay{position:absolute;inset:0;background:rgba(20,12,30,.45);display:none;align-items:center;justify-content:center;z-index:40;padding:20px}
+.overlay.show{display:flex}
+.popup{background:#fff;border-radius:18px;box-shadow:var(--shadow-lg);width:430px;max-width:100%;padding:26px;animation:pop .25s ease}
+@keyframes pop{from{transform:translateY(12px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.popup .ph{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.popup .ph .lg{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:900}
+.popup h3{margin:0;font-size:18px;font-weight:900}
+.popup .psub{color:var(--muted);font-size:13px;margin:2px 0 18px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12.5px;font-weight:800;color:var(--ink-2);margin-bottom:5px}
+.field input{width:100%;border:1px solid var(--line-2);border-radius:9px;padding:11px 12px;font-size:14px;outline:none}
+.field input:focus{border-color:var(--eve);box-shadow:0 0 0 3px var(--eve-soft)}
+.popup .row{display:flex;gap:10px;margin-top:6px}
+.popup .row .wbtn{flex:1;text-align:center}
+.choice{display:flex;gap:12px;margin:6px 0 4px}
+.choice .opt{flex:1;border:1.5px solid var(--line-2);border-radius:12px;padding:16px 12px;text-align:center;cursor:pointer;font-weight:800;font-size:13.5px;transition:.12s;display:flex;flex-direction:column;align-items:center;gap:9px}
+.choice .opt:hover{border-color:var(--eve);background:var(--eve-soft2)}
+.choice .opt .g{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:15px}
+.popup .loadwrap{text-align:center;padding:18px 0}
+.popup .spinner{width:46px;height:46px;border-radius:50%;border:4px solid var(--eve-soft);border-top-color:var(--eve);margin:0 auto 16px;animation:spin 1s linear infinite}
+.popup .ok{width:64px;height:64px;border-radius:50%;background:var(--green);display:grid;place-items:center;color:#fff;font-size:32px;margin:6px auto 14px}
+.errline{background:#fdeef3;border:1px solid #f3c5d4;color:#b3194a;font-size:12.5px;font-weight:700;border-radius:8px;padding:9px 11px;margin-bottom:12px;display:none}
+.errline.show{display:block}
+.profilechip{display:flex;align-items:center;gap:11px;justify-content:center;margin-bottom:6px}
+.profilechip .pp{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#378fe9);display:grid;place-items:center;color:#fff;font-weight:900;font-size:18px}
+
+/* safety limits */
+.limit-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:14px 0}
+.limit-box{border:1px solid var(--line);border-radius:11px;padding:13px;text-align:center;background:#fafafa}
+.limit-box .v{font-size:24px;font-weight:900;color:var(--eve-deep)}
+.limit-box .l{font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:3px}
+.limit-box input{width:70px;text-align:center;font-size:20px;font-weight:900;color:var(--eve-deep);border:1px solid var(--line-2);border-radius:7px;padding:3px}
+.adv-toggle{font-size:13px;font-weight:800;color:var(--eve);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.warnline{background:#fdf2e3;border:1px solid #f6dcb4;color:#9a5b14;font-size:12.5px;font-weight:700;border-radius:8px;padding:9px 11px;margin-top:10px;display:none}
+.warnline.show{display:block}
+.sub-badge{font-size:12px;font-weight:800;color:#0a66c2;background:#e7f0fb;border:1px solid #c9e0f7;border-radius:20px;padding:3px 11px;display:inline-block}
+
+.toast{position:absolute;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1320;color:#fff;font-weight:700;font-size:13px;padding:11px 18px;border-radius:11px;box-shadow:var(--shadow-lg);opacity:0;transition:.3s;z-index:60;display:flex;align-items:center;gap:9px;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* complete card */
+.complete{border:2px solid var(--green);background:#f3fbf7;border-radius:14px;padding:18px;margin-top:10px;max-width:720px}
+.complete h4{margin:0 0 10px;font-size:16px;color:var(--green-deep);display:flex;align-items:center;gap:9px}
+.complete ul{list-style:none;margin:0;padding:0}
+.complete li{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:14px;color:var(--ink-2)}
+.complete li .ck{width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:12px;flex:0 0 20px}
+
+@media (max-width:760px){.sidebar,.wa-side{display:none}.progresswrap{display:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo">E</span> EVE <small>onboarding · NextGen Security</small></div>
+  <div class="spacer"></div>
+  <div class="progresswrap">
+    <span id="stepLabel">Step 1 / 12</span>
+    <div class="progressbar"><i id="progFill"></i></div>
+  </div>
+  <div class="viewtoggle">
+    <button id="vSlack" class="on" onclick="setView('slack')">▦ Slack</button>
+    <button id="vWeb" onclick="setView('web')">🖥 Web app</button>
+  </div>
+  <button class="btn-ghost" onclick="restart()">↻ Restart</button>
+</div>
+
+<div class="frame">
+  <!-- ===================== SLACK VIEW ===================== -->
+  <div class="slack" id="slackView">
+    <aside class="sidebar">
+      <div class="ws-head"><span><span class="dot"></span>NextGen Security</span><span style="opacity:.5">⌄</span></div>
+      <div class="side-scroll">
+        <div class="side-sec">Channels</div>
+        <div class="chan"><span class="hash">#</span> general</div>
+        <div class="chan"><span class="hash">#</span> sales</div>
+        <div class="side-sec">Apps &amp; DMs</div>
+        <div class="chan dm active"><span class="av" style="background:linear-gradient(135deg,var(--eve),#9b7bff)">E</span> EVE <span class="badge" id="dmBadge">1</span></div>
+        <div class="chan dm"><span class="av" style="background:#1f7a5c">S</span> Sam (you)</div>
+      </div>
+    </aside>
+
+    <main class="channel">
+      <div class="channel-head">
+        <div class="title"><span class="av-eve" style="width:24px;height:24px;border-radius:6px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:12px">E</span> EVE</div>
+        <div class="sub">Your AI BDR · setting up your first campaign</div>
+        <div class="right"><span class="pill" id="modePill" style="display:none"></span></div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="composer">
+        <div class="box">
+          <span class="plus">+</span>
+          <span id="composerHint">Message EVE…</span>
+          <span class="send">➤</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================== WEB APP VIEW ===================== -->
+  <div class="webapp" id="webView">
+    <aside class="wa-side">
+      <div class="wa-brand"><span class="logo">E</span> EVE</div>
+      <nav class="wa-nav" id="waNav">
+        <a><span class="gi">▥</span> Dashboard</a>
+        <a><span class="gi">🎯</span> Campaigns</a>
+        <a><span class="gi">👤</span> Prospects</a>
+        <a class="active" id="navInteg"><span class="gi">🔌</span> Integrations</a>
+        <a><span class="gi">⚙️</span> Settings</a>
+      </nav>
+    </aside>
+    <div class="wa-main" id="waMain"><!-- web app pages injected here --></div>
+  </div>
+
+  <!-- popup overlay -->
+  <div class="overlay" id="overlay"><div id="popupHost"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ============================================================
+   EVE Onboarding — interactive mockup engine
+   ============================================================ */
+const FLOW_TOTAL = 11;
+let state = {};
+const messagesEl = document.getElementById('messages');
+const overlay = document.getElementById('overlay');
+const popupHost = document.getElementById('popupHost');
+
+function resetState(){
+  state = { channel:null, goal:null, crm:false, crmProposed:false, mode:null, campaign:null,
+            inboxDone:false, liDone:false, limitsDone:false, calDone:false,
+            bookingDone:false, removed:{} , step:1 };
+}
+
+/* ---------- view + progress ---------- */
+function setView(v){
+  document.getElementById('slackView').style.display = v==='slack'?'flex':'none';
+  document.getElementById('webView').classList.toggle('show', v==='web');
+  document.getElementById('vSlack').classList.toggle('on', v==='slack');
+  document.getElementById('vWeb').classList.toggle('on', v==='web');
+}
+function setStep(n){
+  state.step=n;
+  document.getElementById('stepLabel').textContent = 'Step '+Math.min(n,FLOW_TOTAL)+' / '+FLOW_TOTAL;
+  document.getElementById('progFill').style.width = Math.min(100,(n/FLOW_TOTAL)*100)+'%';
+}
+function toast(txt){
+  const t=document.getElementById('toast'); t.innerHTML='✦ '+txt; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* ---------- message rendering ---------- */
+function scrollDown(){ requestAnimationFrame(()=>{ messagesEl.scrollTop = messagesEl.scrollHeight; }); }
+function now(){ const d=new Date(); let h=d.getHours(),m=d.getMinutes(); const ap=h>=12?'PM':'AM'; h=h%12||12; return h+':'+String(m).padStart(2,'0')+' '+ap; }
+
+function eveMsg(html){
+  const el=document.createElement('div'); el.className='msg';
+  el.innerHTML=`<div class="avatar av-eve">E</div><div class="body">
+     <div><span class="name">EVE <span class="bot">App</span></span><span class="ts">${now()}</span></div>
+     <div class="text">${html}</div></div>`;
+  messagesEl.appendChild(el); scrollDown(); return el;
+}
+function userMsg(html){
+  const el=document.createElement('div'); el.className='msg';
+  el.innerHTML=`<div class="avatar av-user">S</div><div class="body">
+     <div><span class="name">Sam</span><span class="ts">${now()}</span></div>
+     <div class="text">${html}</div></div>`;
+  messagesEl.appendChild(el); scrollDown(); return el;
+}
+function systemNote(html){
+  const el=document.createElement('div'); el.className='daydiv'; el.innerHTML=html;
+  messagesEl.appendChild(el); scrollDown(); return el;
+}
+
+/* typing then callback */
+function typing(ms,cb){
+  const t=document.createElement('div'); t.className='typing';
+  t.innerHTML=`<div class="avatar av-eve" style="display:grid;place-items:center;color:#fff;font-weight:900">E</div>
+    <div class="bubble"><i></i><i></i><i></i></div>`;
+  messagesEl.appendChild(t); scrollDown();
+  setTimeout(()=>{ t.remove(); cb&&cb(); }, ms||1100);
+}
+
+/* lock an action group + mark chosen */
+function lock(groupEl, chosenBtn){
+  groupEl.classList.add('locked');
+  [...groupEl.querySelectorAll('.sbtn')].forEach(b=>{ if(b===chosenBtn) b.classList.add('chosen'); });
+}
+
+/* ============================================================
+   STEP 1 + 2 — Workspace analysis & business summary
+   ============================================================ */
+function start(){
+  resetState(); setStep(1); setView('slack'); messagesEl.innerHTML='';
+  document.getElementById('modePill').style.display='none';
+  document.getElementById('dmBadge').style.display='';
+  systemNote('Today');
+  systemNote('EVE was added to <b>NextGen Security</b> by Sam');
+
+  typing(800,()=>{
+    eveMsg(`<p>Hey Sam! I'm <b>Eve</b>, your AI BDR 👋</p>
+      <p>Before we get started, please share your company website so I can learn more about your product and ideal customers.</p>
+      <div class="actions" id="a-site">
+        <button class="sbtn eve" onclick="shareWebsite(this)">📎 Share nextgensecured.com</button>
+      </div>`);
+  });
+}
+function shareWebsite(b){
+  lock(document.getElementById('a-site'),b);
+  userMsg('nextgensecured.com');
+  typing(1100,()=>{
+    eveMsg(`<p>Got it — thank you! I'm reviewing your website now to learn more about your product, who it's built for, and the problems it solves.</p>
+      <p>I'll be back shortly with a summary and a suggested ICP for you to review.</p>`);
+    setTimeout(runAnalysis,900);
+  });
+}
+function runAnalysis(){
+  const a = document.createElement('div'); a.className='analyzing';
+  a.innerHTML=`<div class="card">
+     <div style="font-weight:900;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span class="brand"><span class="logo" style="width:22px;height:22px;font-size:12px">E</span></span> Reviewing <code>nextgensecured.com</code>…</div>
+     <div class="row" data-i="0"><span class="ic"></span> Opening <code>nextgensecured.com</code></div>
+     <div class="row pending" data-i="1"><span class="ic"></span> Reading the website</div>
+     <div class="row pending" data-i="2"><span class="ic"></span> Identifying products &amp; services</div>
+     <div class="row pending" data-i="3"><span class="ic"></span> Mapping your ideal customers</div>
+     <div class="row pending" data-i="4"><span class="ic"></span> Building an understanding of your business</div>
+   </div>`;
+  messagesEl.appendChild(a); scrollDown();
+  const rows=[...a.querySelectorAll('.row')];
+  let i=0;
+  const tick=()=>{
+    if(i>0){ rows[i-1].classList.remove('pending'); }
+    if(i<rows.length){
+      rows.forEach((r,idx)=>{ if(idx<i){ r.classList.add('done'); r.querySelector('.ic').innerHTML='✓'; } });
+      if(i>=1) rows[i].classList.remove('pending');
+      i++; setTimeout(tick, 720);
+    } else {
+      rows.forEach(r=>{ r.classList.add('done'); r.querySelector('.ic').innerHTML='✓'; });
+      setTimeout(step2,650);
+    }
+  };
+  setTimeout(tick,500);
+}
+
+function step2(){
+  setStep(2);
+  typing(900,()=>{
+    eveMsg(`<p>All done ✅ Here's what I learned from <code>nextgensecured.com</code>.</p>
+      <p>Your company offers:</p>
+      <div class="attach">
+        <h4>🧩 What you sell</h4>
+        <div class="chips">
+          <span class="chip eve">Integrated physical &amp; electronic security</span>
+          <span class="chip eve">Security design &amp; engineering</span>
+          <span class="chip eve">Project management &amp; installation</span>
+          <span class="chip eve">24/7 technical support &amp; field services</span>
+        </div>
+        <div style="font-size:13px;color:var(--ink-2);margin-top:10px">NextGen Security is an integrated physical &amp; electronic security systems integrator (Exton, PA) serving enterprise clients across 40+ states. Your in-house certified engineers, PMs and technicians deliver access control, video management, perimeter hardening, weapons detection and thermal analytics — with deep regulatory expertise (NERC-CIP, HIPAA, MTSA). 1,000+ customers, 2,500+ facilities, 99%+ retention. Consultations are booked via your website.</div>
+      </div>
+      <p style="margin-top:10px">Did I get that right? Anything you'd like to correct or add before we go further?</p>
+      <div class="actions" id="a-biz">
+        <button class="sbtn primary" onclick="bizConfirm(this)">✓ Yes, that's correct</button>
+        <button class="sbtn" onclick="bizEdit(this)">✎ Correct / add something</button>
+      </div>`);
+  });
+}
+function bizConfirm(b){ lock(document.getElementById('a-biz'),b); userMsg('Yes, that\'s spot on ✅'); typing(900,step3); }
+function bizEdit(b){
+  lock(document.getElementById('a-biz'),b);
+  userMsg('One thing to add — our biggest deals are multi-site enterprise programs, not one-off installs.');
+  typing(1100,()=> step3('<p>Got it — I\'ll prioritize <b>multi-site enterprise security programs</b> over single-site installs. Thanks, that sharpens my understanding. ✅</p>'));
+}
+
+/* ============================================================
+   STEP 3 — ICP confirmation
+   ============================================================ */
+function step3(lead){
+  setStep(3);
+  const el=eveMsg(`${lead||''}
+    <p>Based on that, here are the <b>Ideal Customer Profiles</b> I'd target 👇</p>
+    <div class="attach">
+      <h4>🎯 ICP 1 — Critical infrastructure &amp; industrial</h4>
+      <div class="kv">
+        <span><b>Industry</b> Oil &amp; gas, petrochemical, utilities</span>
+        <span><b>Size</b> Multi-site / enterprise</span>
+        <span><b>Region</b> US (40+ states)</span>
+        <span><b>Trigger</b> NERC-CIP / MTSA compliance, perimeter hardening</span>
+      </div>
+    </div>
+    <div class="attach">
+      <h4>🎯 ICP 2 — Healthcare &amp; pharma systems</h4>
+      <div class="kv">
+        <span><b>Industry</b> Hospitals, health systems, pharma mfg</span>
+        <span><b>Size</b> Regional to national</span>
+        <span><b>Region</b> US</span>
+        <span><b>Trigger</b> HIPAA, access control, weapons detection</span>
+      </div>
+    </div>
+    <p style="margin-top:10px">Do these look right? Anything to change or add?</p>
+    <div class="actions" id="a-icp">
+      <button class="sbtn primary" onclick="icpConfirm(this)">✓ Looks correct</button>
+      <button class="sbtn" onclick="icpEdit(this)">✎ Edit an ICP</button>
+      <button class="sbtn" onclick="icpAdd(this)">＋ Add an ICP</button>
+    </div>`);
+}
+function icpConfirm(b){ lock(document.getElementById('a-icp'),b); userMsg('Both look correct ✅'); typing(900,step4); }
+function icpEdit(b){
+  lock(document.getElementById('a-icp'),b);
+  userMsg('ICP 1 is good. For ICP 2, prioritize large hospital systems over single clinics.');
+  typing(900,()=> step4('<p>Got it — narrowed ICP 2 to <b>multi-facility hospital &amp; health systems</b>. Saved. ✅</p>'));
+}
+function icpAdd(b){
+  lock(document.getElementById('a-icp'),b);
+  userMsg('Add one: data centers and higher-ed campuses.');
+  typing(1000,()=> step4('<p>Added <b>ICP 3 — Data centers &amp; higher-education campuses</b> (multi-building access control, video, perimeter). I\'ll learn more as we go. ✅</p>'));
+}
+
+/* ============================================================
+   STEP 4 — Buyer persona confirmation
+   ============================================================ */
+function step4(lead){
+  setStep(4);
+  eveMsg(`${lead||''}<p>For your primary ICP, here are the <b>buyer personas</b> I'd target:</p>
+    <div class="attach">
+      <h4>👥 Buyer personas</h4>
+      <div class="chips">
+        <span class="chip">Director of Corporate Security / CSO</span>
+        <span class="chip">VP / Director of Facilities</span>
+        <span class="chip">Plant / Site Manager</span>
+        <span class="chip">EHS / Compliance Manager</span>
+      </div>
+    </div>
+    <div class="actions" id="a-persona">
+      <button class="sbtn primary" onclick="personaConfirm(this)">✓ Confirm</button>
+      <button class="sbtn" onclick="personaEdit(this)">✎ Edit</button>
+      <button class="sbtn" onclick="personaAdd(this)">＋ Add persona</button>
+    </div>`);
+}
+function personaConfirm(b){ lock(document.getElementById('a-persona'),b); userMsg('Confirm these personas ✅'); typing(900,step5); }
+function personaEdit(b){
+  lock(document.getElementById('a-persona'),b);
+  userMsg('Drop "Plant / Site Manager" — they rarely own the budget.');
+  typing(900,()=> step5('<p>Removed <b>Plant / Site Manager</b>. I\'ll lead with <b>Director of Corporate Security</b> and <b>VP of Facilities</b>. ✅</p>'));
+}
+function personaAdd(b){
+  lock(document.getElementById('a-persona'),b);
+  userMsg('Add "Director of Physical Security".');
+  typing(900,()=> step5('<p>Added <b>Director of Physical Security</b> to the persona set. ✅</p>'));
+}
+
+/* ============================================================
+   STEP 5 — Outreach channel selection
+   ============================================================ */
+function step5(lead){
+  setStep(5);
+  eveMsg(`${lead||''}<p>Which outreach channels would you like me to use?</p>
+    <div class="actions" id="a-chan">
+      <button class="sbtn" onclick="chooseChannel('linkedin',this)">in  LinkedIn</button>
+      <button class="sbtn" onclick="chooseChannel('email',this)">✉ Email</button>
+      <button class="sbtn eve" onclick="chooseChannel('both',this)">in ✉ LinkedIn + Email</button>
+    </div>`);
+}
+function chooseChannel(c,b){
+  state.channel=c; lock(document.getElementById('a-chan'),b);
+  const label={linkedin:'LinkedIn',email:'Email',both:'LinkedIn + Email'}[c];
+  userMsg('Let\'s use <b>'+label+'</b>.');
+  typing(1400,()=> step6('<p>Great — I\'ll prospect for <b>'+label+'</b> outreach. Here\'s a quick sample so you can sanity-check that I understand your ICP. 🔎</p>'));
+}
+
+/* ============================================================
+   STEP 6 — Prospect sample
+   ============================================================ */
+const PROSPECTS = [
+  {id:'p1', init:'RH', name:'Robert Hayes', title:'Director of Corporate Security', company:'Gulfstream Refining & Chemicals', loc:'Houston, TX', score:96,
+   reason:'Gulfstream is <b>expanding a Gulf Coast refinery</b> and is MTSA-regulated — a multi-site program needing perimeter hardening, access control and gate services. NextGen\'s NERC-CIP/MTSA expertise is a direct fit.',
+   signals:['Refinery expansion announced','MTSA-regulated facility','Hiring security ops staff'],
+   li:'linkedin.com/in/robert-hayes-security', email:'r.hayes@gulfstreamrc.com', phone:'+1 (713) 555-0142',
+   enrich:{Industry:'Petrochemical / oil & gas',Facilities:'6 Gulf Coast sites',Employees:'~3,200',Regulatory:'MTSA, OSHA PSM',Current:'Aging Lenel access control',HQ:'Houston, TX'}},
+  {id:'p2', init:'DC', name:'Dana Coleman', title:'Director of Physical Security', company:'Lone Star Electric Cooperative', loc:'Austin, TX', score:95,
+   reason:'Lone Star runs <b>40+ substations</b> under a NERC-CIP audit cycle and needs substation perimeter hardening + thermal analytics. Critical-infrastructure compliance is NextGen\'s strongest play.',
+   signals:['NERC-CIP audit cycle','Substation security upgrade','Posted re: physical security'],
+   li:'linkedin.com/in/dana-coleman-security', email:'dcoleman@lonestarelectric.coop', phone:'+1 (512) 555-0199',
+   enrich:{Industry:'Electric utility',Facilities:'40+ substations',Employees:'~1,400',Regulatory:'NERC-CIP',Current:'Legacy analog CCTV',HQ:'Austin, TX'}},
+  {id:'p3', init:'JW', name:'James Whitfield', title:'VP of Facilities', company:'Keystone Health System', loc:'Philadelphia, PA', score:93,
+   reason:'Keystone is <b>building a new patient tower</b> and evaluating weapons detection (Evolv) for its EDs — a HIPAA-bound, multi-hospital build-out. NextGen covers design through 24/7 support.',
+   signals:['New patient tower under construction','Evaluating weapons detection','Multi-hospital system'],
+   li:'linkedin.com/in/james-whitfield-facilities', email:'jwhitfield@keystonehealth.org', phone:'+1 (215) 555-0177',
+   enrich:{Industry:'Healthcare system',Facilities:'7 hospitals',Beds:'~2,100',Regulatory:'HIPAA, Joint Commission',Current:'Mixed legacy systems',HQ:'Philadelphia, PA'}},
+  {id:'p4', init:'AB', name:'Angela Brooks', title:'Physical Security Manager', company:'Meridian Data Centers', loc:'Dallas, TX', score:92,
+   reason:'Meridian is <b>building 3 new hyperscale facilities</b> — greenfield projects that need full access control, video management and perimeter security designed from day one. High-value, multi-site.',
+   signals:['3 new facilities under construction','Hyperscale expansion','SOC 2 / ISO 27001 driven'],
+   li:'linkedin.com/in/angela-brooks-security', email:'abrooks@meridiandc.com', phone:'+1 (469) 555-0163',
+   enrich:{Industry:'Data centers / colocation',Facilities:'5 → 8 campuses',Employees:'~600',Regulatory:'SOC 2, ISO 27001',Current:'Genetec video (partial)',HQ:'Dallas, TX'}},
+  {id:'p5', init:'MT', name:'Michael Torres', title:'Director of Campus Safety', company:'Riverside University', loc:'Wilmington, DE', score:90,
+   reason:'Riverside is <b>modernizing campus-wide access control</b> after a recent security review and has state safety grant funding — a 48-building program spanning access, video and communication systems.',
+   signals:['Campus access-control modernization','Security review completed','Safety grant funding secured'],
+   li:'linkedin.com/in/michael-torres-safety', email:'mtorres@riverside.edu', phone:'+1 (302) 555-0188',
+   enrich:{Industry:'Higher education',Facilities:'48 buildings',Students:'~14,000',Regulatory:'Clery Act',Current:'Keys + partial card access',HQ:'Wilmington, DE'}}
+];
+function contactLine(p){
+  const ch=state.channel;
+  let parts=[];
+  if(ch==='linkedin'||ch==='both') parts.push(`<a href="#">in ${p.li}</a>`);
+  if(ch==='email'||ch==='both') parts.push(`<a href="#">✉ ${p.email}</a>`);
+  return parts.join('');
+}
+function prospectCard(p){
+  return `<div class="prospect" id="card-${p.id}">
+    <div class="ph">
+      <div class="pa" style="background:linear-gradient(135deg,#6D4AFF,#9b7bff)">${p.init}</div>
+      <div>
+        <div class="pn">${p.name}</div>
+        <div class="pt">${p.title} · <b>${p.company}</b> · ${p.loc}</div>
+      </div>
+      <div class="fit"><div class="score">${p.score}%</div><div class="lbl">Fit score</div></div>
+    </div>
+    <div class="reason">${p.reason}</div>
+    <div class="meta">${p.signals.map(s=>`<span class="chip green">⚡ ${s}</span>`).join('')}</div>
+    <div class="contact">${contactLine(p)}</div>
+    <div class="enrichbox" id="enrich-${p.id}">
+      <div class="kv">${Object.entries(p.enrich).map(([k,v])=>`<span><b>${k}</b>${v}</span>`).join('')}</div>
+    </div>
+    <div class="pact">
+      <button class="minib" onclick="enrich('${p.id}',this)">✨ Enrich</button>
+      <button class="minib" onclick="replaceP('${p.id}',this)">⇄ Replace</button>
+      <button class="minib danger" onclick="removeP('${p.id}',this)">✕ Remove</button>
+    </div>
+  </div>`;
+}
+function step6(lead){
+  setStep(6);
+  let html=(lead||`<p>Here are <b>5 high-confidence prospects</b> that match your ICP.</p>`);
+  html+=`<p>Take a look — approve them, or tell me what's off. I learn from every bit of feedback.</p>`;
+  html+=PROSPECTS.map(prospectCard).join('');
+  html+=`<div class="actions" id="a-sample" style="margin-top:14px">
+      <button class="sbtn primary" onclick="approveSample(this)">✓ Approve all</button>
+      <button class="sbtn" onclick="crmTrigger(this)">Some are already customers</button>
+      <button class="sbtn" onclick="refineSample(this)">✎ Refine ICP / persona</button>
+    </div>`;
+  eveMsg(html);
+}
+function enrich(id,b){ const e=document.getElementById('enrich-'+id); e.classList.toggle('show'); b.innerHTML=e.classList.contains('show')?'✨ Hide details':'✨ Enrich'; scrollDown(); }
+function removeP(id,b){
+  const c=document.getElementById('card-'+id); c.classList.add('removed');
+  c.querySelector('.pact').innerHTML=`<span style="font-size:12px;color:var(--muted);font-weight:700">Removed — <a href="#" onclick="undoRemove('${id}');return false" style="color:var(--eve)">undo</a></span>`;
+  toast('Noted. I\'ll learn from this and avoid similar profiles.');
+}
+function undoRemove(id){ const c=document.getElementById('card-'+id); c.classList.remove('removed');
+  c.querySelector('.pact').innerHTML=`<button class="minib" onclick="enrich('${id}',this)">✨ Enrich</button>
+    <button class="minib" onclick="replaceP('${id}',this)">⇄ Replace</button>
+    <button class="minib danger" onclick="removeP('${id}',this)">✕ Remove</button>`; }
+function replaceP(id,b){
+  const c=document.getElementById('card-'+id);
+  c.style.opacity=.5; b.textContent='Finding…';
+  setTimeout(()=>{ toast('Swapped in a fresh prospect with a similar fit.'); c.style.opacity=1;
+    const sc=c.querySelector('.score'); sc.textContent=(89+Math.floor(Math.random()*7))+'%';
+    c.querySelector('.pn').textContent='Karen Mills';
+    c.querySelector('.pt').innerHTML='Director of Security · <b>Apex Cold Storage</b> · San Antonio, TX';
+    c.querySelector('.pa').textContent='KM';
+    b.textContent='⇄ Replace'; },1100);
+}
+function refineSample(b){
+  lock(document.getElementById('a-sample'),b);
+  userMsg('Tighten to security leaders at multi-site facilities only.');
+  typing(1100,()=>{ eveMsg('Done — I\'ll prioritize <b>security &amp; facilities leaders at multi-site enterprise sites</b> for the full list. The sample above already reflects this direction. Want to approve and move on?'+
+     `<div class="actions" id="a-sample2"><button class="sbtn primary" onclick="approveSample(this)">✓ Approve sample</button><button class="sbtn" onclick="crmTrigger(this)">Some are already customers</button></div>`); });
+}
+function approveSample(b){
+  const g=b.closest('.actions'); lock(g,b);
+  userMsg('These look great — approve all ✅');
+  typing(1000,()=> step9('<p>Love it. I\'ll use this as the seed for your full prospect list. 🌱</p>'));
+}
+
+/* ============================================================
+   STEP 7 — CRM check (branch)
+   ============================================================ */
+function crmTrigger(b){
+  const g=b.closest('.actions'); lock(g,b); state.crmProposed=true;
+  userMsg('A couple of these are already customers / open opps.');
+  setStep(7);
+  typing(1100,()=>{
+    eveMsg(`<p>Good catch — I don't want to double-touch existing relationships. Can I <b>connect your CRM</b>? That lets me:</p>
+      <ul><li>Avoid duplicate outreach to current customers &amp; open opps</li><li>Understand existing relationships &amp; history</li><li>Reuse context from past conversations</li></ul>
+      <div class="actions" id="a-crm">
+        <button class="sbtn eve" onclick="connectCRM(this)">🔗 Connect CRM</button>
+        <button class="sbtn" onclick="skipCRM(this)">Skip for now</button>
+      </div>`);
+  });
+}
+function connectCRM(b){
+  lock(document.getElementById('a-crm'),b); state.crm=true; userMsg('Connect HubSpot.');
+  typing(1200,()=> step9('<p>Connected to <b>HubSpot</b> ✅ I matched 2 sample prospects to existing records and excluded them from outreach. I\'ll keep checking the CRM before contacting anyone.</p>'));
+}
+function skipCRM(b){ lock(document.getElementById('a-crm'),b); userMsg('Skip for now.'); typing(900,()=> step9('<p>No problem — you can connect a CRM anytime from <b>Integrations</b>. I\'ll flag any prospect that looks like an existing contact.</p>')); }
+
+/* ============================================================
+   STEP 8 — Connect channels (web app screens)
+   ============================================================ */
+function step9(lead){
+  setStep(8);
+  const needEmail = state.channel==='email'||state.channel==='both';
+  const needLI = state.channel==='linkedin'||state.channel==='both';
+  let parts=[];
+  if(needEmail) parts.push('an <b>email inbox</b>');
+  if(needLI) parts.push('your <b>LinkedIn</b> account');
+  eveMsg(`${lead||''}<p>Now let's connect your outreach channels. I'll need ${parts.join(' and ')} so I can send on your behalf.</p>
+    <div class="actions" id="a-connect">
+      ${needEmail?`<button class="sbtn eve" id="btnInbox" onclick="openInbox()">✉ Connect inbox</button>`:''}
+      ${needLI?`<button class="sbtn eve" id="btnLI" onclick="openLI()">in  Connect LinkedIn</button>`:''}
+      <button class="sbtn" id="btnSkipConnect" onclick="skipConnect(this)">Skip for now</button>
+    </div>
+    <div style="font-size:12.5px;color:var(--muted);margin-top:8px">This opens the EVE web app. You'll come right back here when you're done.</div>`);
+  state._needEmail=needEmail; state._needLI=needLI;
+}
+function skipConnect(b){
+  const g=document.getElementById('a-connect'); if(g) g.classList.add('locked');
+  setView('slack');
+  userMsg('Skip channel setup for now.');
+  typing(900,()=> step10('<p>No problem — you can connect your channels anytime from <b>Integrations</b>. I\'ll get everything else ready and hold off on sending until they\'re connected.</p>'));
+}
+function maybeAfterConnect(){
+  // when all required channels connected, continue
+  const okEmail = !state._needEmail || state.inboxDone;
+  const okLI = !state._needLI || (state.liDone && state.limitsDone);
+  if(okEmail && okLI){
+    const g=document.getElementById('a-connect'); if(g) g.classList.add('locked');
+    setView('slack');
+    let txt = 'All set';
+    if(state._needLI) txt='LinkedIn is connected and your <b>safety limits</b> are configured';
+    if(state._needEmail && state._needLI) txt='Your inbox and LinkedIn are connected, and <b>safety limits</b> are configured';
+    else if(state._needEmail) txt='Your inbox is connected';
+    typing(900,()=> step10('<p>✅ '+txt+'.</p>'));
+  } else {
+    setView('slack');
+    // mark done buttons
+    if(state.inboxDone){ const b=document.getElementById('btnInbox'); if(b){b.classList.add('chosen');b.innerHTML='✓ Inbox connected';} }
+    if(state.liDone){ const b=document.getElementById('btnLI'); if(b){b.classList.add('chosen');b.innerHTML='✓ LinkedIn connected';} }
+    typing(700,()=>{ eveMsg('Nice — one channel done. Connect the other when you\'re ready 👆'); });
+  }
+}
+
+/* ---------- web app: Integrations page renderer ---------- */
+function renderIntegrations(){
+  const m=document.getElementById('waMain');
+  m.innerHTML=`
+    <div class="wa-bc">Integrations</div>
+    <h1 class="wa-h1">Integrations</h1>
+    <p class="wa-sub">Connect the tools EVE uses to run your outbound campaigns.</p>
+    <div class="wa-card">
+      <h3>Outreach channels</h3>
+      <p class="desc">EVE sends connection requests, messages and emails using these accounts.</p>
+      <div class="integ-row">
+        <div class="ilogo" style="background:#0a66c2">in</div>
+        <div><div class="iname">LinkedIn</div><div class="istat"><span class="status-dot ${state.liDone?'on':'off'}"></span>${state.liDone?'Connected · Sam Carter':'Not connected'}</div></div>
+        <div class="iact">${state.liDone?`<button class="wbtn ghost" onclick="openLimits()">Settings &amp; limits</button>`:`<button class="wbtn" onclick="liPopup()">Connect</button>`}</div>
+      </div>
+      <div class="integ-row">
+        <div class="ilogo" style="background:#ea4335">✉</div>
+        <div><div class="iname">Email inbox</div><div class="istat"><span class="status-dot ${state.inboxDone?'on':'off'}"></span>${state.inboxDone?'Connected · sam@nextgensecured.com (Google)':'Not connected'}</div></div>
+        <div class="iact">${state.inboxDone?`<button class="wbtn ghost" disabled>Connected</button>`:`<button class="wbtn" onclick="inboxPopup()">Connect inbox</button>`}</div>
+      </div>
+    </div>
+    <div class="wa-card">
+      <h3>Calendar &amp; CRM</h3>
+      <p class="desc">Used to attribute booked meetings and avoid duplicate outreach.</p>
+      <div class="integ-row">
+        <div class="ilogo" style="background:#4285f4">📅</div>
+        <div><div class="iname">Calendar</div><div class="istat"><span class="status-dot ${state.calDone?'on':'off'}"></span>${state.calDone?'Connected · Google Calendar':'Not connected'}</div></div>
+        <div class="iact">${state.calDone?`<button class="wbtn ghost" disabled>Connected</button>`:`<button class="wbtn ghost" onclick="calPopup()">Connect</button>`}</div>
+      </div>
+      <div class="integ-row">
+        <div class="ilogo" style="background:#ff7a59">H</div>
+        <div><div class="iname">HubSpot CRM</div><div class="istat"><span class="status-dot ${state.crm?'on':'off'}"></span>${state.crm?'Connected':'Optional'}</div></div>
+        <div class="iact"><button class="wbtn ghost" disabled>${state.crm?'Connected':'—'}</button></div>
+      </div>
+    </div>`;
+}
+
+/* ---------- Inbox connect flow ---------- */
+function openInbox(){ setView('web'); renderIntegrations(); setTimeout(inboxPopup,300); }
+function inboxPopup(){
+  showPopup(`
+    <div class="popup">
+      <div class="ph"><div class="lg" style="background:#ea4335">✉</div><div><h3>Connect Inbox</h3></div></div>
+      <p class="psub">Choose your email provider to let EVE send on your behalf.</p>
+      <div class="choice">
+        <div class="opt" onclick="inboxAuth('Google Workspace')"><div class="g" style="background:#ea4335">G</div>Google Workspace</div>
+        <div class="opt" onclick="inboxAuth('Microsoft 365')"><div class="g" style="background:#0078d4">⊞</div>Microsoft 365</div>
+      </div>
+      <div class="row"><button class="wbtn ghost" onclick="closePopup()">Cancel</button></div>
+    </div>`);
+}
+function inboxAuth(provider){
+  showPopup(`<div class="popup"><div class="loadwrap"><div class="spinner"></div>
+     <div style="font-weight:800">Connecting ${provider}…</div>
+     <div style="color:var(--muted);font-size:13px;margin-top:6px">Authenticating in a secure window.</div></div></div>`);
+  setTimeout(()=>{
+    showPopup(`<div class="popup"><div class="loadwrap"><div class="ok">✓</div>
+      <div style="font-weight:900;font-size:17px">Inbox connected</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:6px">sam@nextgensecured.com · ${provider}</div></div>
+      <div class="row"><button class="wbtn green" onclick="inboxDone()">Back to Slack</button></div></div>`);
+  },1600);
+}
+function inboxDone(){ state.inboxDone=true; closePopup(); renderIntegrations(); maybeAfterConnect(); }
+
+/* ---------- LinkedIn connect flow ---------- */
+function openLI(){ setView('web'); renderIntegrations(); setTimeout(liPopup,300); }
+function liPopup(){
+  showPopup(`
+    <div class="popup">
+      <div class="ph"><div class="lg" style="background:#0a66c2">in</div><div><h3>Connect LinkedIn Account</h3></div></div>
+      <p class="psub">EVE uses this to find prospects, read prior conversations and run outreach.</p>
+      <div class="errline" id="liErr">We couldn't log in. Please check your email and password.</div>
+      <div class="field"><label>LinkedIn email</label><input id="liEmail" value="sam@nextgensecured.com"></div>
+      <div class="field"><label>Password</label><input id="liPass" type="password" value="••••••••••"></div>
+      <div class="row"><button class="wbtn ghost" onclick="closePopup()">Cancel</button><button class="wbtn" onclick="liStep2()">Login</button></div>
+    </div>`);
+}
+function liStep2(){
+  showPopup(`
+    <div class="popup">
+      <div class="ph"><div class="lg" style="background:#0a66c2">in</div><div><h3>Two-step verification</h3></div></div>
+      <p class="psub">Enter the authentication code LinkedIn sent to your device.</p>
+      <div class="errline" id="liErr2">The authentication code is incorrect. Please try again.</div>
+      <div class="field"><label>Authentication code</label><input id="liCode" placeholder="6-digit code" value="481920"></div>
+      <div class="row"><button class="wbtn ghost" onclick="closePopup()">Cancel</button><button class="wbtn" onclick="liConnecting()">Login</button></div>
+    </div>`);
+}
+function liConnecting(){
+  showPopup(`<div class="popup"><div class="loadwrap"><div class="spinner"></div>
+     <div style="font-weight:800">Connecting to LinkedIn…</div>
+     <div style="color:var(--muted);font-size:13px;margin-top:6px">This may take a few moments.</div></div></div>`);
+  setTimeout(()=>{
+    showPopup(`<div class="popup">
+      <div class="profilechip"><div class="pp">OP</div></div>
+      <div class="loadwrap" style="padding-top:4px"><div class="ok">✓</div>
+        <div style="font-weight:900;font-size:17px">You're now connected to LinkedIn</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:6px">Sam Carter · Business Development @ NextGen Security</div></div>
+      <div class="row"><button class="wbtn green" onclick="liConnected()">Continue</button></div></div>`);
+  },1900);
+}
+function liConnected(){ state.liDone=true; closePopup(); renderIntegrations();
+  // auto-configure safety limits next
+  setTimeout(()=>{ toast('Auto-configuring your LinkedIn safety limits…'); openLimits(true); },500);
+}
+
+/* ---------- LinkedIn safety limits ---------- */
+const REC_LIMITS={conn:120,msg:150,visit:250};
+function openLimits(autoOpenedAfterConnect){
+  setView('web');
+  const navInteg=document.getElementById('navInteg');
+  const m=document.getElementById('waMain');
+  m.innerHTML=`
+    <div class="wa-bc">Integrations › LinkedIn</div>
+    <h1 class="wa-h1">LinkedIn settings</h1>
+    <p class="wa-sub">Connected as <b>Sam Carter</b>.</p>
+    <div class="wa-card">
+      <h3>🛡️ LinkedIn Safety Limits</h3>
+      <p class="desc">We've automatically configured safe outreach limits for your account. These reduce the risk of restrictions while maximizing performance — you don't need to change anything.</p>
+      <div style="margin:4px 0 12px"><span class="sub-badge">Detected subscription: Sales Navigator</span></div>
+      <div class="limit-grid" id="limitGrid">
+        <div class="limit-box"><div class="v" id="vConn">${REC_LIMITS.conn}</div><div class="l">Connection requests / wk</div></div>
+        <div class="limit-box"><div class="v" id="vMsg">${REC_LIMITS.msg}</div><div class="l">Messages / wk</div></div>
+        <div class="limit-box"><div class="v" id="vVisit">${REC_LIMITS.visit}</div><div class="l">Profile visits / wk</div></div>
+      </div>
+      <div class="adv-toggle" onclick="toggleAdv()"><span id="advCaret">▸</span> Advanced — edit limits manually</div>
+      <div id="advPanel" style="display:none">
+        <div class="limit-grid">
+          <div class="limit-box"><input id="iConn" type="number" value="${REC_LIMITS.conn}" oninput="checkLimits()"><div class="l">Connection requests / wk</div></div>
+          <div class="limit-box"><input id="iMsg" type="number" value="${REC_LIMITS.msg}" oninput="checkLimits()"><div class="l">Messages / wk</div></div>
+          <div class="limit-box"><input id="iVisit" type="number" value="${REC_LIMITS.visit}" oninput="checkLimits()"><div class="l">Profile visits / wk</div></div>
+        </div>
+        <div class="warnline" id="limitWarn">⚠️ These limits may increase the risk of LinkedIn account restrictions.</div>
+        <button class="wbtn ghost" onclick="restoreLimits()" style="margin-top:6px">↺ Restore EVE recommendations</button>
+      </div>
+      <div class="row" style="margin-top:18px"><button class="wbtn green" onclick="saveLimits()">Accept &amp; save limits</button></div>
+    </div>`;
+}
+function toggleAdv(){ const p=document.getElementById('advPanel'); const open=p.style.display==='none'; p.style.display=open?'block':'none'; document.getElementById('advCaret').textContent=open?'▾':'▸'; }
+function checkLimits(){
+  const c=+document.getElementById('iConn').value, mm=+document.getElementById('iMsg').value, v=+document.getElementById('iVisit').value;
+  const unsafe = c>REC_LIMITS.conn || mm>REC_LIMITS.msg || v>REC_LIMITS.visit;
+  document.getElementById('limitWarn').classList.toggle('show',unsafe);
+  document.getElementById('vConn').textContent=c; document.getElementById('vMsg').textContent=mm; document.getElementById('vVisit').textContent=v;
+}
+function restoreLimits(){ document.getElementById('iConn').value=REC_LIMITS.conn; document.getElementById('iMsg').value=REC_LIMITS.msg; document.getElementById('iVisit').value=REC_LIMITS.visit; checkLimits(); toast('Restored EVE recommendations.'); }
+function saveLimits(){
+  state.limitsDone=true; toast('LinkedIn safety limits configured successfully ✅');
+  renderIntegrations(); maybeAfterConnect();
+}
+
+/* ============================================================
+   STEP 10 — Meeting booking + calendar
+   ============================================================ */
+function step10(lead){
+  setStep(9);
+  eveMsg(`${lead||''}<p>Now, where should I send interested prospects to <b>book a meeting</b> with you? Drop your scheduling link — Calendly, HubSpot Meetings, SavvyCal, or your own page.</p>
+    <div class="actions" id="a-book">
+      <button class="sbtn eve" onclick="pasteBooking(this)">📎 Paste nextgensecured.com/contact</button>
+    </div>`);
+}
+function pasteBooking(b){
+  lock(document.getElementById('a-book'),b); state.bookingDone=true;
+  userMsg('Here you go: <code>nextgensecured.com/contact</code>');
+  typing(1100,()=>{
+    eveMsg(`<p>Perfect — I'll use that as the call-to-action in your outreach. ✅</p>
+      <p>One more thing: if you <b>connect your calendar</b>, I'll know whenever a prospect books a meeting. That means I can tell you which campaigns generate demos, celebrate every booking with you, and include it all in your daily updates. Sounds good?</p>
+      <div class="actions" id="a-cal">
+        <button class="sbtn eve" onclick="openCal()">📅 Connect calendar</button>
+        <button class="sbtn" onclick="skipCal(this)">Skip for now</button>
+      </div>`);
+  });
+}
+function openCal(){ setView('web'); renderIntegrations(); setTimeout(calPopup,300); }
+function calPopup(){
+  showPopup(`
+    <div class="popup">
+      <div class="ph"><div class="lg" style="background:#4285f4">📅</div><div><h3>Connect Calendar</h3></div></div>
+      <p class="psub">EVE only reads booked meetings to attribute them to campaigns. It never creates meetings automatically.</p>
+      <div class="choice">
+        <div class="opt" onclick="calAuth('Google Calendar')"><div class="g" style="background:#4285f4">G</div>Google Calendar</div>
+        <div class="opt" onclick="calAuth('Microsoft Outlook')"><div class="g" style="background:#0078d4">⊞</div>Outlook</div>
+      </div>
+      <div class="row"><button class="wbtn ghost" onclick="closePopup()">Cancel</button></div>
+    </div>`);
+}
+function calAuth(p){
+  showPopup(`<div class="popup"><div class="loadwrap"><div class="spinner"></div><div style="font-weight:800">Connecting ${p}…</div></div></div>`);
+  setTimeout(()=>{
+    showPopup(`<div class="popup"><div class="loadwrap"><div class="ok">✓</div><div style="font-weight:900;font-size:17px">Calendar connected</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:6px">${p}</div></div>
+      <div class="row"><button class="wbtn green" onclick="calDone()">Back to Slack</button></div></div>`);
+  },1500);
+}
+function calDone(){ state.calDone=true; closePopup(); renderIntegrations(); setView('slack');
+  typing(1300,()=> step11('<p>Calendar connected ✅ I\'ll attribute every booked meeting to the right campaign and surface it in your daily reports.</p>')); }
+function skipCal(b){ lock(document.getElementById('a-cal'),b); userMsg('Skip the calendar for now.'); typing(1300,()=> step11('<p>No problem — you can connect it later from <b>Integrations</b>. I\'ll still use your booking link in outreach.</p>')); }
+
+/* ============================================================
+   STEP 11 — Campaign recommendations
+   ============================================================ */
+function step11(lead){
+  setStep(10);
+    eveMsg(`${lead||''}<p>Using everything I learned, here are the campaigns I'd recommend. Pick one to launch first 👇</p>
+      <div class="attach"><h4>🚀 Campaign A — “Critical Infrastructure Compliance”</h4>
+        <div class="kv"><span><b>Audience</b> Security / EHS leaders at oil & gas + utilities</span><span><b>Channel</b> ${chLabel()}</span></div>
+        <div style="font-size:13px;color:var(--ink-2);margin-top:8px"><b>Why:</b> NERC-CIP / MTSA deadlines and multi-site footprints are your strongest buying signals — and this segment scored highest in your sample (95–96%). Highest deal value.</div>
+        <div style="font-size:13px;color:var(--ink-2);margin-top:4px"><b>Expected:</b> Fewer, larger multi-site programs.</div>
+        <div class="actions"><button class="sbtn eve" onclick="pickCampaign('Critical Infrastructure Compliance',this)">Launch this first</button></div>
+      </div>
+      <div class="attach"><h4>🚀 Campaign B — “New Facility Build-Outs”</h4>
+        <div class="kv"><span><b>Audience</b> Facilities / Security leaders at healthcare & data centers</span><span><b>Channel</b> ${chLabel()}</span></div>
+        <div style="font-size:13px;color:var(--ink-2);margin-top:8px"><b>Why:</b> New construction is the ideal moment to design full access control, video and perimeter security from day one — greenfield projects mean full-system wins.</div>
+        <div style="font-size:13px;color:var(--ink-2);margin-top:4px"><b>Expected:</b> Strong reply rates, longer build cycles.</div>
+        <div class="actions"><button class="sbtn" onclick="pickCampaign('New Facility Build-Outs',this)">Launch this first</button></div>
+      </div>`);
+}
+function chLabel(){ return {linkedin:'LinkedIn',email:'Email',both:'LinkedIn + Email'}[state.channel]||'LinkedIn'; }
+function pickCampaign(name,b){
+  state.campaign=name;
+  // lock both campaign buttons
+  document.querySelectorAll('#messages .attach .actions').forEach(g=>g.classList.add('locked'));
+  b.classList.add('chosen');
+  userMsg('Let\'s launch <b>'+name+'</b> first.');
+  typing(900,afterCampaign);
+}
+/* If CRM was never proposed earlier, offer it now — before the mode choice. */
+function afterCampaign(){ if(!state.crmProposed) crmLateProposal(); else step12(); }
+function crmLateProposal(){
+  eveMsg(`<p>One more thing before we pick your working mode — want to <b>connect your CRM</b>? I haven't needed it so far, but hooking it up now lets me:</p>
+    <ul><li>Avoid duplicate outreach to existing customers &amp; open opportunities</li><li>Reuse context and history from past conversations</li><li>Attribute booked meetings back to deals in your pipeline</li></ul>
+    <div class="actions" id="a-crm-late">
+      <button class="sbtn eve" onclick="connectCRMLate(this)">🔗 Connect CRM</button>
+      <button class="sbtn" onclick="skipCRMLate(this)">Skip for now</button>
+    </div>`);
+}
+function connectCRMLate(b){
+  lock(document.getElementById('a-crm-late'),b); state.crmProposed=true; state.crm=true;
+  userMsg('Connect HubSpot.');
+  typing(1200,()=> step12('<p>Connected to <b>HubSpot</b> ✅ I\'ll check it before contacting anyone and attribute booked meetings to your pipeline.</p>'));
+}
+function skipCRMLate(b){
+  lock(document.getElementById('a-crm-late'),b); state.crmProposed=true;
+  userMsg('Skip the CRM for now.');
+  typing(900,()=> step12('<p>No problem — you can connect a CRM anytime from <b>Integrations</b>. I\'ll still flag anyone who looks like an existing contact.</p>'));
+}
+
+/* ============================================================
+   STEP 12 — Copilot vs Autopilot
+   ============================================================ */
+function step12(lead){
+  setStep(11);
+  eveMsg(`${lead||''}<p>Last decision — how should I run <b>${state.campaign}</b>?</p>
+    <div class="attach"><h4>🤖 Autopilot <span class="chip eve" style="margin-left:4px">Recommended</span></h4>
+      <div style="font-size:13px;color:var(--ink-2);margin-top:6px">I run the campaign end-to-end — find prospects, write outreach, send connections &amp; follow-ups, monitor replies, book meetings. You get <b>daily summaries</b>, replies that need you, booked meetings and analytics. No step-by-step approvals.</div>
+    </div>
+    <div class="attach"><h4>🧑‍✈️ Copilot</h4>
+      <div style="font-size:13px;color:var(--ink-2);margin-top:6px">I prepare each step but ask you to review &amp; approve the <b>strategy, prospect list, messages and launch</b>. More control, a bit more of your time.</div>
+    </div>
+    <p style="margin-top:10px">You can switch modes anytime.</p>
+    <div class="actions" id="a-mode">
+      <button class="sbtn eve" onclick="pickMode('autopilot',this)">🤖 Run on Autopilot</button>
+      <button class="sbtn" onclick="pickMode('copilot',this)">🧑‍✈️ Use Copilot</button>
+    </div>`);
+}
+function pickMode(m,b){
+  state.mode=m; lock(document.getElementById('a-mode'),b);
+  const pill=document.getElementById('modePill'); pill.style.display='inline-block';
+  pill.textContent=(m==='autopilot'?'⚡ Autopilot':'🧑‍✈️ Copilot')+' mode';
+  userMsg(m==='autopilot'?'Run it on Autopilot 🤖':'Use Copilot — I want to review key steps.');
+  const ack = m==='autopilot'
+    ? '<p>Perfect. I\'ll run <b>'+state.campaign+'</b> on autopilot — finding prospects, preparing outreach, sending and following up, and booking meetings. You\'ll get a daily report right here. Let\'s go! 🚀</p>'
+    : '<p>Got it — <b>Copilot</b> it is. Before launch I\'ll ask you to confirm the prospect list, campaign plan and message examples. I\'ll handle the work and send daily reports.</p>';
+  typing(1100,()=> complete(ack));
+}
+
+/* ============================================================
+   Onboarding complete
+   ============================================================ */
+function complete(lead){
+  setStep(11);
+  document.getElementById('dmBadge').style.display='none';
+  const items=[
+    'Understood your business &amp; products',
+    'Confirmed your ICPs &amp; buyer personas',
+    'Connected '+chLabel()+(state._needLI?' + configured LinkedIn safety limits':''),
+    state.crm?'Connected HubSpot CRM':'CRM optional (skipped)',
+    state.calDone?'Connected your calendar for meeting attribution':'Calendar optional (skipped)',
+    'Saved your booking link (nextgensecured.com/contact)',
+    'Recommended &amp; selected your first campaign: '+(state.campaign||'Critical Infrastructure Compliance'),
+    'Confirmed '+(state.mode==='copilot'?'Copilot':'Autopilot')+' mode'
+  ];
+  eveMsg(`${lead||''}<div class="complete"><h4>🎉 Onboarding complete — you're ready to launch!</h4>
+     <ul>${items.map(t=>`<li><span class="ck">✓</span> ${t}</li>`).join('')}</ul></div>
+     <p style="margin-top:12px">I'll start working on <b>${state.campaign||'your first campaign'}</b> now and send your first update tomorrow morning. Talk soon! 👋</p>
+     <div class="actions"><button class="sbtn" onclick="restart()">↻ Replay onboarding</button></div>`);
+}
+
+/* ---------- popup helpers ---------- */
+function showPopup(html){ popupHost.innerHTML=html; overlay.classList.add('show'); }
+function closePopup(){ overlay.classList.remove('show'); popupHost.innerHTML=''; }
+
+function restart(){ closePopup(); start(); }
+
+/* boot */
+start();
+</script>
+</body>
+</html>
