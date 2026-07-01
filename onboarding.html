@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EVE in Microsoft Teams × NextGen Security — Onboarding (interactive mockup)</title>
+<title>Eve in Microsoft Teams × NextGen Security — Onboarding (interactive mockup)</title>
 <style>
 :root{
   --eve:#5b5fc7; --eve-deep:#4f52b5; --eve-soft:#e8ebfa; --eve-soft2:#f0f1fb;
@@ -301,7 +301,7 @@ body{
 <body>
 
 <div class="topbar">
-  <div class="brand"><span class="logo">E</span> EVE <small>in Microsoft Teams · NextGen Security</small></div>
+  <div class="brand"><span class="logo">E</span> Eve <small>in Microsoft Teams · NextGen Security</small></div>
   <div class="spacer"></div>
   <div class="progresswrap">
     <span id="stepLabel">Step 1 / 12</span>
@@ -320,7 +320,7 @@ body{
     <!-- Teams purple title bar -->
     <div class="t-titlebar">
       <div class="t-tb-left"><span class="t-nav">‹</span><span class="t-nav">›</span></div>
-      <div class="t-tb-title">Chat &gt; EVE (NextGen Security)&nbsp;&nbsp;|&nbsp;&nbsp;Microsoft Teams</div>
+      <div class="t-tb-title">Chat &gt; Eve (NextGen Security)&nbsp;&nbsp;|&nbsp;&nbsp;Microsoft Teams</div>
       <div class="t-tb-win"><span>—</span><span>▢</span><span>✕</span></div>
     </div>
 
@@ -334,7 +334,7 @@ body{
         <div class="t-app"><span class="ic">👥</span><span class="lbl">Teams</span></div>
         <div class="t-app"><span class="ic">📅</span><span class="lbl">Meetings</span></div>
         <div class="t-app"><span class="ic">📁</span><span class="lbl">Files</span></div>
-        <div class="t-app eveapp"><span class="ic">E</span><span class="lbl">EVE</span></div>
+        <div class="t-app eveapp"><span class="ic">E</span><span class="lbl">Eve</span></div>
       </div>
       <div class="t-railbot">
         <div class="t-app"><span class="ic">💡</span><span class="lbl">Feedback</span></div>
@@ -351,7 +351,7 @@ body{
       <div class="cl-sec">Recent</div>
       <div class="cl-item active">
         <span class="cl-av" style="background:linear-gradient(135deg,var(--eve),#9b7bff)">E<span class="cl-pres bot"></span></span>
-        <div class="cl-body"><div class="cl-row"><span class="cl-name">EVE</span><span class="cl-time" id="dmBadge">now</span></div><div class="cl-prev unread">Setting up your first campaign…</div></div>
+        <div class="cl-body"><div class="cl-row"><span class="cl-name">Eve</span><span class="cl-time" id="dmBadge">now</span></div><div class="cl-prev unread">Setting up your first campaign…</div></div>
       </div>
       <div class="cl-item">
         <span class="cl-av" style="background:#c4314b">RT</span>
@@ -374,7 +374,7 @@ body{
     <main class="channel">
       <div class="channel-head">
         <span class="ch-av">E<span class="presence"></span></span>
-        <span class="title">EVE</span>
+        <span class="title">Eve</span>
         <span class="ch-badge">Bot</span>
         <span class="ch-star">★</span>
         <span class="ch-more">⋯</span>
@@ -399,7 +399,7 @@ body{
   <!-- ===================== WEB APP VIEW ===================== -->
   <div class="webapp" id="webView">
     <aside class="wa-side">
-      <div class="wa-brand"><span class="logo">E</span> EVE</div>
+      <div class="wa-brand"><span class="logo">E</span> Eve</div>
       <nav class="wa-nav" id="waNav">
         <a><span class="gi">▥</span> Dashboard</a>
         <a><span class="gi">🎯</span> Campaigns</a>
@@ -418,7 +418,7 @@ body{
 
 <script>
 /* ============================================================
-   EVE Onboarding — interactive mockup engine
+   Eve Onboarding — interactive mockup engine
    ============================================================ */
 const FLOW_TOTAL = 11;
 let state = {};
@@ -458,7 +458,7 @@ function eveMsg(html){
   const cont = lastSender==='eve'; lastSender='eve';
   const el=document.createElement('div'); el.className='msg'+(cont?' cont':'');
   el.innerHTML=`<div class="avatar av-eve">E</div><div class="body">
-     <div class="nameRow"><span class="name">EVE <span class="bot">Bot</span></span><span class="ts">${now()}</span></div>
+     <div class="nameRow"><span class="name">Eve <span class="bot">Bot</span></span><span class="ts">${now()}</span></div>
      <div class="text">${html}</div></div>`;
   messagesEl.appendChild(el); scrollDown(); return el;
 }
@@ -499,7 +499,7 @@ function start(){
   document.getElementById('modePill').style.display='none';
   document.getElementById('dmBadge').style.display='';
   systemNote('Today');
-  systemNote('Sam added <b>EVE</b> to this chat');
+  systemNote('Sam added <b>Eve</b> to this chat');
 
   typing(800,()=>{
     eveMsg(`<p>Hey Sam! I'm <b>Eve</b>, your AI BDR 👋</p>
@@ -813,7 +813,7 @@ function step9(lead){
       ${needLI?`<button class="sbtn eve" id="btnLI" onclick="openLI()">in  Connect LinkedIn</button>`:''}
       <button class="sbtn" id="btnSkipConnect" onclick="skipConnect(this)">Skip for now</button>
     </div>
-    <div style="font-size:12.5px;color:var(--muted);margin-top:8px">This opens the EVE web app. You'll come right back here when you're done.</div>`);
+    <div style="font-size:12.5px;color:var(--muted);margin-top:8px">This opens the Eve web app. You'll come right back here when you're done.</div>`);
   state._needEmail=needEmail; state._needLI=needLI;
 }
 function skipConnect(b){
@@ -849,10 +849,10 @@ function renderIntegrations(){
   m.innerHTML=`
     <div class="wa-bc">Integrations</div>
     <h1 class="wa-h1">Integrations</h1>
-    <p class="wa-sub">Connect the tools EVE uses to run your outbound campaigns.</p>
+    <p class="wa-sub">Connect the tools Eve uses to run your outbound campaigns.</p>
     <div class="wa-card">
       <h3>Outreach channels</h3>
-      <p class="desc">EVE sends connection requests, messages and emails using these accounts.</p>
+      <p class="desc">Eve sends connection requests, messages and emails using these accounts.</p>
       <div class="integ-row">
         <div class="ilogo" style="background:#0a66c2">in</div>
         <div><div class="iname">LinkedIn</div><div class="istat"><span class="status-dot ${state.liDone?'on':'off'}"></span>${state.liDone?'Connected · Sam Carter':'Not connected'}</div></div>
@@ -886,7 +886,7 @@ function inboxPopup(){
   showPopup(`
     <div class="popup">
       <div class="ph"><div class="lg" style="background:#ea4335">✉</div><div><h3>Connect Inbox</h3></div></div>
-      <p class="psub">Choose your email provider to let EVE send on your behalf.</p>
+      <p class="psub">Choose your email provider to let Eve send on your behalf.</p>
       <div class="choice">
         <div class="opt" onclick="inboxAuth('Google Workspace')"><div class="g" style="background:#ea4335">G</div>Google Workspace</div>
         <div class="opt" onclick="inboxAuth('Microsoft 365')"><div class="g" style="background:#0078d4">⊞</div>Microsoft 365</div>
@@ -913,7 +913,7 @@ function liPopup(){
   showPopup(`
     <div class="popup">
       <div class="ph"><div class="lg" style="background:#0a66c2">in</div><div><h3>Connect LinkedIn Account</h3></div></div>
-      <p class="psub">EVE uses this to find prospects, read prior conversations and run outreach.</p>
+      <p class="psub">Eve uses this to find prospects, read prior conversations and run outreach.</p>
       <div class="errline" id="liErr">We couldn't log in. Please check your email and password.</div>
       <div class="field"><label>LinkedIn email</label><input id="liEmail" value="sam@nextgensecured.com"></div>
       <div class="field"><label>Password</label><input id="liPass" type="password" value="••••••••••"></div>
@@ -975,7 +975,7 @@ function openLimits(autoOpenedAfterConnect){
           <div class="limit-box"><input id="iVisit" type="number" value="${REC_LIMITS.visit}" oninput="checkLimits()"><div class="l">Profile visits / wk</div></div>
         </div>
         <div class="warnline" id="limitWarn">⚠️ These limits may increase the risk of LinkedIn account restrictions.</div>
-        <button class="wbtn ghost" onclick="restoreLimits()" style="margin-top:6px">↺ Restore EVE recommendations</button>
+        <button class="wbtn ghost" onclick="restoreLimits()" style="margin-top:6px">↺ Restore Eve recommendations</button>
       </div>
       <div class="row" style="margin-top:18px"><button class="wbtn green" onclick="saveLimits()">Accept &amp; save limits</button></div>
     </div>`;
@@ -987,7 +987,7 @@ function checkLimits(){
   document.getElementById('limitWarn').classList.toggle('show',unsafe);
   document.getElementById('vConn').textContent=c; document.getElementById('vMsg').textContent=mm; document.getElementById('vVisit').textContent=v;
 }
-function restoreLimits(){ document.getElementById('iConn').value=REC_LIMITS.conn; document.getElementById('iMsg').value=REC_LIMITS.msg; document.getElementById('iVisit').value=REC_LIMITS.visit; checkLimits(); toast('Restored EVE recommendations.'); }
+function restoreLimits(){ document.getElementById('iConn').value=REC_LIMITS.conn; document.getElementById('iMsg').value=REC_LIMITS.msg; document.getElementById('iVisit').value=REC_LIMITS.visit; checkLimits(); toast('Restored Eve recommendations.'); }
 function saveLimits(){
   state.limitsDone=true; toast('LinkedIn safety limits configured successfully ✅');
   renderIntegrations(); maybeAfterConnect();
@@ -1020,7 +1020,7 @@ function calPopup(){
   showPopup(`
     <div class="popup">
       <div class="ph"><div class="lg" style="background:#4285f4">📅</div><div><h3>Connect Calendar</h3></div></div>
-      <p class="psub">EVE only reads booked meetings to attribute them to campaigns. It never creates meetings automatically.</p>
+      <p class="psub">Eve only reads booked meetings to attribute them to campaigns. It never creates meetings automatically.</p>
       <div class="choice">
         <div class="opt" onclick="calAuth('Google Calendar')"><div class="g" style="background:#4285f4">G</div>Google Calendar</div>
         <div class="opt" onclick="calAuth('Microsoft Outlook')"><div class="g" style="background:#0078d4">⊞</div>Outlook</div>
