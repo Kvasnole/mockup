@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eve — Outreach Copilot & Autopilot · Clickable Mockup</title>
+<style>
+  :root{
+    --bg:#f5f6fa; --surface:#ffffff; --border:#e6e8f0; --border2:#d8dbe8;
+    --ink:#191b28; --ink2:#5a5f73; --ink3:#8a8fa3;
+    --brand:#6c5ce7; --brand-dk:#5546d6; --brand-bg:#f0eeff;
+    --green:#14a44d; --green-bg:#e6f7ec; --amber:#b7791f; --amber-bg:#fdf3e0;
+    --red:#d64545; --red-bg:#fdeaea; --blue:#2f6fed; --blue-bg:#e9f0fe;
+    --li:#0a66c2; --slack:#3f0e40; --radius:12px;
+    --shadow:0 1px 2px rgba(20,20,40,.06),0 4px 16px rgba(20,20,40,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+  .layout{display:flex;min-height:100vh}
+
+  /* ============ SIDEBAR — journey ============ */
+  aside{width:272px;background:#fff;border-right:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .logo{display:flex;align-items:center;gap:10px;padding:20px 18px 8px;color:var(--ink)}
+  .logo-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#8e7cf3,#5546d6);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#fff;flex-shrink:0}
+  .logo b{font-size:17px;letter-spacing:.4px}
+  .logo span{display:block;font-size:11px;color:var(--ink3);font-weight:500}
+  .hint{padding:4px 18px 14px;font-size:12px;color:var(--ink2);border-bottom:1px solid var(--border);line-height:1.45}
+  .j-label{font-size:10.5px;letter-spacing:1.2px;color:var(--ink3);padding:16px 18px 2px;font-weight:800;text-transform:uppercase}
+  .j-sec{font-size:10px;letter-spacing:1px;color:#b3b7c9;padding:16px 18px 4px;font-weight:800;text-transform:uppercase}
+  .jstep{display:flex;align-items:flex-start;gap:11px;padding:8px 10px;margin:1px 8px;border-radius:11px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--ink2);line-height:1.3;transition:.12s}
+  .jstep:hover{background:#f5f6fa}
+  .jstep .num{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border2);color:var(--ink3);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff}
+  .jstep span:last-child{padding-top:4px}
+  .jstep.active{background:var(--brand-bg);color:var(--brand-dk);font-weight:700}
+  .jstep.active .num{background:var(--brand);border-color:var(--brand);color:#fff}
+  .jstep.done .num{background:var(--green);border-color:var(--green);color:#fff}
+  .sidebar-foot{margin-top:auto;padding:14px 18px;border-top:1px solid var(--border);font-size:12px;color:var(--ink3)}
+  .sidebar-foot .user{display:flex;align-items:center;gap:9px;color:var(--ink)}
+  .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f39c6b,#e05252);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+  .avatar.b{background:linear-gradient(135deg,#5aa9e6,#2f6fed)}
+  .avatar.g{background:linear-gradient(135deg,#63c78a,#14a44d)}
+  .avatar.p{background:linear-gradient(135deg,#8e7cf3,#5546d6)}
+  .avatar.eve{background:linear-gradient(135deg,#8e7cf3,#5546d6);border-radius:8px}
+
+  /* ============ MAIN ============ */
+  main{flex:1;min-width:0;padding:0 0 60px}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:30}
+  .topbar h1{font-size:17px;font-weight:700}
+  .topbar .crumb{color:var(--ink3);font-size:13px}
+  .topbar .right{margin-left:auto;display:flex;gap:10px;align-items:center}
+  .view{display:none;padding:24px 28px;max-width:1180px}
+  .view.active{display:block}
+
+  /* ============ GENERIC ============ */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px}
+  .card-h{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .card-h h3{font-size:14.5px;font-weight:700}
+  .card-h .sub{font-size:12px;color:var(--ink3);font-weight:400}
+  .card-b{padding:16px 18px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  h2.section{font-size:19px;font-weight:800;margin:4px 0 4px}
+  p.lead{color:var(--ink2);margin-bottom:18px;max-width:760px}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border2);background:#fff;color:var(--ink);font-size:13px;font-weight:600;padding:8px 14px;border-radius:9px;cursor:pointer;transition:.15s;font-family:inherit}
+  .btn:hover{border-color:var(--brand);color:var(--brand)}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  .btn.primary:hover{background:var(--brand-dk)}
+  .btn.green{background:var(--green);border-color:var(--green);color:#fff}
+  .btn.green:hover{filter:brightness(1.08)}
+  .btn.danger{background:#fff;border-color:#f1c1c1;color:var(--red)}
+  .btn.danger:hover{background:var(--red-bg)}
+  .btn.ghost{border-color:transparent;background:transparent;color:var(--ink2)}
+  .btn.ghost:hover{color:var(--brand);background:var(--brand-bg)}
+  .btn.sm{padding:5px 10px;font-size:12px;border-radius:7px}
+  .btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+  .badge.green{background:var(--green-bg);color:var(--green)}
+  .badge.amber{background:var(--amber-bg);color:var(--amber)}
+  .badge.red{background:var(--red-bg);color:var(--red)}
+  .badge.blue{background:var(--blue-bg);color:var(--blue)}
+  .badge.purple{background:var(--brand-bg);color:var(--brand)}
+  .badge.gray{background:#eef0f6;color:var(--ink2)}
+  .badge.li{background:#e7f1fb;color:var(--li)}
+
+  .kv{display:grid;grid-template-columns:190px 1fr;gap:8px 16px;font-size:13.5px}
+  .kv dt{color:var(--ink3);font-weight:600}
+  .kv dd{color:var(--ink)}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);font-weight:700;padding:9px 12px;border-bottom:1px solid var(--border);background:#fafbfe}
+  td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr.excluded{opacity:.45}
+  tr.excluded .p-name{text-decoration:line-through}
+
+  /* stepper */
+  .stepper{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px;overflow-x:auto}
+  .step{flex:1;min-width:118px;padding:12px 10px 12px 16px;cursor:pointer;position:relative;border-right:1px solid var(--border);transition:.15s}
+  .step:last-child{border-right:none}
+  .step:hover{background:#fafafe}
+  .step .n{width:22px;height:22px;border-radius:50%;background:#eef0f6;color:var(--ink3);font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-bottom:5px}
+  .step .t{font-size:12px;font-weight:700;color:var(--ink2);display:block;line-height:1.25}
+  .step .s{font-size:10.5px;color:var(--ink3)}
+  .step.current{background:var(--brand-bg)}
+  .step.current .n{background:var(--brand);color:#fff}
+  .step.current .t{color:var(--brand-dk)}
+  .step.done .n{background:var(--green);color:#fff}
+  .step.done .n::before{content:"✓"}
+  .step.done .n span{display:none}
+  .step.done .t{color:var(--green)}
+  .step-body{display:none}
+  .step-body.active{display:block;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .approve-bar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow);margin-bottom:16px}
+  .approve-bar .msg{font-size:13px;color:var(--ink2)}
+  .approve-bar .right{margin-left:auto;display:flex;gap:9px}
+  .approve-bar.approved{background:var(--green-bg);border-color:#bfe6cd}
+  .approve-bar.approved .msg{color:var(--green);font-weight:700}
+
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .stat .v{font-size:22px;font-weight:800}
+  .stat .l{font-size:11.5px;color:var(--ink3);font-weight:600;margin-top:2px}
+  .stat .d{font-size:11px;font-weight:700;margin-top:4px}
+  .stat .d.up{color:var(--green)} .stat .d.dn{color:var(--red)}
+
+  textarea,input[type=text],select{width:100%;font-family:inherit;font-size:13px;border:1px solid var(--border2);border-radius:8px;padding:9px 11px;color:var(--ink);background:#fff;resize:vertical}
+  textarea:focus,input:focus,select:focus{outline:2px solid #c9c2f5;border-color:var(--brand)}
+  label.fl{display:block;font-size:11.5px;font-weight:700;color:var(--ink2);margin:0 0 5px}
+
+  .msg-bubble{background:#fafbfe;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13.5px;white-space:pre-wrap;margin-bottom:10px}
+  .msg-meta{display:flex;gap:8px;align-items:center;margin-bottom:7px;flex-wrap:wrap}
+  .msg-meta .t{font-size:12px;font-weight:700;color:var(--ink2)}
+
+  .seq{position:relative;padding-left:26px}
+  .seq::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:var(--border2)}
+  .seq-item{position:relative;padding:0 0 18px}
+  .seq-item::before{content:"";position:absolute;left:-23px;top:5px;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid var(--brand)}
+  .seq-item.wait::before{border-color:var(--border2)}
+  .seq-item .st{font-weight:700;font-size:13.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .seq-item .sd{color:var(--ink2);font-size:12.5px;margin-top:3px}
+
+  .checklist{list-style:none}
+  .checklist li{display:flex;gap:9px;padding:5px 0;font-size:13px;color:var(--ink2)}
+  .checklist li::before{content:"✓";color:var(--green);font-weight:800}
+  .checklist.x li::before{content:"→";color:var(--brand)}
+
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .tab{padding:9px 15px;font-size:13px;font-weight:600;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+
+  /* slack */
+  .slack-wrap{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+  .slack-side{width:210px;background:var(--slack);color:#cfc3cf;padding:14px 0;flex-shrink:0}
+  .slack-side .ws{color:#fff;font-weight:800;font-size:14.5px;padding:0 16px 12px;border-bottom:1px solid #5d2c5d;margin-bottom:10px}
+  .slack-ch{padding:5px 16px;font-size:13.5px;cursor:pointer;display:flex;gap:6px;align-items:center}
+  .slack-ch:hover{background:#350d36}
+  .slack-ch.active{background:#1164a3;color:#fff;font-weight:600}
+  .slack-ch .h{opacity:.7}
+  .slack-ch .pill{margin-left:auto;background:#cd2553;color:#fff;font-size:10px;font-weight:700;border-radius:9px;padding:1px 6px}
+  .slack-main{flex:1;min-width:0;display:flex;flex-direction:column;max-height:640px}
+  .slack-head{padding:11px 18px;border-bottom:1px solid var(--border);font-weight:800;font-size:14.5px}
+  .slack-head span{font-weight:400;color:var(--ink3);font-size:12px;margin-left:8px}
+  .slack-msgs{flex:1;overflow-y:auto;padding:14px 18px}
+  .sm-row{display:flex;gap:10px;padding:8px 0}
+  .sm-row .body{min-width:0;flex:1}
+  .sm-row .who{font-weight:800;font-size:13.5px}
+  .sm-row .who .app{background:#e8e8e8;color:#616061;font-size:9.5px;font-weight:700;border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:1px}
+  .sm-row .when{color:var(--ink3);font-size:11px;font-weight:400;margin-left:6px}
+  .sm-row .txt{font-size:13.5px;margin-top:2px}
+  .sm-att{border-left:4px solid var(--brand);background:#f8f8fa;border-radius:0 8px 8px 0;padding:10px 14px;margin-top:7px;font-size:13px}
+  .sm-att.red{border-left-color:var(--red)} .sm-att.green{border-left-color:var(--green)} .sm-att.amber{border-left-color:#e0a83f} .sm-att.blue{border-left-color:var(--li)}
+  .sm-att .fields{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;margin:7px 0}
+  .sm-att .f b{display:block;font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px}
+  .sm-btns{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+  .slack-btn{border:1px solid #bbb;background:#fff;border-radius:5px;font-size:12.5px;font-weight:700;padding:5px 12px;cursor:pointer;font-family:inherit}
+  .slack-btn.g{background:#007a5a;border-color:#007a5a;color:#fff}
+  .slack-btn:hover{filter:brightness(.97)}
+  .sm-report td{padding:3px 10px 3px 0;border:none;font-size:13px}
+  .sm-report td:first-child{color:var(--ink2)}
+  .sm-report td:last-child{font-weight:700}
+
+  /* queue / superadmin */
+  .q-item{display:flex;gap:14px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:.12s}
+  .q-item:hover{background:#fafafe}
+  .q-item:last-child{border-bottom:none}
+  .q-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+  .q-ico.li{background:#e7f1fb} .q-ico.em{background:#fdf3e0} .q-ico.rp{background:var(--red-bg)}
+  .q-t{font-weight:700;font-size:13.5px}
+  .q-s{font-size:12px;color:var(--ink3);margin-top:1px}
+  .q-right{margin-left:auto;display:flex;gap:10px;align-items:center;flex-shrink:0}
+
+  .status-flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;font-weight:700}
+  .status-flow .sf{padding:3px 10px;border-radius:20px;background:#eef0f6;color:var(--ink3)}
+  .status-flow .sf.on{background:var(--brand);color:#fff}
+  .status-flow .arr{color:var(--border2)}
+
+  /* modal + toast */
+  .overlay{position:fixed;inset:0;background:rgba(15,14,30,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:14px;max-width:560px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.25)}
+  .modal-h{padding:16px 20px;border-bottom:1px solid var(--border);font-weight:800;font-size:15px;display:flex;align-items:center}
+  .modal-h .x{margin-left:auto;cursor:pointer;color:var(--ink3);font-size:18px;background:none;border:none}
+  .modal-b{padding:18px 20px}
+  .modal-f{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:9px}
+  .radio-card{display:flex;gap:11px;border:1px solid var(--border2);border-radius:10px;padding:11px 13px;margin-bottom:9px;cursor:pointer;align-items:flex-start}
+  .radio-card:hover{border-color:var(--brand)}
+  .radio-card input{margin-top:3px;accent-color:var(--brand)}
+  .radio-card b{display:block;font-size:13.5px}
+  .radio-card span{font-size:12px;color:var(--ink3)}
+  .radio-card.sel{border-color:var(--brand);background:var(--brand-bg)}
+
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#191b28;color:#fff;padding:11px 20px;border-radius:10px;font-size:13.5px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:.25s;z-index:200;opacity:0;display:flex;gap:9px;align-items:center;max-width:90vw}
+  #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  #toast .tick{color:#63c78a}
+
+  .note{background:var(--brand-bg);border:1px solid #ded9fb;color:#4a3fb5;border-radius:10px;padding:11px 14px;font-size:12.5px;margin-bottom:14px}
+  .note.warn{background:var(--amber-bg);border-color:#f3ddb0;color:var(--amber)}
+  .mode-tag{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;border-radius:6px;padding:3px 8px}
+  .mode-tag.copilot{background:var(--blue-bg);color:var(--blue)}
+  .mode-tag.autopilot{background:var(--brand-bg);color:var(--brand)}
+  .home-card{cursor:pointer;transition:.15s}
+  .home-card:hover{transform:translateY(-2px);border-color:var(--brand);box-shadow:0 8px 24px rgba(90,70,214,.13)}
+  .prog{height:6px;background:#eef0f6;border-radius:3px;overflow:hidden;margin-top:8px}
+  .prog i{display:block;height:100%;background:var(--brand);border-radius:3px}
+  .empty{padding:40px;text-align:center;color:var(--ink3);font-size:13px}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside>
+  <div class="logo"><div class="logo-mark">e</div><div><b>EVE</b><span>Copilot & Autopilot · Interactive Mockup</span></div></div>
+  <div class="hint">Click any step to jump to it. Buttons inside the mockups are live and advance the flow.</div>
+  <div class="j-label">End-to-end journey</div>
+  <div id="journey"></div>
+  <div class="sidebar-foot">
+    <div class="user"><span class="avatar p">OL</span><div><b>Olesia</b><div style="font-size:11px;color:var(--ink3)">olesia@joineve.ai</div></div></div>
+  </div>
+</aside>
+
+<main>
+  <div class="topbar"><h1 id="tb-title">Copilot — Slack</h1><span class="crumb" id="tb-crumb">#outpost-eve · Eve proposes, you approve, all in Slack</span>
+    <div class="right"><span class="badge green">● Eve online</span><button class="btn sm" onclick="toast('This is a clickable mockup — all data is illustrative')">ⓘ About this mockup</button></div>
+  </div>
+
+  <!-- ================= COPILOT — SLACK (approve everything here) ================= -->
+  <section class="view active" id="view-cs">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <h2 class="section">Copilot in Slack</h2><span class="mode-tag copilot">Copilot</span>
+      <span style="margin-left:auto;font-size:12px;color:var(--ink3)">Approve in Slack · deep-dive in the web app</span>
+    </div>
+    <p class="lead" style="margin-bottom:14px">Eve runs the whole Copilot loop in Slack: she <b>proposes the campaign</b> with a summary and sample messages, <b>asks for approval</b> at each stage, <b>reports results</b>, and lets you <b>pause / resume</b> anytime. Click the green buttons to move the conversation forward — the full detail always lives in the web app.</p>
+    <div class="slack-wrap">
+      <div class="slack-side">
+        <div class="ws">Outpost ▾</div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;padding:4px 16px;color:#9d8f9d">Channels</div>
+        <div class="slack-ch active"><span class="h">#</span> outpost-eve <span class="pill" id="cs-unread">1</span></div>
+        <div class="slack-ch" onclick="toast('Other channels are out of scope for this mockup')"><span class="h">#</span> general</div>
+        <div class="slack-ch" onclick="toast('Other channels are out of scope for this mockup')"><span class="h">#</span> sales</div>
+      </div>
+      <div class="slack-main" style="max-height:760px">
+        <div class="slack-head"># outpost-eve <span>Eve + Olesia · Copilot campaign thread</span></div>
+        <div class="slack-msgs" id="cs-msgs">
+
+          <!-- 1. PROPOSAL -->
+          <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+            <div class="who">Eve <span class="app">APP</span><span class="when">9:38 AM</span></div>
+            <div class="txt">👋 Morning Olesia! I've prepared a new <b>LinkedIn campaign proposal</b> for you. Summary below — the full plan is in the web app.</div>
+            <div class="sm-att blue">
+              <div style="font-weight:800;margin-bottom:4px">📋 Campaign proposal — NYC Multifamily Owners</div>
+              <div class="fields">
+                <div class="f"><b>Goal</b>8–10 discovery calls in 6 weeks</div>
+                <div class="f"><b>Target ICP</b>Multifamily owners, 50–500 units, NY metro</div>
+                <div class="f"><b>Persona</b>Owner / Principal / Head of Asset Mgmt</div>
+                <div class="f"><b>Duration</b>6 weeks · 40 prospects in batch 1</div>
+              </div>
+              <div style="font-size:12.5px;margin:6px 0"><b>Why:</b> your last 5 closed deals match this profile, and LinkedIn replies 3.4× better than email for this segment.</div>
+              <div style="font-size:12.5px"><b>Sequence:</b> profile visit → personalized connect → proof-point message → 2 follow-ups · stop on reply, meeting or opt-out.</div>
+            </div>
+            <div class="sm-att">
+              <div style="font-weight:800;margin-bottom:4px">✍️ Sample messages (Sarah Smith · Acme Property Group)</div>
+              <div style="font-size:12.5px;margin-bottom:6px"><b>Connection request:</b> "Hi Sarah — saw Acme just picked up the two buildings on Steinway. Managing 220+ units across Queens with a lean team is no joke. I work with NYC multifamily owners on exactly that. Would love to connect."</div>
+              <div style="font-size:12.5px"><b>First message:</b> "Thanks for connecting, Sarah. Riverside PM (14 NYC portfolios) cut ops cost 23% in two quarters with us… worth a 20-min look? cal.com/outpost/intro"</div>
+              <div class="sm-btns">
+                <button class="slack-btn g" id="cs-btn-0" onclick="csApprove(0)">✅ Approve campaign</button>
+                <button class="slack-btn" onclick="openChanges('campaign proposal')">✎ Request changes</button>
+                <button class="slack-btn" onclick="openComment('the proposal')">💬 Comment</button>
+                <button class="slack-btn" onclick="nav('cli',1)">Open in web app</button>
+              </div>
+              <div id="cs-st-0" style="font-size:11.5px;color:var(--ink3);margin-top:6px">⏳ Waiting for your approval — I won't continue until the concept is confirmed.</div>
+            </div>
+          </div></div>
+
+          <!-- 2. PROSPECTS -->
+          <div class="sm-row" id="cs-m1" style="display:none"><span class="avatar eve">e</span><div class="body">
+            <div class="who">Eve <span class="app">APP</span><span class="when">9:47 AM</span></div>
+            <div class="txt">🎯 Campaign confirmed! I've built the full list of <b>40 prospects</b> from your ICP, LinkedIn safety limits, personalization signals and CRM history. Here's a taste — review the full list in the web app:</div>
+            <div class="sm-att">
+              <div style="font-size:13px;line-height:1.8">
+                <b>Sarah Smith</b> — Principal, Acme Property Group · 220 units, Queens <span class="badge green">Fit 94</span><br>
+                <b>David Chen</b> — Head of Asset Mgmt, Hudson Yards Residential · 340 units <span class="badge green">Fit 91</span><br>
+                <b>Maria Lopez</b> — Owner, Brooklyn Portfolio Co. · 85 units <span class="badge blue">Fit 88</span>
+              </div>
+              <div class="sm-btns">
+                <button class="slack-btn g" id="cs-btn-1" onclick="csApprove(1)">✅ Approve all 40 prospects</button>
+                <button class="slack-btn" onclick="nav('cli',2)">Review full list in web app</button>
+                <button class="slack-btn" onclick="toast('Feedback noted — Eve refines the list and future batches')">✎ Exclude / give feedback</button>
+              </div>
+              <div id="cs-st-1" style="font-size:11.5px;color:var(--ink3);margin-top:6px">⏳ Waiting — exclude anyone or tell me why they don't fit, and I'll improve the rest of the list.</div>
+            </div>
+          </div></div>
+
+          <!-- 3. SEQUENCE + STYLE -->
+          <div class="sm-row" id="cs-m2" style="display:none"><span class="avatar eve">e</span><div class="body">
+            <div class="who">Eve <span class="app">APP</span><span class="when">9:55 AM</span></div>
+            <div class="txt">🧩 Last approval before launch — the <b>sequence & message style</b>. Every message is personalized per prospect; you're approving the pattern:</div>
+            <div class="sm-att amber">
+              <div style="font-size:12.5px;line-height:1.8">
+                <b>Day 0</b> profile visit → <b>Day 1</b> connection request (≤300 chars, no pitch) → <b>Day 3 after accept</b> first message (proof point + booking link) → <b>Day 7 & 12</b> two follow-ups → stop on reply / meeting / opt-out.<br>
+                <b>Tone:</b> direct, founder-to-founder · <b>Proof:</b> "23% lower ops cost, 14 NYC portfolios" · <b>CTA:</b> soft ask + cal.com/outpost/intro
+              </div>
+              <div class="sm-btns">
+                <button class="slack-btn g" id="cs-btn-2" onclick="csApprove(2)">✅ Approve sequence & style</button>
+                <button class="slack-btn" onclick="nav('cli',3)">Edit steps & timing in web app</button>
+                <button class="slack-btn" onclick="nav('cli',4)">See all message examples</button>
+              </div>
+              <div id="cs-st-2" style="font-size:11.5px;color:var(--ink3);margin-top:6px">⏳ Waiting — I'll apply the confirmed style to all remaining campaign messages.</div>
+            </div>
+          </div></div>
+
+          <!-- 4. LAUNCH -->
+          <div class="sm-row" id="cs-m3" style="display:none"><span class="avatar eve">e</span><div class="body">
+            <div class="who">Eve <span class="app">APP</span><span class="when">10:02 AM</span></div>
+            <div class="txt">🚀 <b>All approvals complete — campaign is live!</b> Starting today at 2:00 PM. From here I handle everything: profile visits, connection requests, follow-ups, monitoring replies, respecting LinkedIn limits, pausing when someone replies, stopping on booked meetings or opt-outs.</div>
+            <div class="sm-att green">
+              <div style="font-size:12.5px" id="cs-run-st"><b>Status:</b> <span style="color:var(--green)">● Running</span> · next action: 6 profile visits at 2:00 PM</div>
+              <div class="sm-btns">
+                <button class="slack-btn" id="cs-pause" onclick="csPause()">⏸ Pause campaign</button>
+                <button class="slack-btn" onclick="nav('cli',5)">Open live view in web app</button>
+              </div>
+            </div>
+          </div></div>
+
+          <!-- 5. REPLY ESCALATION -->
+          <div class="sm-row" id="cs-m4" style="display:none"><span class="avatar eve">e</span><div class="body">
+            <div class="who">Eve <span class="app">APP</span><span class="when">2:24 PM</span></div>
+            <div class="txt">💬 First replies are in! Most I handle myself — this one needs <b>your decision</b> (pricing):</div>
+            <div class="sm-att red">
+              <div style="font-size:12.5px;margin-bottom:5px"><b>Sarah Smith (Acme):</b> "What would it cost for a portfolio like ours? Do you do annual discounts?"</div>
+              <div style="font-size:12.5px"><b>My suggested reply:</b> "For ~220 units you'd be at $1,400/mo; annual billing brings it to $1,190/mo. Happy to walk through it: cal.com/outpost/intro"</div>
+              <div class="sm-btns">
+                <button class="slack-btn g" onclick="this.parentElement.nextElementSibling.innerHTML='✓ Approved & sent by Olesia · 2:31 PM';toast('Reply sent to Sarah')">✅ Approve & send</button>
+                <button class="slack-btn" onclick="nav('cli',6)">✎ Edit in web app</button>
+                <button class="slack-btn" onclick="toast('You took over — Eve stops responding in this thread')">👤 Take over</button>
+              </div>
+              <div style="font-size:11.5px;color:var(--ink3);margin-top:6px">⏳ Outreach to Sarah is paused until you decide.</div>
+            </div>
+          </div></div>
+
+          <!-- 6. DAILY REPORT -->
+          <div class="sm-row" id="cs-m5" style="display:none"><span class="avatar eve">e</span><div class="body">
+            <div class="who">Eve <span class="app">APP</span><span class="when">5:00 PM</span></div>
+            <div class="txt">📊 <b>Day 1 report — NYC Multifamily Owners</b></div>
+            <div class="sm-att green">
+              <table class="sm-report">
+                <tr><td>Profiles visited</td><td>18</td></tr>
+                <tr><td>Connection requests sent</td><td>12</td></tr>
+                <tr><td>Connections accepted</td><td>5</td></tr>
+                <tr><td>Messages sent</td><td>4</td></tr>
+                <tr><td>Replies received</td><td>2 (1 positive)</td></tr>
+                <tr><td>Meetings booked</td><td>0 — early days 🙂</td></tr>
+                <tr><td>Waiting for your approval</td><td>1 reply (Sarah)</td></tr>
+              </table>
+              <div style="margin-top:8px;font-size:12.5px"><b>Tomorrow:</b> 8 new connects · 3 first messages · everything within LinkedIn safety limits.</div>
+              <div class="sm-btns">
+                <button class="slack-btn" id="cs-pause2" onclick="csPause()">⏸ Pause campaign</button>
+                <button class="slack-btn" onclick="nav('cli',5)">Full status & history in web app</button>
+              </div>
+            </div>
+          </div></div>
+
+        </div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:16px">Slack = summaries & decisions. For the <b>full prospect list, every message, sequence timing, limits, filters, exclusions, per-prospect status and complete activity history</b>, open the <a href="#" onclick="nav('cli');return false" style="color:var(--brand);font-weight:700">web app deep dive →</a></div>
+  </section>
+
+  <!-- ================= COPILOT LINKEDIN ================= -->
+  <section class="view" id="view-cli">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <h2 class="section">NYC Multifamily Owners</h2><span class="mode-tag copilot">Copilot</span><span class="badge li">in LinkedIn</span>
+      <span style="margin-left:auto;font-size:12px;color:var(--ink3)">Approvals happen in <a href="#" onclick="nav('cs');return false" style="color:var(--brand);font-weight:700">Slack</a> — this is the deep dive</span>
+    </div>
+    <div class="note">🔍 <b>Web app = full detail.</b> Everything Slack summarizes lives here: the complete prospect list, every message, all sequence steps & timing, safety limits, filters, exclusions, per-prospect status, and the full activity history.</div>
+    <div class="stepper">
+      <div class="step current" onclick="goStep('cli',1)"><span class="n"><span>1</span></span><span class="t">Campaign proposal</span><span class="s">Approve concept</span></div>
+      <div class="step" onclick="goStep('cli',2)"><span class="n"><span>2</span></span><span class="t">Prospect list</span><span class="s">Review 40 prospects</span></div>
+      <div class="step" onclick="goStep('cli',3)"><span class="n"><span>3</span></span><span class="t">Sequence</span><span class="s">Steps & timing</span></div>
+      <div class="step" onclick="goStep('cli',4)"><span class="n"><span>4</span></span><span class="t">Message style</span><span class="s">Real examples</span></div>
+      <div class="step" onclick="goStep('cli',5)"><span class="n"><span>5</span></span><span class="t">Execution</span><span class="s">Eve launches</span></div>
+      <div class="step" onclick="goStep('cli',6)"><span class="n"><span>6</span></span><span class="t">Replies</span><span class="s">Decisions only</span></div>
+      <div class="step" onclick="goStep('cli',7)"><span class="n"><span>7</span></span><span class="t">Reporting</span><span class="s">Daily Slack</span></div>
+    </div>
+
+    <!-- STEP 1: proposal -->
+    <div class="step-body active">
+      <div class="approve-bar" id="cli-bar-1">
+        <span class="msg">Eve prepared this campaign proposal and is waiting for your decision. Eve will not continue until the concept is confirmed.</span>
+        <div class="right">
+          <button class="btn" onclick="openComment('Campaign proposal')">💬 Comment</button>
+          <button class="btn" onclick="openChanges('campaign proposal')">Request changes</button>
+          <button class="btn green" onclick="approveStep('cli',1,'Campaign proposal approved — Eve is generating the prospect list',true)">✓ Approve campaign</button>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-h"><h3>Campaign proposal</h3><span class="sub">prepared by Eve · 2h ago</span></div>
+          <div class="card-b"><dl class="kv">
+            <dt>Campaign name</dt><dd><b>NYC Multifamily Owners — Direct LinkedIn Outreach</b></dd>
+            <dt>Campaign goal</dt><dd>Book 8–10 discovery calls with multifamily property owners in NYC within 6 weeks</dd>
+            <dt>Target ICP</dt><dd>Multifamily property owners & operators, 50–500 units, New York metro</dd>
+            <dt>Buyer persona</dt><dd>Owner / Principal / Head of Asset Management — decision-maker for operations tooling</dd>
+            <dt>Estimated duration</dt><dd>6 weeks · ~40 prospects in batch 1, ~120 total</dd>
+          </dl></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Reasoning & strategy</h3></div>
+          <div class="card-b">
+            <label class="fl">Why this campaign</label>
+            <p style="font-size:13px;color:var(--ink2);margin-bottom:12px">Your last 5 closed deals were NYC multifamily owners in the 50–500 unit range. LinkedIn response rates for this segment were 3.4× higher than cold email. 62% of matching prospects are active on LinkedIn weekly.</p>
+            <label class="fl">LinkedIn outreach strategy</label>
+            <p style="font-size:13px;color:var(--ink2);margin-bottom:12px">Warm-up via profile visit → personalized connection request referencing a public signal (portfolio news, hiring, local market activity) → value-led first message with one proof point → max 2 follow-ups → stop on reply, meeting, or opt-out.</p>
+            <label class="fl">Proposed sequence (summary)</label>
+            <div class="seq" style="margin-top:6px">
+              <div class="seq-item"><div class="st">Profile visit</div><div class="sd">Day 0</div></div>
+              <div class="seq-item"><div class="st">Connection request</div><div class="sd">Day 1 · personalized, no pitch</div></div>
+              <div class="seq-item"><div class="st">First message</div><div class="sd">Day 3 after accept · proof point + soft CTA</div></div>
+              <div class="seq-item wait"><div class="st">Follow-up 1 & 2</div><div class="sd">Day 7 / Day 12 · stop on reply</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: prospects -->
+    <div class="step-body">
+      <div class="approve-bar" id="cli-bar-2">
+        <span class="msg"><b>40 prospects generated.</b> Built from your confirmed ICP & persona, LinkedIn safety limits, personalization signals, and existing CRM & LinkedIn relationships. Eve first previewed 3 in Slack.</span>
+        <div class="right">
+          <button class="btn" onclick="openFilters()">⚙ Change filters / refine ICP</button>
+          <button class="btn green" onclick="approveStep('cli',2,'Prospect list approved (38 prospects) — sequence is ready for review',true)">✓ Approve all prospects</button>
+        </div>
+      </div>
+      <div class="note">💡 Excluding a prospect? Tell Eve why — she uses your feedback to improve the rest of the list and future batches.</div>
+      <div class="card">
+        <div class="card-h"><h3>Prospect list</h3><span class="sub" id="cli-pcount">40 prospects · 0 excluded</span>
+          <div style="margin-left:auto;display:flex;gap:8px"><input type="text" placeholder="Search prospects…" style="width:180px" onfocus="toast('Search is illustrative in this mockup')"><button class="btn sm" onclick="toast('Eve proposed 2 replacement prospects matching your ICP')">↻ Request replacements</button></div>
+        </div>
+        <table><thead><tr><th></th><th>Prospect</th><th>Fit</th><th>Why they match</th><th>Personalization signal</th><th>Relationship</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
+        <tbody id="cli-prospects"></tbody></table>
+      </div>
+    </div>
+
+    <!-- STEP 3: sequence -->
+    <div class="step-body">
+      <div class="approve-bar" id="cli-bar-3">
+        <span class="msg">Review each step, edit timing or content rules, then approve the sequence.</span>
+        <div class="right"><button class="btn" onclick="toast('Sequence editor opened — changes are illustrative')">✎ Edit steps</button><button class="btn green" onclick="approveStep('cli',3,'LinkedIn sequence approved — message examples are ready',true)">✓ Approve sequence</button></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>LinkedIn sequence</h3><span class="sub">5 steps · edit timing inline</span></div>
+          <div class="card-b"><div class="seq">
+            <div class="seq-item"><div class="st">1 · Profile visit <span class="badge gray">warm-up</span></div><div class="sd">Signals interest before the request. Day <select style="width:70px;display:inline-block" onchange="toast('Timing updated: profile visit on day '+this.value)"><option>0</option><option>1</option></select></div></div>
+            <div class="seq-item"><div class="st">2 · Connection request <span class="badge li">≤300 chars</span></div><div class="sd">Personalized, no pitch. <b>Wait</b> <select style="width:90px;display:inline-block" onchange="toast('Timing updated: '+this.value+' after visit')"><option>1 day</option><option>2 days</option><option>3 days</option></select> after visit</div></div>
+            <div class="seq-item"><div class="st">3 · First message</div><div class="sd">Sent <select style="width:90px;display:inline-block" onchange="toast('Timing updated: first message '+this.value+' after accept')"><option>3 days</option><option>1 day</option><option>2 days</option><option>5 days</option></select> after connection accepted · one proof point + soft CTA</div></div>
+            <div class="seq-item"><div class="st">4 · Follow-up 1</div><div class="sd">Day <select style="width:70px;display:inline-block" onchange="toast('Follow-up 1 moved to day '+this.value)"><option>7</option><option>5</option><option>10</option></select> · adds a second angle, keeps it short</div></div>
+            <div class="seq-item wait"><div class="st">5 · Follow-up 2 (final)</div><div class="sd">Day <select style="width:70px;display:inline-block" onchange="toast('Follow-up 2 moved to day '+this.value)"><option>12</option><option>10</option><option>14</option></select> · polite close of the loop</div></div>
+          </div>
+          <label class="fl" style="margin-top:8px">Number of follow-ups</label>
+          <select style="width:140px" onchange="toast('Follow-up count set to '+this.value)"><option>2 follow-ups</option><option>1 follow-up</option><option>3 follow-ups</option></select>
+        </div></div>
+        <div class="card"><div class="card-h"><h3>Stop conditions</h3><span class="sub">Eve halts the sequence automatically</span></div>
+          <div class="card-b"><ul class="checklist">
+            <li>Prospect replies (any channel) — sequence pauses immediately</li>
+            <li>Meeting is booked — outreach stops</li>
+            <li>Prospect opts out or asks not to be contacted — permanent exclusion</li>
+            <li>Connection request pending &gt; 21 days — withdrawn quietly</li>
+            <li>LinkedIn account-risk signal detected — campaign pauses</li>
+          </ul>
+          <div class="note warn" style="margin-top:14px">🛡 LinkedIn safety limits: max 20 connection requests/day, 40 profile visits/day, randomized human-like timing. Eve never exceeds these.</div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- STEP 4: message style -->
+    <div class="step-body">
+      <div class="approve-bar" id="cli-bar-4">
+        <span class="msg">Eve wrote real examples for selected prospects. Approve the style and Eve applies it to all remaining campaign messages.</span>
+        <div class="right"><button class="btn" onclick="openComment('Message style')">💬 Comment on style</button><button class="btn green" onclick="approveStep('cli',4,'Message style approved — Eve is applying it to all campaign messages',true)">✓ Approve style</button></div>
+      </div>
+      <div class="tabs" id="cli-msg-tabs">
+        <div class="tab active" onclick="msgTab('cli',0,this)">Sarah Smith · Acme Property Group</div>
+        <div class="tab" onclick="msgTab('cli',1,this)">David Chen · Hudson Yards Res.</div>
+        <div class="tab" onclick="msgTab('cli',2,this)">Maria Lopez · Brooklyn Portfolio Co.</div>
+      </div>
+      <div id="cli-msg-body"></div>
+      <div class="card"><div class="card-h"><h3>Style checklist</h3><span class="sub">what you're approving</span></div>
+        <div class="card-b grid3" style="font-size:12.5px;color:var(--ink2)">
+          <div><b>Tone</b><br>Direct, peer-to-peer, no fluff. Sounds like a founder, not a marketer.</div>
+          <div><b>Personalization</b><br>One specific public signal per prospect (portfolio news, hiring, market activity).</div>
+          <div><b>Public proof points</b><br>Only approved evidence: "23% lower ops cost across 14 NYC portfolios" + Riverside case study.</div>
+          <div><b>Call to action</b><br>Soft ask: "worth a 20-min look?" — never pushy.</div>
+          <div><b>Booking link</b><br>cal.com/outpost/intro — included from first message onward, never in connection request.</div>
+          <div><b>Length</b><br>Connection ≤ 300 chars · messages ≤ 90 words.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: execution -->
+    <div class="step-body">
+      <div class="approve-bar approved" id="cli-bar-5" style="background:var(--brand-bg);border-color:#ded9fb">
+        <span class="msg" style="color:var(--brand-dk);font-weight:700">🚀 All approvals complete — Eve launched the campaign and now works autonomously within the approved plan.</span>
+        <div class="right"><button class="btn" onclick="toast('Campaign paused — Eve stopped all scheduled actions')">⏸ Pause campaign</button><button class="btn danger" onclick="toast('Campaign stopped — no further outreach will be sent')">■ Stop</button></div>
+      </div>
+      <div class="grid4" style="margin-bottom:16px">
+        <div class="stat"><div class="v">34</div><div class="l">Profiles visited</div></div>
+        <div class="stat"><div class="v">28</div><div class="l">Connection requests</div></div>
+        <div class="stat"><div class="v">17</div><div class="l">Connections accepted</div><div class="d up">61% accept rate</div></div>
+        <div class="stat"><div class="v">6</div><div class="l">Replies</div><div class="d up">4 positive</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>Eve is handling automatically</h3></div><div class="card-b"><ul class="checklist">
+          <li>Visits profiles & sends connection requests on schedule</li>
+          <li>Sends approved follow-ups at the approved timing</li>
+          <li>Monitors replies around the clock</li>
+          <li>Respects LinkedIn safety limits with randomized timing</li>
+          <li>Pauses outreach the moment a prospect replies</li>
+          <li>Stops when a meeting is booked or the prospect opts out</li>
+        </ul></div></div>
+        <div class="card"><div class="card-h"><h3>Live activity</h3><span class="sub">today</span></div><div class="card-b" style="font-size:13px">
+          <div style="display:flex;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)"><span class="badge green">14:12</span> Reply received from <b>Sarah Smith</b> — sequence paused, sent to you for decision</div>
+          <div style="display:flex;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)"><span class="badge blue">13:40</span> Connection accepted: <b>David Chen</b> — first message scheduled for Fri 10:04</div>
+          <div style="display:flex;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)"><span class="badge gray">11:57</span> Follow-up 1 sent to <b>Maria Lopez</b></div>
+          <div style="display:flex;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)"><span class="badge gray">10:22</span> 6 connection requests sent (batch 3/4 today)</div>
+          <div style="display:flex;gap:9px;padding:6px 0"><span class="badge green">09:31</span> Meeting booked: <b>James Okafor</b> · Thu 2:00 PM — outreach stopped for this prospect</div>
+        </div></div>
+      </div>
+      <div class="card"><div class="card-h"><h3>Full activity history</h3><span class="sub">every action Eve has taken, filterable</span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <select style="width:150px" onchange="toast('History filtered: '+this.value)"><option>All actions</option><option>Connection requests</option><option>Messages</option><option>Replies</option><option>Meetings</option><option>Exclusions</option></select>
+          <select style="width:130px" onchange="toast('History filtered: '+this.value)"><option>All prospects</option><option>Sarah Smith</option><option>David Chen</option><option>Maria Lopez</option></select>
+        </div></div>
+        <table><thead><tr><th>When</th><th>Prospect</th><th>Action</th><th>Detail</th><th>Result</th></tr></thead><tbody>
+          <tr><td>Today 14:12</td><td>Sarah Smith</td><td>Reply received</td><td>Pricing question — sequence paused</td><td><span class="badge red">Escalated to you</span></td></tr>
+          <tr><td>Today 13:40</td><td>David Chen</td><td>Connection accepted</td><td>First message scheduled Fri 10:04</td><td><span class="badge blue">Scheduled</span></td></tr>
+          <tr><td>Today 11:57</td><td>Maria Lopez</td><td>Follow-up 1 sent</td><td>"Compliance checklist" angle</td><td><span class="badge green">Delivered</span></td></tr>
+          <tr><td>Today 10:22</td><td>6 prospects</td><td>Connection requests</td><td>Batch 3/4 · 14/20 daily limit used</td><td><span class="badge green">Sent</span></td></tr>
+          <tr><td>Today 09:31</td><td>James Okafor</td><td>Meeting booked</td><td>Thu 2:00 PM via cal.com/outpost/intro</td><td><span class="badge green">Sequence stopped ✓</span></td></tr>
+          <tr><td>Yesterday 16:05</td><td>Rachel Goldman</td><td>Connection request</td><td>Staffing-pain personalization</td><td><span class="badge li">Pending · day 3/21</span></td></tr>
+          <tr><td>Yesterday 15:10</td><td>Tom Nguyen</td><td>Profile visit</td><td>Warm-up before request</td><td><span class="badge gray">Done</span></td></tr>
+          <tr><td>Yesterday 11:02</td><td>1 prospect</td><td>Excluded by you</td><td>Reason: "competitor's board member" — Eve learned the rule</td><td><span class="badge amber">Learning applied</span></td></tr>
+          <tr><td>Mon 14:30</td><td>Campaign</td><td>Launched</td><td>All approvals completed in Slack</td><td><span class="badge green">Live</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- STEP 6: replies -->
+    <div class="step-body">
+      <div class="note">Routine replies are classified automatically. Eve only asks you when a reply requires a <b>business decision</b> — pricing, proposals, product questions she can't answer confidently, objections, custom arrangements, or negative/sensitive responses.</div>
+      <div id="cli-replies"></div>
+    </div>
+
+    <!-- STEP 7: reporting -->
+    <div class="step-body">
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>Daily Slack update</h3><span class="sub">sent to #outpost-eve every day at 5:00 PM</span></div>
+          <div class="card-b">
+            <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+              <div class="who">Eve <span class="app">APP</span><span class="when">5:00 PM</span></div>
+              <div class="txt">📊 <b>Daily update — NYC Multifamily Owners (LinkedIn, Copilot)</b></div>
+              <div class="sm-att">
+                <table class="sm-report">
+                  <tr><td>LinkedIn actions completed</td><td>52</td></tr>
+                  <tr><td>Connection requests sent</td><td>18</td></tr>
+                  <tr><td>Connections accepted</td><td>11 (61%)</td></tr>
+                  <tr><td>Messages sent</td><td>14</td></tr>
+                  <tr><td>Replies received</td><td>6</td></tr>
+                  <tr><td>Positive replies</td><td>4</td></tr>
+                  <tr><td>Meetings booked</td><td>1 🎉</td></tr>
+                  <tr><td>Waiting for your approval</td><td>2 items</td></tr>
+                </table>
+                <div style="margin-top:8px;font-size:12.5px"><b>Planned next steps:</b> 12 follow-ups tomorrow morning · batch 2 connection requests (16) · 2 replies need your decision.</div>
+                <div class="sm-btns"><button class="slack-btn g" onclick="nav('cli',6)">Review 2 pending replies</button><button class="slack-btn" onclick="toast('Opening campaign analytics…')">Open campaign</button></div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-h"><h3>Campaign analytics</h3><span class="sub">week 1 of 6</span></div>
+          <div class="card-b">
+            <div class="grid2" style="gap:10px;margin-bottom:14px">
+              <div class="stat"><div class="v">61%</div><div class="l">Accept rate</div><div class="d up">▲ vs 44% benchmark</div></div>
+              <div class="stat"><div class="v">21%</div><div class="l">Reply rate</div><div class="d up">▲ vs 12% benchmark</div></div>
+              <div class="stat"><div class="v">3</div><div class="l">Meetings booked</div></div>
+              <div class="stat"><div class="v">0</div><div class="l">Opt-outs</div><div class="d up">healthy</div></div>
+            </div>
+            <div class="note">Eve's read: personalization referencing portfolio expansions is out-performing hiring signals 2:1 — she's rebalancing the remaining messages accordingly.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= COPILOT INBOX ================= -->
+  <section class="view" id="view-cin">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <h2 class="section">Property Managers Q3</h2><span class="mode-tag copilot">Copilot</span><span class="badge amber">✉ Email</span>
+      <span style="margin-left:auto;font-size:12px;color:var(--ink3)">Sender: sales@outpost.com</span>
+    </div>
+    <div class="stepper">
+      <div class="step current" onclick="goStep('cin',1)"><span class="n"><span>1</span></span><span class="t">Campaign proposal</span><span class="s">Approve or edit</span></div>
+      <div class="step" onclick="goStep('cin',2)"><span class="n"><span>2</span></span><span class="t">Prospect list</span><span class="s">Verified contacts</span></div>
+      <div class="step" onclick="goStep('cin',3)"><span class="n"><span>3</span></span><span class="t">Email sequence</span><span class="s">4 emails</span></div>
+      <div class="step" onclick="goStep('cin',4)"><span class="n"><span>4</span></span><span class="t">Email style</span><span class="s">Real examples</span></div>
+      <div class="step" onclick="goStep('cin',5)"><span class="n"><span>5</span></span><span class="t">Execution</span><span class="s">Eve sends</span></div>
+      <div class="step" onclick="goStep('cin',6)"><span class="n"><span>6</span></span><span class="t">Replies</span><span class="s">Decisions only</span></div>
+      <div class="step" onclick="goStep('cin',7)"><span class="n"><span>7</span></span><span class="t">Reporting</span><span class="s">Daily Slack</span></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step-body active">
+      <div class="approve-bar" id="cin-bar-1">
+        <span class="msg">Eve prepared this inbox campaign proposal. Approve it or edit any field.</span>
+        <div class="right"><button class="btn" onclick="openChanges('inbox campaign proposal')">✎ Edit proposal</button><button class="btn green" onclick="approveStep('cin',1,'Inbox campaign proposal approved — generating & verifying prospects',true)">✓ Approve proposal</button></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>Campaign proposal</h3><span class="sub">prepared by Eve · 4h ago</span></div>
+          <div class="card-b"><dl class="kv">
+            <dt>Campaign name</dt><dd><b>Property Managers Q3 — Cold Email</b></dd>
+            <dt>Campaign goal</dt><dd>Book 12 demos with property management firms (500+ units) in Q3</dd>
+            <dt>Target ICP</dt><dd>3rd-party property management companies, 500–5,000 units, US Northeast</dd>
+            <dt>Buyer persona</dt><dd>Director / VP of Property Operations</dd>
+            <dt>Sender inbox</dt><dd>sales@outpost.com <span class="badge green">warmed · healthy</span></dd>
+            <dt>Campaign timeline</dt><dd>8 weeks · starts on your approval</dd>
+            <dt>Expected prospects</dt><dd>~250 (first batch: 60)</dd>
+            <dt>Meeting-booking CTA</dt><dd>cal.com/outpost/demo — 30-min demo</dd>
+          </dl></div>
+        </div>
+        <div class="card"><div class="card-h"><h3>Reasoning & proposed sequence</h3></div>
+          <div class="card-b">
+            <p style="font-size:13px;color:var(--ink2);margin-bottom:12px">PM firms churn from spreadsheets at 500+ units. Q3 is budget-planning season for this segment — reply rates historically peak in July–August. Email outperforms LinkedIn here (persona checks email 5×/day).</p>
+            <div class="seq">
+              <div class="seq-item"><div class="st">Email 1 — problem + proof point</div><div class="sd">Day 0 · personalized opener</div></div>
+              <div class="seq-item"><div class="st">Email 2 — case study angle</div><div class="sd">Day 3 · Riverside PM story</div></div>
+              <div class="seq-item"><div class="st">Email 3 — short nudge</div><div class="sd">Day 7 · 2 sentences</div></div>
+              <div class="seq-item wait"><div class="st">Email 4 — polite breakup</div><div class="sd">Day 12 · closes the loop</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-body">
+      <div class="approve-bar" id="cin-bar-2">
+        <span class="msg"><b>60 prospects generated & verified.</b> Every prospect passed the pre-approval checks below.</span>
+        <div class="right"><button class="btn" onclick="openFilters()">⚙ Change filters / refine ICP</button><button class="btn green" onclick="approveStep('cin',2,'Prospect list approved (58 prospects) — email sequence ready for review',true)">✓ Approve list</button></div>
+      </div>
+      <div class="card" style="margin-bottom:16px"><div class="card-h"><h3>Pre-approval verification</h3><span class="sub">run by Eve before showing you the list</span></div>
+        <div class="card-b grid3" style="font-size:12.5px">
+          <div>✅ <b>Valid email address</b><br><span style="color:var(--ink2)">60/60 verified deliverable</span></div>
+          <div>✅ <b>Not unsubscribed</b><br><span style="color:var(--ink2)">0 matches on suppression list</span></div>
+          <div>✅ <b>Not on do-not-contact list</b><br><span style="color:var(--ink2)">0 matches</span></div>
+          <div>✅ <b>Not active in another campaign</b><br><span style="color:var(--ink2)">3 duplicates removed automatically</span></div>
+          <div>✅ <b>Not an existing customer</b><br><span style="color:var(--ink2)">2 customers removed (campaign doesn't target customers)</span></div>
+          <div>✅ <b>No active conversation with you</b><br><span style="color:var(--ink2)">1 removed — open thread with jake@outpost.com</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Prospect list</h3><span class="sub" id="cin-pcount">60 prospects · 0 excluded</span>
+          <div style="margin-left:auto"><button class="btn sm" onclick="toast('Eve proposed 3 replacement prospects matching your ICP')">↻ Request replacements</button></div>
+        </div>
+        <table><thead><tr><th></th><th>Contact</th><th>Email</th><th>Fit</th><th>Why they match</th><th>CRM / history</th><th style="text-align:right">Actions</th></tr></thead>
+        <tbody id="cin-prospects"></tbody></table>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-body">
+      <div class="approve-bar" id="cin-bar-3">
+        <span class="msg">Review the full sequence — count, timing, subject lines, schedule, sender identity — and edit anything before approving.</span>
+        <div class="right"><button class="btn green" onclick="approveStep('cin',3,'Email sequence approved — style examples ready',true)">✓ Approve sequence</button></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>Email sequence</h3><span class="sub">4 emails · click subject to edit</span></div>
+          <div class="card-b"><div class="seq">
+            <div class="seq-item"><div class="st">Email 1 <span class="badge purple">Day 0</span></div><div class="sd">Subject: <input type="text" value="{{firstName}} — ops costs at {{company}}" style="width:88%;margin-top:4px" onchange="toast('Subject line updated')"></div></div>
+            <div class="seq-item"><div class="st">Email 2 <span class="badge purple">Day <select style="width:64px;display:inline-block" onchange="toast('Email 2 moved to day '+this.value)"><option>3</option><option>2</option><option>4</option><option>5</option></select></span></div><div class="sd">Subject: <input type="text" value="how Riverside PM cut ops cost 23%" style="width:88%;margin-top:4px" onchange="toast('Subject line updated')"></div></div>
+            <div class="seq-item"><div class="st">Email 3 <span class="badge purple">Day <select style="width:64px;display:inline-block" onchange="toast('Email 3 moved to day '+this.value)"><option>7</option><option>6</option><option>8</option></select></span></div><div class="sd">Subject: <i>replies in thread</i> · 2-sentence nudge</div></div>
+            <div class="seq-item wait"><div class="st">Email 4 — final <span class="badge purple">Day <select style="width:64px;display:inline-block" onchange="toast('Final email moved to day '+this.value)"><option>12</option><option>10</option><option>14</option></select></span></div><div class="sd">Polite breakup · "closing the loop"</div></div>
+          </div></div>
+        </div>
+        <div>
+          <div class="card"><div class="card-h"><h3>Sending schedule & identity</h3></div>
+            <div class="card-b"><dl class="kv" style="grid-template-columns:150px 1fr">
+              <dt>Sending window</dt><dd>Tue–Fri · 8:30 AM–4:30 PM <b>prospect's local time</b></dd>
+              <dt>Daily volume</dt><dd>Max 25/day from this inbox (ramping to 40)</dd>
+              <dt>Sender name</dt><dd>Jake Morrison, Outpost</dd>
+              <dt>Signature</dt><dd>Full signature with title, phone & booking link</dd>
+              <dt>Booking link</dt><dd>cal.com/outpost/demo</dd>
+            </dl></div>
+          </div>
+          <div class="card"><div class="card-h"><h3>Stop conditions</h3></div>
+            <div class="card-b"><ul class="checklist">
+              <li>Prospect replies → sequence stops instantly</li>
+              <li>Prospect unsubscribes → suppressed permanently</li>
+              <li>Meeting booked → sequence stops</li>
+              <li>Hard bounce → contact flagged, no retries</li>
+            </ul></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-body">
+      <div class="approve-bar" id="cin-bar-4">
+        <span class="msg">Eve prepared personalized examples. Approve the style and she applies it to all remaining campaign emails.</span>
+        <div class="right">
+          <label style="display:flex;gap:7px;align-items:center;font-size:12.5px;color:var(--ink2);font-weight:600"><input type="checkbox" style="width:auto;accent-color:var(--brand)" onchange="toast(this.checked?'Strict mode ON — you will approve every single email':'Strict mode OFF — Eve sends using the approved style')"> Approve every message</label>
+          <button class="btn" onclick="openComment('Email style')">💬 Comment</button>
+          <button class="btn green" onclick="approveStep('cin',4,'Email style approved — Eve is personalizing the remaining campaign emails',true)">✓ Approve style</button>
+        </div>
+      </div>
+      <div class="tabs"><div class="tab active" onclick="msgTab('cin',0,this)">Anna Whitfield · Beacon PM</div><div class="tab" onclick="msgTab('cin',1,this)">Tom Rivera · Keystone Residential</div></div>
+      <div id="cin-msg-body"></div>
+      <div class="card"><div class="card-h"><h3>Style checklist</h3></div>
+        <div class="card-b grid3" style="font-size:12.5px;color:var(--ink2)">
+          <div><b>Subject line</b><br>Lowercase, specific, ≤ 6 words. No clickbait.</div>
+          <div><b>Opening line</b><br>References a real, public signal — never "hope you're well".</div>
+          <div><b>Value prop & evidence</b><br>One claim, one public proof point per email.</div>
+          <div><b>Tone & length</b><br>Plain-spoken, ≤ 110 words, reads in 20 seconds.</div>
+          <div><b>CTA</b><br>Single soft ask + booking link.</div>
+          <div><b>Signature</b><br>Jake Morrison · Outpost · phone · cal.com/outpost/demo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step-body">
+      <div class="approve-bar approved" id="cin-bar-5" style="background:var(--brand-bg);border-color:#ded9fb">
+        <span class="msg" style="color:var(--brand-dk);font-weight:700">🚀 Campaign live — Eve personalizes and sends on the approved schedule. You only approve individual emails if you enabled "approve every message".</span>
+        <div class="right"><button class="btn" onclick="toast('Campaign paused')">⏸ Pause</button><button class="btn danger" onclick="toast('Campaign stopped')">■ Stop</button></div>
+      </div>
+      <div class="grid4" style="margin-bottom:16px">
+        <div class="stat"><div class="v">112</div><div class="l">Emails sent</div></div>
+        <div class="stat"><div class="v">97%</div><div class="l">Delivered</div><div class="d up">3 bounces handled</div></div>
+        <div class="stat"><div class="v">9</div><div class="l">Replies</div><div class="d up">5 positive</div></div>
+        <div class="stat"><div class="v">2</div><div class="l">Meetings booked</div></div>
+      </div>
+      <div class="card"><div class="card-h"><h3>Eve is handling automatically</h3></div><div class="card-b grid2">
+        <ul class="checklist"><li>Personalizes every email from the approved style</li><li>Sends on the approved schedule, spread through the day</li><li>Sends follow-ups & monitors replies</li><li>Tracks delivery failures & mailbox health</li></ul>
+        <ul class="checklist"><li>Stops the sequence when a prospect replies</li><li>Stops on unsubscribe — suppressed permanently</li><li>Stops when a meeting is booked</li><li>Updates the CRM (HubSpot connected ✓)</li></ul>
+      </div></div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step-body">
+      <div class="grid2" style="margin-bottom:16px">
+        <div class="card"><div class="card-h"><h3>Handled automatically by Eve</h3><span class="sub">no action needed</span></div>
+          <div class="card-b" style="font-size:13px">
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>🏖 Out-of-office (auto-resume on return date)</span><b>7</b></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>↩ Bounces (contact flagged, no retry)</span><b>3</b></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>🚫 Unsubscribes (suppressed)</span><b>1</b></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0"><span>👤 Wrong-person (asked for referral politely)</span><b>2</b></div>
+          </div>
+        </div>
+        <div class="note" style="margin:0">Eve asks you to review replies involving: <b>positive interest, product questions, pricing, objections, custom requests, proposals, contractual questions, sensitive/negative responses, unclear intent.</b> She always prepares a suggested response first.</div>
+      </div>
+      <div id="cin-replies"></div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step-body">
+      <div class="card" style="max-width:640px"><div class="card-h"><h3>Daily Slack report</h3><span class="sub">#outpost-eve · 5:00 PM</span></div>
+        <div class="card-b">
+          <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+            <div class="who">Eve <span class="app">APP</span><span class="when">5:00 PM</span></div>
+            <div class="txt">📊 <b>Daily update — Property Managers Q3 (Email, Copilot)</b></div>
+            <div class="sm-att amber">
+              <table class="sm-report">
+                <tr><td>Emails sent</td><td>25</td></tr>
+                <tr><td>Follow-ups sent</td><td>11</td></tr>
+                <tr><td>Delivered</td><td>24 (96%)</td></tr>
+                <tr><td>Bounces</td><td>1</td></tr>
+                <tr><td>Replies</td><td>4</td></tr>
+                <tr><td>Positive replies</td><td>2</td></tr>
+                <tr><td>Unsubscribes</td><td>0</td></tr>
+                <tr><td>Meetings booked</td><td>1 🎉</td></tr>
+                <tr><td>Conversations needing you</td><td>2</td></tr>
+              </table>
+              <div style="margin-top:8px;font-size:12.5px"><b>Next planned actions:</b> 25 new sends tomorrow 8:30 AM · 8 follow-ups · Anna Whitfield's pricing question awaits your decision.</div>
+              <div class="sm-btns"><button class="slack-btn g" onclick="nav('cin',6)">Review 2 conversations</button><button class="slack-btn" onclick="toast('Opening campaign…')">Open campaign</button></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AUTOPILOT LINKEDIN ================= -->
+  <section class="view" id="view-ali">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <h2 class="section">Boston CRE Brokers</h2><span class="mode-tag autopilot">Autopilot</span><span class="badge li">in LinkedIn</span><span class="badge green">● Running</span>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn sm" onclick="toast('Instructions editor opened — Eve will follow updated instructions from the next action')">✎ Modify instructions</button>
+        <button class="btn sm" onclick="toast('Campaign paused — all scheduled LinkedIn actions on hold')">⏸ Pause</button>
+        <button class="btn danger sm" onclick="toast('Campaign stopped')">■ Stop</button>
+      </div>
+    </div>
+    <div class="note">In Autopilot, Eve plans and executes without stage-by-stage approvals. You can see everything below, pause or stop at any time, change instructions, or take over any conversation. New strategies, first batches and sensitive replies still pass <b>internal human review</b> before anything is sent.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="apTab('ali',0,this)">1 · Permission</div>
+      <div class="tab" onclick="apTab('ali',1,this)">2 · Campaign plan</div>
+      <div class="tab" onclick="apTab('ali',2,this)">3 · Prospects</div>
+      <div class="tab" onclick="apTab('ali',3,this)">4 · Execution</div>
+      <div class="tab" onclick="apTab('ali',4,this)">5 · Replies</div>
+      <div class="tab" onclick="apTab('ali',5,this)">6–7 · Visibility & reports</div>
+    </div>
+
+    <div class="ap-body" id="ali-b0" style="display:block">
+      <div class="card" style="max-width:680px">
+        <div class="card-h"><h3>Autopilot permission</h3><span class="sub">granted June 12 · revocable anytime</span></div>
+        <div class="card-b">
+          <p style="font-size:13.5px;margin-bottom:12px">Before starting, Eve explained exactly what she will do on your behalf:</p>
+          <ul class="checklist x">
+            <li>Build the campaign strategy and sequence</li>
+            <li>Generate and rank prospects</li>
+            <li>Prepare personalized LinkedIn messages</li>
+            <li>Send connection requests and follow-ups</li>
+            <li>Monitor replies and pause prospects who respond</li>
+            <li>Track meetings booked</li>
+            <li>Report results daily in Slack</li>
+          </ul>
+          <div class="approve-bar approved" style="margin:14px 0 0"><span class="msg">✓ Permission confirmed by Olesia (Outpost) on June 12, 9:41 AM</span><div class="right"><button class="btn danger sm" onclick="toast('Autopilot permission revoked — campaign paused, Eve will ask before any further action')">Revoke Autopilot</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ap-body" id="ali-b1" style="display:none">
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>Auto-created campaign</h3><span class="sub">defined by Eve · internally reviewed ✓</span></div>
+          <div class="card-b"><dl class="kv">
+            <dt>Campaign name</dt><dd><b>Boston CRE Brokers — Warm LinkedIn Motion</b></dd>
+            <dt>Goal</dt><dd>10 discovery calls with CRE brokerage principals in 8 weeks</dd>
+            <dt>Target audience</dt><dd>CRE brokerage owners & managing directors, Greater Boston, 5–50 agents</dd>
+            <dt>Strategy</dt><dd>Visit → personalized connect → proof-point message → 2 follow-ups</dd>
+            <dt>Timing</dt><dd>Weekdays, randomized 9 AM–5 PM ET</dd>
+            <dt>Prospect volume</dt><dd>160 total · ≤ 20 connects/day</dd>
+            <dt>Stop conditions</dt><dd>Reply · meeting booked · opt-out · risk signal</dd>
+          </dl></div>
+        </div>
+        <div class="card"><div class="card-h"><h3>What Eve based this on</h3></div>
+          <div class="card-b"><ul class="checklist">
+            <li>Your confirmed ICP & persona</li>
+            <li>Approved public proof points & case studies</li>
+            <li>Your booking link (cal.com/outpost/intro)</li>
+            <li>LinkedIn safety limits for your account tier</li>
+            <li>Your previous feedback from the NYC Copilot campaign</li>
+            <li>Existing CRM, inbox & LinkedIn history (dedupe + context)</li>
+          </ul>
+          <div class="note" style="margin-top:12px">Personalized message templates were reviewed and approved internally (Super Admin) before the first batch went out.</div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="ap-body" id="ali-b2" style="display:none">
+      <div class="card" style="margin-bottom:16px"><div class="card-h"><h3>Pre-contact checks</h3><span class="sub">Eve validates every prospect before outreach</span></div>
+        <div class="card-b grid4" style="font-size:12.5px">
+          <div>✅ Matches ICP</div><div>✅ Persona is correct</div><div>✅ Client doesn't already know them</div><div>✅ No connection request already sent</div>
+          <div>✅ No existing LinkedIn conversation</div><div>✅ Not active in another campaign</div><div>✅ Not previously excluded</div><div>🛡 12 prospects filtered out by these checks</div>
+        </div>
+      </div>
+      <div class="card"><div class="card-h"><h3>Ranked prospect queue</h3><span class="sub">top of 160 · ranked by fit</span>
+        <div style="margin-left:auto"><button class="btn sm" onclick="toast('Prospect excluded from all current and future campaigns')">Exclude selected</button></div></div>
+        <table><thead><tr><th>#</th><th>Prospect</th><th>Fit</th><th>Status</th><th>Next action</th><th style="text-align:right"></th></tr></thead>
+        <tbody id="ali-prospects"></tbody></table>
+      </div>
+    </div>
+
+    <div class="ap-body" id="ali-b3" style="display:none">
+      <div class="grid4" style="margin-bottom:16px">
+        <div class="stat"><div class="v">96</div><div class="l">Profiles visited</div></div>
+        <div class="stat"><div class="v">74</div><div class="l">Connects sent</div></div>
+        <div class="stat"><div class="v">41</div><div class="l">Accepted</div><div class="d up">55%</div></div>
+        <div class="stat"><div class="v">12</div><div class="l">Replies</div><div class="d up">7 positive</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>Autonomous execution</h3></div><div class="card-b"><ul class="checklist">
+          <li>Visits profiles & sends connection requests</li>
+          <li>Sends LinkedIn messages & follow-ups</li>
+          <li>Monitors replies · pauses prospects who reply</li>
+          <li>Tracks meetings</li>
+          <li>Respects LinkedIn safety limits</li>
+          <li>Randomizes activity timing to stay human-like</li>
+          <li>Pauses activity when account-risk signals are detected</li>
+        </ul></div></div>
+        <div class="card"><div class="card-h"><h3>Account safety monitor</h3></div><div class="card-b">
+          <div class="kv" style="grid-template-columns:170px 1fr">
+            <dt>Daily connects used</dt><dd>14 / 20 <span class="badge green">safe</span></dd>
+            <dt>Acceptance rate</dt><dd>55% <span class="badge green">healthy</span></dd>
+            <dt>Risk signals</dt><dd>None detected <span class="badge green">clear</span></dd>
+            <dt>Timing pattern</dt><dd>Randomized ±35 min <span class="badge green">human-like</span></dd>
+          </div>
+          <div class="note warn" style="margin-top:12px">If LinkedIn shows any restriction signal, Eve pauses all activity instantly and alerts the internal team.</div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="ap-body" id="ali-b4" style="display:none">
+      <div class="grid2" style="margin-bottom:4px">
+        <div class="card"><div class="card-h"><h3>Eve continues automatically when…</h3></div><div class="card-b"><ul class="checklist">
+          <li>The answer comes from approved product information</li>
+          <li>The reply is routine ("tell me more", scheduling)</li>
+          <li>Eve has high confidence in the response</li>
+          <li>No pricing, legal or custom commitment is involved</li>
+        </ul></div></div>
+        <div class="card"><div class="card-h"><h3>Eve pauses & escalates when…</h3></div><div class="card-b"><ul class="checklist x">
+          <li>She can't answer confidently</li>
+          <li>Pricing approval is required</li>
+          <li>A custom proposal is requested</li>
+          <li>Legal or contractual questions come up</li>
+          <li>The response is negative or sensitive</li>
+          <li>There's a risk of LinkedIn restriction</li>
+          <li>The conversation falls outside campaign instructions</li>
+        </ul></div></div>
+      </div>
+      <div class="card"><div class="card-h"><h3>Escalated conversation</h3><span class="badge red" style="margin-left:6px">needs internal review → then you</span></div>
+        <div class="card-b">
+          <div class="msg-meta"><span class="avatar b">MB</span><span class="t">Marcus Bell · Principal, BayState Commercial</span><span class="badge li">LinkedIn</span><span class="badge red">Pricing question</span></div>
+          <div class="msg-bubble">"Interesting. What would this run us for a 12-agent shop? And does that include the data migration?"</div>
+          <div class="msg-meta"><span class="avatar eve">e</span><span class="t">Eve's suggested response (awaiting approval)</span></div>
+          <div class="msg-bubble" style="border-color:#ded9fb;background:var(--brand-bg)">"Great question, Marcus — for a team your size it's typically in the $800–1,200/mo range, and yes, migration is included. Happy to give you an exact number on a quick call: cal.com/outpost/intro"</div>
+          <div style="display:flex;gap:8px"><button class="btn green sm" onclick="toast('Response approved and sent to Marcus')">✓ Approve & send</button><button class="btn sm" onclick="toast('Editor opened')">✎ Edit & send</button><button class="btn sm" onclick="toast('Response rejected — Eve will not reply until you decide')">Reject</button><button class="btn sm" onclick="toast('Conversation handed to you — Eve stops responding in this thread')">👤 Take over conversation</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ap-body" id="ali-b5" style="display:none">
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>Full visibility — always on</h3><span class="sub">everything Eve does is inspectable</span></div>
+          <div class="card-b"><ul class="checklist">
+            <li>Campaign strategy & prospect list</li>
+            <li>Every LinkedIn message — sent and scheduled</li>
+            <li>Completed actions & scheduled actions</li>
+            <li>All replies & meetings booked</li>
+            <li>Campaign analytics</li>
+          </ul>
+          <div style="margin-top:12px;display:flex;gap:8px"><button class="btn sm" onclick="apTab('ali',3,document.querySelectorAll('#view-ali .tab')[3])">View execution log</button><button class="btn sm" onclick="apTab('ali',2,document.querySelectorAll('#view-ali .tab')[2])">View prospect list</button></div>
+        </div></div>
+        <div class="card"><div class="card-h"><h3>Daily Slack report</h3><span class="sub">#outpost-eve</span></div>
+          <div class="card-b">
+            <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+              <div class="who">Eve <span class="app">APP</span><span class="when">5:00 PM</span></div>
+              <div class="txt">🤖 <b>Autopilot daily — Boston CRE Brokers (LinkedIn)</b></div>
+              <div class="sm-att">
+                <table class="sm-report">
+                  <tr><td>Profiles visited</td><td>22</td></tr>
+                  <tr><td>Connection requests sent</td><td>14</td></tr>
+                  <tr><td>Connections accepted</td><td>9</td></tr>
+                  <tr><td>Messages sent</td><td>11</td></tr>
+                  <tr><td>Follow-ups sent</td><td>6</td></tr>
+                  <tr><td>Replies received</td><td>3</td></tr>
+                  <tr><td>Positive replies</td><td>2</td></tr>
+                  <tr><td>Meetings booked</td><td>1 🎉</td></tr>
+                  <tr><td>Escalated conversations</td><td>1 (pricing — Marcus Bell)</td></tr>
+                </table>
+                <div style="margin-top:8px;font-size:12.5px"><b>Next:</b> 16 connects tomorrow · 8 follow-ups · Marcus Bell escalation awaits your input.</div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AUTOPILOT INBOX ================= -->
+  <section class="view" id="view-ain">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <h2 class="section">Midwest Owners Reactivation</h2><span class="mode-tag autopilot">Autopilot</span><span class="badge amber">✉ Email</span><span class="badge green">● Running</span>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn sm" onclick="toast('Instructions editor opened')">✎ Modify instructions</button>
+        <button class="btn sm" onclick="toast('Campaign paused')">⏸ Pause</button>
+        <button class="btn danger sm" onclick="toast('Campaign stopped')">■ Stop</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="apTab('ain',0,this)">1 · Permission</div>
+      <div class="tab" onclick="apTab('ain',1,this)">2 · Campaign plan</div>
+      <div class="tab" onclick="apTab('ain',2,this)">3 · Validation</div>
+      <div class="tab" onclick="apTab('ain',3,this)">4 · Execution</div>
+      <div class="tab" onclick="apTab('ain',4,this)">5 · Replies</div>
+      <div class="tab" onclick="apTab('ain',5,this)">6–7 · Visibility & reports</div>
+    </div>
+
+    <div class="ap-body" id="ain-b0" style="display:block">
+      <div class="card" style="max-width:680px"><div class="card-h"><h3>Autopilot permission</h3><span class="sub">granted June 18</span></div>
+        <div class="card-b">
+          <p style="font-size:13.5px;margin-bottom:12px">Eve told you she will:</p>
+          <ul class="checklist x">
+            <li>Build the campaign & select prospects</li>
+            <li>Prepare personalized emails</li>
+            <li>Send emails and follow-ups from sales@outpost.com</li>
+            <li>Monitor replies & handle routine responses</li>
+            <li>Track meetings & report results in Slack</li>
+          </ul>
+          <div class="approve-bar approved" style="margin:14px 0 0"><span class="msg">✓ Permission confirmed by Olesia (Outpost) on June 18, 2:17 PM</span><div class="right"><button class="btn danger sm" onclick="toast('Autopilot revoked — campaign paused')">Revoke Autopilot</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ap-body" id="ain-b1" style="display:none">
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>Auto-created campaign</h3><span class="sub">internally reviewed ✓</span></div>
+          <div class="card-b"><dl class="kv">
+            <dt>Strategy</dt><dd>Reactivate 90 cold CRM leads (Midwest owners) with a new-feature angle</dd>
+            <dt>Target audience</dt><dd>Multifamily owners, 100–800 units, IL / OH / MI, dormant &gt; 6 months</dd>
+            <dt>Email sequence</dt><dd>3 emails over 10 days, reply-thread style</dd>
+            <dt>Subject lines</dt><dd>"{{firstName}} — quick update since we last spoke" + 2 variants</dd>
+            <dt>Personalization logic</dt><dd>Last CRM touch + portfolio changes + local market note</dd>
+            <dt>Sending schedule</dt><dd>Tue–Thu, 9 AM–3 PM prospect local time, ≤ 30/day</dd>
+            <dt>Stop conditions</dt><dd>Reply · unsubscribe · meeting booked · bounce</dd>
+            <dt>Reply-handling rules</dt><dd>Routine → auto · pricing/legal/sensitive → escalate</dd>
+          </dl></div>
+        </div>
+        <div class="card"><div class="card-h"><h3>Email templates</h3><span class="sub">approved internally before first batch</span></div>
+          <div class="card-b">
+            <div class="msg-meta"><span class="t">Email 1 · Day 0</span><span class="badge green">approved</span></div>
+            <div class="msg-bubble">Subject: <b>{{firstName}} — quick update since we last spoke</b>
+
+Hi {{firstName}}, when we spoke in {{lastTouchMonth}} you were mid-{{contextNote}}. Since then we shipped {{relevantFeature}} — the piece you said was missing.
+
+{{proofPoint}}. Worth a fresh 20-min look? cal.com/outpost/demo
+
+— Jake</div>
+            <div class="msg-meta"><span class="t">Email 2 · Day 4</span><span class="badge green">approved</span> <span style="font-size:11px;color:var(--ink3)">case-study angle</span></div>
+            <div class="msg-meta"><span class="t">Email 3 · Day 10</span><span class="badge green">approved</span> <span style="font-size:11px;color:var(--ink3)">polite close</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ap-body" id="ain-b2" style="display:none">
+      <div class="card"><div class="card-h"><h3>Automatic prospect validation</h3><span class="sub">every prospect, before any send</span></div>
+        <div class="card-b">
+          <table><thead><tr><th>Check</th><th>Result</th><th>Filtered out</th></tr></thead><tbody>
+            <tr><td>Email validity</td><td><span class="badge green">90/94 valid</span></td><td>4 invalid removed</td></tr>
+            <tr><td>ICP fit</td><td><span class="badge green">pass</span></td><td>—</td></tr>
+            <tr><td>Persona fit</td><td><span class="badge green">pass</span></td><td>2 non-decision-makers removed</td></tr>
+            <tr><td>Existing CRM relationship</td><td><span class="badge blue">context loaded</span></td><td>used for personalization</td></tr>
+            <tr><td>Previous inbox communication</td><td><span class="badge blue">checked</span></td><td>3 with open threads removed</td></tr>
+            <tr><td>Existing LinkedIn communication</td><td><span class="badge blue">checked</span></td><td>1 active LinkedIn convo removed</td></tr>
+            <tr><td>Unsubscribe status</td><td><span class="badge green">clear</span></td><td>2 suppressed</td></tr>
+            <tr><td>Do-not-contact status</td><td><span class="badge green">clear</span></td><td>1 removed</td></tr>
+            <tr><td>Duplicate campaign status</td><td><span class="badge green">clear</span></td><td>2 removed</td></tr>
+            <tr><td>Active opportunity / customer</td><td><span class="badge green">clear</span></td><td>1 open opportunity removed</td></tr>
+          </tbody></table>
+          <div class="note" style="margin-top:12px"><b>78 prospects cleared</b> for outreach out of 94 candidates. Removed prospects are logged with the reason.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ap-body" id="ain-b3" style="display:none">
+      <div class="grid4" style="margin-bottom:16px">
+        <div class="stat"><div class="v">156</div><div class="l">Emails sent</div></div>
+        <div class="stat"><div class="v">98%</div><div class="l">Delivery rate</div></div>
+        <div class="stat"><div class="v">14</div><div class="l">Replies</div><div class="d up">8 positive</div></div>
+        <div class="stat"><div class="v">4</div><div class="l">Meetings booked</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>Autonomous execution</h3></div><div class="card-b"><ul class="checklist">
+          <li>Sends personalized emails & follow-ups</li>
+          <li>Stops on reply, unsubscribe, or booked meeting</li>
+          <li>Handles bounces and out-of-office responses</li>
+          <li>Respects inbox sending limits (30/day, ramping)</li>
+          <li>Distributes sends throughout the day</li>
+          <li>Avoids inappropriate local send times</li>
+          <li>Monitors mailbox health continuously</li>
+        </ul></div></div>
+        <div class="card"><div class="card-h"><h3>Mailbox health</h3></div><div class="card-b">
+          <div class="kv" style="grid-template-columns:170px 1fr">
+            <dt>Sender reputation</dt><dd><span class="badge green">98 / 100</span></dd>
+            <dt>Spam complaints</dt><dd>0 <span class="badge green">clear</span></dd>
+            <dt>Bounce rate</dt><dd>1.9% <span class="badge green">below 2% threshold</span></dd>
+            <dt>Daily volume</dt><dd>26 / 30 <span class="badge green">within limits</span></dd>
+            <dt>Send distribution</dt><dd>Spread 9:04 AM – 2:47 PM local <span class="badge green">natural</span></dd>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="ap-body" id="ain-b4" style="display:none">
+      <div class="grid2" style="margin-bottom:16px">
+        <div class="card"><div class="card-h"><h3>Processed automatically</h3></div><div class="card-b"><ul class="checklist">
+          <li>Out-of-office (8) · Bounces (3) · Unsubscribes (1)</li>
+          <li>Wrong-person replies (2) — polite referral ask sent</li>
+          <li>Simple scheduling responses (3) — times proposed</li>
+          <li>Routine questions with approved answers (4)</li>
+        </ul></div></div>
+        <div class="card"><div class="card-h"><h3>Escalation triggers</h3></div><div class="card-b" style="font-size:12.5px;color:var(--ink2)">Pricing questions · custom proposal requests · legal / security questions · contractual requests · detailed product questions · objections requiring judgment · sensitive or negative responses · unclear replies · requests to speak directly with a human.</div></div>
+      </div>
+      <div id="ain-replies"></div>
+    </div>
+
+    <div class="ap-body" id="ain-b5" style="display:none">
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>You can always…</h3></div><div class="card-b"><ul class="checklist x">
+          <li>See prospects, sequences, sent & scheduled emails</li>
+          <li>See replies, meetings, performance, paused prospects & escalations</li>
+          <li>Pause or stop the campaign</li>
+          <li>Exclude prospects & change instructions</li>
+          <li>Take over any conversation instantly</li>
+        </ul></div></div>
+        <div class="card"><div class="card-h"><h3>Daily Slack report</h3><span class="sub">#outpost-eve</span></div>
+          <div class="card-b">
+            <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+              <div class="who">Eve <span class="app">APP</span><span class="when">5:00 PM</span></div>
+              <div class="txt">🤖 <b>Autopilot daily — Midwest Owners Reactivation (Email)</b></div>
+              <div class="sm-att amber">
+                <table class="sm-report">
+                  <tr><td>Emails sent</td><td>26</td></tr>
+                  <tr><td>Follow-ups sent</td><td>12</td></tr>
+                  <tr><td>Delivery rate</td><td>98%</td></tr>
+                  <tr><td>Bounces</td><td>1</td></tr>
+                  <tr><td>Replies</td><td>5</td></tr>
+                  <tr><td>Positive replies</td><td>3</td></tr>
+                  <tr><td>Unsubscribes</td><td>0</td></tr>
+                  <tr><td>Meetings booked</td><td>2 🎉</td></tr>
+                  <tr><td>Handled by Eve</td><td>4 conversations</td></tr>
+                  <tr><td>Need your input</td><td>2 conversations</td></tr>
+                </table>
+                <div style="margin-top:8px;font-size:12.5px"><b>Next:</b> 24 sends tomorrow · 9 follow-ups · 2 escalations pending.</div>
+                <div class="sm-btns"><button class="slack-btn g" onclick="apTab('ain',4,document.querySelectorAll('#view-ain .tab')[4])">Review 2 conversations</button></div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SLACK VIEWS ================= -->
+  <section class="view" id="view-slack">
+    <h2 class="section">Slack Views</h2>
+    <p class="lead">Slack shows only <b>summaries</b> — full email and conversation content stays inside the secure Super Admin page. Switch channels on the left.</p>
+    <div class="slack-wrap">
+      <div class="slack-side">
+        <div class="ws">Eve HQ ▾</div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;padding:4px 16px;color:#9d8f9d">Channels</div>
+        <div class="slack-ch active" id="sch-0" onclick="slackCh(0)"><span class="h">#</span> eve-internal-review <span class="pill">3</span></div>
+        <div class="slack-ch" id="sch-1" onclick="slackCh(1)"><span class="h">#</span> outpost-eve <span class="pill">1</span></div>
+        <div class="slack-ch" onclick="toast('Other channels are out of scope for this mockup')"><span class="h">#</span> eve-alerts</div>
+        <div class="slack-ch" onclick="toast('Other channels are out of scope for this mockup')"><span class="h">#</span> general</div>
+      </div>
+      <div class="slack-main">
+
+        <!-- internal review channel -->
+        <div id="slack-p0" style="display:flex;flex-direction:column;min-height:0;flex:1">
+          <div class="slack-head"># eve-internal-review <span>Internal · Eve reviewers only · first to claim owns the review</span></div>
+          <div class="slack-msgs">
+            <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+              <div class="who">Eve <span class="app">APP</span><span class="when">9:14 AM</span></div>
+              <div class="txt">🔔 <b>Review needed: LinkedIn campaign</b></div>
+              <div class="sm-att blue">
+                <div class="fields">
+                  <div class="f"><b>Client</b>Outpost</div><div class="f"><b>Campaign</b>NYC Multifamily Owners</div>
+                  <div class="f"><b>Requested action</b>Start outreach to 40 prospects</div><div class="f"><b>Scheduled start</b>Today at 2:00 PM</div>
+                </div>
+                <div style="font-size:12.5px"><b>Review required:</b> prospect list, sequence and LinkedIn messages</div>
+                <div class="sm-btns"><button class="slack-btn g" onclick="openSA(0)">Open in Super Admin</button><button class="slack-btn" id="slk-claim-0" onclick="claimFromSlack(0)">Claim review</button></div>
+                <div id="slk-status-0" style="font-size:11.5px;color:var(--ink3);margin-top:6px">⏳ Unclaimed · action stays paused until reviewed</div>
+              </div>
+            </div></div>
+            <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+              <div class="who">Eve <span class="app">APP</span><span class="when">10:02 AM</span></div>
+              <div class="txt">🔔 <b>Review needed: Inbox campaign</b></div>
+              <div class="sm-att amber">
+                <div class="fields">
+                  <div class="f"><b>Client</b>Outpost</div><div class="f"><b>Campaign</b>NYC Multifamily Owners</div>
+                  <div class="f"><b>Sender inbox</b>sales@company.com</div><div class="f"><b>Requested action</b>Send the first batch of 25 emails</div>
+                </div>
+                <div style="font-size:12.5px"><b>Review required:</b> prospects, email sequence and personalized emails</div>
+                <div class="sm-btns"><button class="slack-btn g" onclick="openSA(1)">Open in Super Admin</button><button class="slack-btn" onclick="toast('Claimed by you — other reviewers now see this is taken')">Claim review</button></div>
+              </div>
+            </div></div>
+            <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+              <div class="who">Eve <span class="app">APP</span><span class="when">11:47 AM</span></div>
+              <div class="txt">🔔 <b>Reply review needed</b></div>
+              <div class="sm-att red">
+                <div class="fields">
+                  <div class="f"><b>Client</b>Outpost</div><div class="f"><b>Prospect</b>Sarah Smith, Acme</div>
+                  <div class="f"><b>Channel</b>Email</div><div class="f"><b>Reason</b>Pricing question</div>
+                </div>
+                <div style="font-size:12.5px">Eve has prepared a response. <i>Full conversation content is in Super Admin only.</i></div>
+                <div class="sm-btns"><button class="slack-btn g" onclick="openSA(2)">Open in Super Admin</button><button class="slack-btn" onclick="toast('Claimed by you')">Claim review</button></div>
+              </div>
+            </div></div>
+            <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+              <div class="who">Eve <span class="app">APP</span><span class="when">1:30 PM</span></div>
+              <div class="txt">⏰ <b>Reminder</b> — the LinkedIn campaign review (Outpost · NYC Multifamily Owners) is still unclaimed. Outreach scheduled for 2:00 PM stays <b>paused</b>. Unapproved messages are never sent because a review timed out.</div>
+              <div class="sm-btns"><button class="slack-btn" onclick="toast('Review reassigned to Daniel')">Reassign</button><button class="slack-btn" onclick="toast('Escalated to another reviewer')">Escalate</button></div>
+            </div></div>
+          </div>
+        </div>
+
+        <!-- client channel -->
+        <div id="slack-p1" style="display:none;flex-direction:column;min-height:0;flex:1">
+          <div class="slack-head"># outpost-eve <span>Shared with client · Olesia + Outpost team</span></div>
+          <div class="slack-msgs">
+            <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+              <div class="who">Eve <span class="app">APP</span><span class="when">9:05 AM</span></div>
+              <div class="txt">👋 Quick preview before you open the full list in the web app — here are 3 of the 40 prospects I found for <b>NYC Multifamily Owners</b>:</div>
+              <div class="sm-att">
+                <div style="font-size:13px;line-height:1.7">
+                  <b>Sarah Smith</b> — Principal, Acme Property Group · 220 units, Queens · <span class="badge green">Fit 94</span><br>
+                  <b>David Chen</b> — Head of Asset Mgmt, Hudson Yards Residential · 340 units · <span class="badge green">Fit 91</span><br>
+                  <b>Maria Lopez</b> — Owner, Brooklyn Portfolio Co. · 85 units · <span class="badge green">Fit 88</span>
+                </div>
+                <div class="sm-btns"><button class="slack-btn g" onclick="nav('cli',2)">Open full list in web app</button><button class="slack-btn" onclick="toast('Feedback noted — Eve will refine the list')">Give feedback</button></div>
+              </div>
+            </div></div>
+            <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+              <div class="who">Eve <span class="app">APP</span><span class="when">2:24 PM</span></div>
+              <div class="txt">🚨 <b>Your decision needed</b> — a prospect asked something I can't decide for you.</div>
+              <div class="sm-att red">
+                <div class="fields">
+                  <div class="f"><b>Prospect</b>Sarah Smith · Acme Property Group</div><div class="f"><b>Channel</b>Email</div>
+                  <div class="f"><b>Reason</b>Pricing not preapproved</div><div class="f"><b>Campaign</b>NYC Multifamily Owners</div>
+                </div>
+                <div style="font-size:12.5px;margin:6px 0"><b>She asked:</b> "What does this cost for a portfolio our size, and do you do annual discounts?"</div>
+                <div style="font-size:12.5px"><b>My suggested reply:</b> "For ~220 units you'd be at $1,400/mo; annual billing brings it to $1,190/mo. Happy to walk through it: cal.com/outpost/intro"</div>
+                <div class="sm-btns"><button class="slack-btn g" onclick="toast('Approved — Eve sent the reply to Sarah')">Approve & send</button><button class="slack-btn" onclick="toast('Editor opened in web app')">Edit</button><button class="slack-btn" onclick="toast('You took over — Eve stops responding in this thread')">Take over</button></div>
+              </div>
+            </div></div>
+            <div class="sm-row"><span class="avatar eve">e</span><div class="body">
+              <div class="who">Eve <span class="app">APP</span><span class="when">5:00 PM</span></div>
+              <div class="txt">📊 <b>Daily update — all campaigns</b></div>
+              <div class="sm-att green">
+                <table class="sm-report">
+                  <tr><td>LinkedIn actions completed</td><td>74</td></tr>
+                  <tr><td>Emails sent</td><td>51</td></tr>
+                  <tr><td>Replies received</td><td>11</td></tr>
+                  <tr><td>Positive replies</td><td>6</td></tr>
+                  <tr><td>Meetings booked</td><td>3 🎉</td></tr>
+                  <tr><td>Waiting for your approval</td><td>3 items</td></tr>
+                </table>
+                <div class="sm-btns"><button class="slack-btn g" onclick="nav('cli',5)">Open web app</button></div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SUPER ADMIN ================= -->
+  <section class="view" id="view-sa">
+
+    <!-- queue -->
+    <div id="sa-queue">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <h2 class="section">Review queue</h2><span class="badge red">3 pending</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--ink3)">No action executes until the required internal approval is completed</span>
+      </div>
+      <div class="card">
+        <div class="q-item" onclick="openSA(0)">
+          <div class="q-ico li">in</div>
+          <div><div class="q-t">LinkedIn campaign — first batch · Outpost · NYC Multifamily Owners</div><div class="q-s">Start outreach to 40 prospects · review prospect list, sequence & messages · scheduled today 2:00 PM</div></div>
+          <div class="q-right"><span class="badge amber" id="sa-badge-0">Pending</span><span class="badge gray">SLA 2h 46m</span></div>
+        </div>
+        <div class="q-item" onclick="openSA(1)">
+          <div class="q-ico em">✉</div>
+          <div><div class="q-t">Inbox campaign — first batch · Outpost · NYC Multifamily Owners</div><div class="q-s">Send first batch of 25 emails from sales@company.com · review prospects, sequence & personalized emails</div></div>
+          <div class="q-right"><span class="badge amber">Pending</span><span class="badge gray">SLA 4h 10m</span></div>
+        </div>
+        <div class="q-item" onclick="openSA(2)">
+          <div class="q-ico rp">💬</div>
+          <div><div class="q-t">Reply review · Outpost · Sarah Smith (Acme) · pricing question</div><div class="q-s">Email · Eve prepared a response · may require client escalation (pricing not preapproved)</div></div>
+          <div class="q-right"><span class="badge red">Urgent</span><span class="badge blue" >Claimed · Daniel</span></div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>What requires review — LinkedIn Autopilot (MVP)</h3></div>
+          <div class="card-b grid2" style="font-size:12.5px">
+            <div><b style="color:var(--red)">Needs internal approval</b><ul class="checklist x" style="margin-top:6px"><li>New campaign strategy / persona / sequence</li><li>First prospect batch</li><li>Connection, first-message & follow-up templates</li><li>First several personalized messages</li><li>Significant tone or positioning changes</li><li>Low-confidence / pricing / legal / proposal replies</li><li>Anything with account-risk signals</li></ul></div>
+            <div><b style="color:var(--green)">Eve continues without review</b><ul class="checklist" style="margin-top:6px"><li>Profile visits</li><li>Previously approved connects & follow-ups</li><li>High-confidence routine responses</li><li>Pausing a sequence after a reply</li><li>Tracking connections & meetings</li></ul></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-h"><h3>What requires review — Inbox Autopilot (MVP)</h3></div>
+          <div class="card-b grid2" style="font-size:12.5px">
+            <div><b style="color:var(--red)">Needs internal approval</b><ul class="checklist x" style="margin-top:6px"><li>New strategy / sender inbox / sequence</li><li>First prospect batch</li><li>New subject-line patterns & templates</li><li>First several personalized emails</li><li>Unusual personalization</li><li>Pricing / proposal / legal / sensitive replies</li><li>Campaigns with deliverability warnings</li></ul></div>
+            <div><b style="color:var(--green)">Eve continues automatically</b><ul class="checklist" style="margin-top:6px"><li>Emails from approved templates</li><li>Routine follow-ups</li><li>OOO, bounce & unsubscribe handling</li><li>Pausing after a reply</li><li>Simple scheduling & meeting tracking</li></ul></div>
+          </div>
+        </div>
+      </div>
+      <div class="card"><div class="card-h"><h3>First-batch approval flow (MVP)</h3><span class="sub">+ random % of future messages sampled for ongoing QC</span></div>
+        <div class="card-b"><div class="status-flow" style="font-size:12px">
+          <span class="sf on">1 Eve creates campaign</span><span class="arr">→</span><span class="sf on">2 Admin reviews strategy & sequence</span><span class="arr">→</span><span class="sf on">3 Admin reviews first 5–10 prospects + messages</span><span class="arr">→</span><span class="sf">4 Approve first batch</span><span class="arr">→</span><span class="sf">5 Eve sends</span><span class="arr">→</span><span class="sf">6 Monitor quality</span><span class="arr">→</span><span class="sf">7 Auto-continue</span><span class="arr">→</span><span class="sf">8 Edge cases → queue</span>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- detail -->
+    <div id="sa-detail" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="btn sm" onclick="closeSA()">← Queue</button>
+        <h2 class="section" id="sa-d-title">Review</h2>
+        <div style="margin-left:auto" class="status-flow" id="sa-flow">
+          <span class="sf on">Pending</span><span class="arr">→</span><span class="sf">Claimed</span><span class="arr">→</span><span class="sf">Approved / Edited / Rejected</span><span class="arr">→</span><span class="sf">Scheduled</span><span class="arr">→</span><span class="sf">Completed</span>
+        </div>
+      </div>
+
+      <div class="approve-bar" id="sa-claim-bar">
+        <span class="msg" id="sa-claim-msg">⏳ <b>Unclaimed.</b> The first reviewer to claim owns this review — claiming prevents duplicate work. It can be released, reassigned, or taken over on timeout.</span>
+        <div class="right" id="sa-claim-btns">
+          <button class="btn sm" onclick="toast('Review assigned to Daniel — he was notified in Slack')">Assign to…</button>
+          <button class="btn primary" onclick="claimReview()">🙋 Claim review</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="saTab(0,this)">Content under review</div>
+        <div class="tab" onclick="saTab(1,this)">Client context</div>
+        <div class="tab" onclick="saTab(2,this)">Campaign context</div>
+        <div class="tab" onclick="saTab(3,this)">Prospect context</div>
+        <div class="tab" onclick="saTab(4,this)">Audit trail</div>
+      </div>
+
+      <!-- tab 0: content -->
+      <div class="sa-tab" id="sa-t0" style="display:block">
+        <div class="note warn" id="sa-content-note">Reviewing: <b>first batch — 40 prospects, LinkedIn sequence & personalized messages</b>. Scheduled start today 2:00 PM. Nothing sends until approved.</div>
+        <div class="grid2">
+          <div class="card"><div class="card-h"><h3>Messages for Sarah Smith</h3><span class="sub">1 of 10 in first batch · use arrows to review others</span>
+            <div style="margin-left:auto;display:flex;gap:6px"><button class="btn sm" onclick="toast('Previous prospect: —')">←</button><button class="btn sm" onclick="toast('Next prospect: David Chen (2/10)')">→</button></div></div>
+            <div class="card-b">
+              <div class="msg-meta"><span class="t">Connection request</span><span class="badge gray">276/300 chars</span><span class="badge blue">scheduled today 2:00 PM</span></div>
+              <div class="msg-bubble" id="sa-msg-0">Hi Sarah — saw Acme just picked up the two buildings on Steinway. Managing 220+ units across Queens with a lean team is no joke. I work with NYC multifamily owners on exactly that. Would love to connect.</div>
+              <div style="display:flex;gap:7px;margin-bottom:16px"><button class="btn sm" onclick="editMsg(0)" id="sa-edit-0">✎ Edit</button><button class="btn sm" onclick="toast('Message rejected — Eve is regenerating with your notes')">↻ Reject & regenerate</button></div>
+              <div class="msg-meta"><span class="t">First message (after accept)</span><span class="badge gray">82 words</span></div>
+              <div class="msg-bubble" id="sa-msg-1">Thanks for connecting, Sarah. One thing that might be relevant: Riverside PM (14 NYC portfolios) cut ops cost 23% in two quarters with us — mostly by killing the spreadsheet-and-email loop between super, PM and owner. If that's a pain at Acme too, worth a 20-min look? cal.com/outpost/intro</div>
+              <div style="display:flex;gap:7px;margin-bottom:16px"><button class="btn sm" onclick="editMsg(1)" id="sa-edit-1">✎ Edit</button><button class="btn sm" onclick="toast('Message rejected — Eve is regenerating')">↻ Reject & regenerate</button></div>
+              <div class="msg-meta"><span class="t">Follow-up 1 · day 7</span></div>
+              <div class="msg-bubble">Hi Sarah — no rush at all. One more data point in case it helps: owners your size usually see payback in the first quarter. If the timing's wrong, happy to circle back post-summer.</div>
+              <div class="msg-meta" style="margin-top:12px"><span class="t">Personalization signal used</span></div>
+              <div style="font-size:12.5px;color:var(--ink2)">Acme's Steinway Ave acquisition (The Real Deal, June 24) · LinkedIn limits: 14/20 connects used today</div>
+            </div>
+          </div>
+          <div>
+            <div class="card"><div class="card-h"><h3>Reviewer actions</h3><span class="sub" id="sa-act-note">claim the review to enable actions</span></div>
+              <div class="card-b" id="sa-actions" style="display:flex;flex-wrap:wrap;gap:8px">
+                <button class="btn green" disabled onclick="saDecision('Approved','All 40 prospects & messages approved — Eve will start at 2:00 PM')">✓ Approve all</button>
+                <button class="btn" disabled onclick="saDecision('Approved','8 selected prospects approved — 2 held back for edits')">✓ Approve selected</button>
+                <button class="btn" disabled onclick="editMsg(0)">✎ Edit & approve</button>
+                <button class="btn" disabled onclick="saDecision('Rejected','Batch rejected — Eve is regenerating with your feedback')">↻ Reject & regenerate</button>
+                <button class="btn" disabled onclick="toast('Prospect excluded from this campaign')">Exclude prospect</button>
+                <button class="btn" disabled onclick="toast('Prospect paused — no actions until resumed')">⏸ Pause prospect</button>
+                <button class="btn" disabled onclick="toast('Campaign paused')">⏸ Pause campaign</button>
+                <button class="btn" disabled onclick="toast('Sequence editor opened')">Change sequence</button>
+                <button class="btn" disabled onclick="escalateClient()">⤴ Escalate to client</button>
+                <button class="btn" disabled onclick="toast('Review reassigned to Daniel')">Assign to another reviewer</button>
+              </div>
+            </div>
+            <div class="card"><div class="card-h"><h3>Client escalation policy</h3></div>
+              <div class="card-b" style="font-size:12.5px;color:var(--ink2)">Internal admins never make <b>commercial</b> decisions for the client. Escalate when: non-preapproved pricing · discounts · proposals · contractual commitments · custom product promises · security/legal confirmations · prospect requests a human · answer could materially affect the client relationship. The client then gets a Slack notification with the prospect's question and Eve's suggested response.</div>
+            </div>
+            <div class="card"><div class="card-h"><h3>Timeout & fallback</h3></div>
+              <div class="card-b" style="font-size:12.5px;color:var(--ink2)">If nobody reviews: the action stays <b>paused</b> → Eve reminds in #eve-internal-review → request can be reassigned → urgent conversations escalate to another reviewer. <b>Unapproved messages are never sent because a review timed out.</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- tab 1: client -->
+      <div class="sa-tab" id="sa-t1" style="display:none">
+        <div class="card" style="max-width:720px"><div class="card-h"><h3>Client context</h3></div>
+          <div class="card-b"><dl class="kv">
+            <dt>Client</dt><dd>Olesia · Outpost</dd>
+            <dt>Company</dt><dd>Outpost — property operations platform</dd>
+            <dt>ICP</dt><dd>Multifamily owners & operators, 50–500 units, NY metro</dd>
+            <dt>Target persona</dt><dd>Owner / Principal / Head of Asset Management</dd>
+            <dt>Campaign goal</dt><dd>8–10 discovery calls in 6 weeks</dd>
+            <dt>Approved tone</dt><dd>Direct, peer-to-peer, founder voice, no marketing fluff</dd>
+            <dt>Approved public evidence</dt><dd>"23% lower ops cost across 14 NYC portfolios" · Riverside PM case study</dd>
+            <dt>Booking link</dt><dd>cal.com/outpost/intro</dd>
+            <dt>Connected channels</dt><dd>LinkedIn (Jake M.) · Gmail (sales@outpost.com) · Slack · HubSpot</dd>
+            <dt>Relevant CRM info</dt><dd>212 contacts synced · 9 open deals · 41 past customers excluded from targeting</dd>
+          </dl></div>
+        </div>
+      </div>
+
+      <!-- tab 2: campaign -->
+      <div class="sa-tab" id="sa-t2" style="display:none">
+        <div class="card" style="max-width:720px"><div class="card-h"><h3>Campaign context</h3></div>
+          <div class="card-b"><dl class="kv">
+            <dt>Strategy</dt><dd>Visit → personalized connect → proof-point message → 2 follow-ups</dd>
+            <dt>Prospect volume</dt><dd>40 in batch 1 · ~120 total</dd>
+            <dt>Sequence</dt><dd>5 steps over 12 days</dd>
+            <dt>Timing</dt><dd>Weekdays, randomized 9 AM–5 PM ET</dd>
+            <dt>Sending limits</dt><dd>≤ 20 connects/day · ≤ 40 visits/day</dd>
+            <dt>Stop conditions</dt><dd>Reply · meeting booked · opt-out · pending &gt; 21 days · risk signal</dd>
+            <dt>Campaign status</dt><dd><span class="badge amber">Paused — awaiting internal review</span></dd>
+          </dl></div>
+        </div>
+      </div>
+
+      <!-- tab 3: prospect -->
+      <div class="sa-tab" id="sa-t3" style="display:none">
+        <div class="card" style="max-width:720px"><div class="card-h"><h3>Prospect context — Sarah Smith</h3></div>
+          <div class="card-b"><dl class="kv">
+            <dt>Name</dt><dd>Sarah Smith</dd>
+            <dt>Company</dt><dd>Acme Property Group · 220 units, Queens NY</dd>
+            <dt>Job title</dt><dd>Principal</dd>
+            <dt>Fit score</dt><dd><span class="badge green">94 / 100</span></dd>
+            <dt>Reason for selection</dt><dd>Exact ICP match: owner-operator, 220 units, NYC, actively expanding</dd>
+            <dt>Personalization signals</dt><dd>Steinway Ave acquisition (The Real Deal, Jun 24) · hiring a property manager</dd>
+            <dt>CRM relationship</dt><dd>None — net-new contact</dd>
+            <dt>Existing LinkedIn conversations</dt><dd>None · not connected to client</dd>
+            <dt>Existing email conversations</dt><dd>None found in connected inbox</dd>
+            <dt>Previous outreach</dt><dd>Never contacted by any Outpost campaign</dd>
+            <dt>Exclusion status</dt><dd><span class="badge green">Clear — not excluded, not DNC</span></dd>
+          </dl></div>
+        </div>
+      </div>
+
+      <!-- tab 4: audit -->
+      <div class="sa-tab" id="sa-t4" style="display:none">
+        <div class="card"><div class="card-h"><h3>Audit trail</h3><span class="sub">every reviewed action is recorded — accountability + Eve's learning</span></div>
+          <table><thead><tr><th>Time</th><th>Event</th><th>Actor</th><th>Detail</th></tr></thead>
+          <tbody id="sa-audit">
+            <tr><td>9:14 AM</td><td>Review created</td><td>Eve</td><td>First batch · 40 prospects · Client: Outpost · Campaign: NYC Multifamily Owners</td></tr>
+            <tr><td>9:14 AM</td><td>Slack notification</td><td>Eve</td><td>Posted to #eve-internal-review</td></tr>
+            <tr><td>1:30 PM</td><td>Reminder sent</td><td>Eve</td><td>Unclaimed after 4h — action remains paused</td></tr>
+          </tbody></table>
+          <div class="card-b" style="font-size:12px;color:var(--ink3)">Recorded per action: client · campaign · prospect · original content · edited content · reviewer · time claimed · time approved · final action · final message sent · send status · learning rule created · client escalation (if any).</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<div id="toast"><span class="tick">✓</span><span id="toast-txt"></span></div>
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+
+<script>
+/* ================= NAV & GLOBAL STATE ================= */
+const titles={cs:['Copilot — Slack','#outpost-eve · Eve proposes, you approve, all in Slack'],cli:['Copilot Web App — LinkedIn deep dive','NYC Multifamily Owners · Client: Outpost'],cin:['Inbox Campaign — Copilot','Property Managers Q3 · Client: Outpost'],ali:['LinkedIn Campaign — Autopilot','Boston CRE Brokers · Client: Outpost'],ain:['Inbox Campaign — Autopilot','Midwest Owners Reactivation · Client: Outpost'],slack:['Slack Views','Client channel + internal review channel'],sa:['Super Admin — Review Console','Internal · Eve team only']};
+function nav(v,step){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.view===v));
+  document.getElementById('tb-title').textContent=titles[v][0];
+  document.getElementById('tb-crumb').textContent=titles[v][1];
+  if(step&&(v==='cli'||v==='cin'))goStep(v,step);
+  window.scrollTo({top:0});
+}
+function toast(msg){const t=document.getElementById('toast');document.getElementById('toast-txt').textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2600)}
+function closeModal(){document.getElementById('overlay').classList.remove('open')}
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeModal()});
+
+/* stepper */
+const approved={cli:{},cin:{}};
+function goStep(flow,n){
+  document.querySelectorAll('#view-'+flow+' .step').forEach((s,i)=>{s.classList.toggle('current',i+1===n);s.classList.toggle('done',!!approved[flow]?.[i+1])});
+  document.querySelectorAll('#view-'+flow+' .step-body').forEach((b,i)=>b.classList.toggle('active',i+1===n));
+  window.scrollTo({top:0});
+}
+function approveStep(flow,n,msg,next){
+  approved[flow][n]=true;
+  const bar=document.getElementById(flow+'-bar-'+n);
+  if(bar){bar.classList.add('approved');bar.querySelector('.msg').innerHTML='✓ '+msg;bar.querySelector('.right').innerHTML='<button class="btn sm" onclick="goStep(\''+flow+'\','+(n+1)+')">Continue to next step →</button>'}
+  const pill=document.getElementById('pill-'+flow);
+  if(pill){const v=Math.max(0,parseInt(pill.textContent)-1);pill.textContent=v;if(!v)pill.remove()}
+  toast(msg);
+  if(next)setTimeout(()=>goStep(flow,n+1),650);
+}
+/* ================= COPILOT SLACK THREAD ================= */
+const csStages=[
+ {st:'✓ Approved by Olesia · 9:42 AM — Eve is generating the prospect list…',next:'cs-m1',toast:'Campaign approved in Slack — Eve posted the prospect preview',webStep:1},
+ {st:'✓ All 40 prospects approved by Olesia · 9:52 AM',next:'cs-m2',toast:'Prospects approved — Eve posted the sequence & style for review',webStep:2},
+ {st:'✓ Sequence & style approved by Olesia · 10:01 AM',next:'cs-m3',toast:'Approved! Eve is launching the campaign 🚀',webStep:3}
+];
+function csApprove(n){
+  const s=csStages[n];
+  const stEl=document.getElementById('cs-st-'+n);
+  stEl.innerHTML='<span style="color:var(--green);font-weight:700">'+s.st+'</span>';
+  const btn=document.getElementById('cs-btn-'+n);btn.disabled=true;btn.style.opacity=.5;btn.textContent='✓ Approved';
+  approved.cli[s.webStep]=true; if(n===2)approved.cli[4]=true;
+  toast(s.toast);
+  setTimeout(()=>{
+    document.getElementById(s.next).style.display='flex';
+    if(n===2){setTimeout(()=>{document.getElementById('cs-m4').style.display='flex';document.getElementById('cs-m5').style.display='flex';scrollCS()},900)}
+    scrollCS();
+  },700);
+  const pill=document.getElementById('pill-cs');if(pill&&n===2)pill.remove();
+}
+function scrollCS(){const m=document.getElementById('cs-msgs');m.scrollTop=m.scrollHeight}
+let csPaused=false;
+function csPause(){
+  csPaused=!csPaused;
+  ['cs-pause','cs-pause2'].forEach(id=>{const b=document.getElementById(id);if(b)b.textContent=csPaused?'▶ Resume campaign':'⏸ Pause campaign'});
+  document.getElementById('cs-run-st').innerHTML=csPaused
+    ?'<b>Status:</b> <span style="color:var(--amber)">⏸ Paused by Olesia</span> · all scheduled actions on hold — nothing sends until you resume'
+    :'<b>Status:</b> <span style="color:var(--green)">● Running</span> · next action: 6 profile visits at 2:00 PM';
+  toast(csPaused?'Campaign paused — Eve stopped all scheduled LinkedIn actions':'Campaign resumed — Eve picks up where she left off');
+}
+
+/* ================= MODALS ================= */
+function modal(html){document.getElementById('modal').innerHTML=html;document.getElementById('overlay').classList.add('open')}
+function openComment(subject){modal(`<div class="modal-h">Comment on ${subject}<button class="x" onclick="closeModal()">✕</button></div>
+<div class="modal-b"><label class="fl">Your comment for Eve</label><textarea rows="4" placeholder="e.g. Lead with the Riverside case study, drop the cost stat…"></textarea></div>
+<div class="modal-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="closeModal();toast('Comment sent — Eve will revise and notify you in Slack')">Send comment</button></div>`)}
+function openChanges(subject){modal(`<div class="modal-h">Request changes — ${subject}<button class="x" onclick="closeModal()">✕</button></div>
+<div class="modal-b"><label class="fl">What should Eve change?</label><textarea rows="4" placeholder="e.g. Target 100+ unit owners only, shorten the campaign to 4 weeks…"></textarea>
+<label class="fl" style="margin-top:12px">Affects</label><select><option>This proposal only</option><option>This campaign's defaults</option><option>All future campaigns</option></select></div>
+<div class="modal-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="closeModal();toast('Change request sent — Eve is preparing a revised proposal')">Request changes</button></div>`)}
+function openFilters(){modal(`<div class="modal-h">Change filters / refine ICP<button class="x" onclick="closeModal()">✕</button></div>
+<div class="modal-b">
+<label class="fl">Unit count range</label><select><option>50 – 500 units</option><option>100 – 500 units</option><option>50 – 200 units</option></select>
+<label class="fl" style="margin-top:10px">Geography</label><select><option>New York metro</option><option>NYC boroughs only</option><option>NY + NJ</option></select>
+<label class="fl" style="margin-top:10px">Persona</label><select><option>Owner / Principal / Head of Asset Mgmt</option><option>Owner / Principal only</option></select>
+<label class="fl" style="margin-top:10px">Why are you refining? (helps Eve learn)</label><textarea rows="2" placeholder="e.g. Sub-100-unit owners rarely have budget…"></textarea>
+</div>
+<div class="modal-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="closeModal();toast('Filters updated — Eve is regenerating matching prospects')">Apply & regenerate</button></div>`)}
+
+/* ================= PROSPECT LISTS ================= */
+const cliProspects=[
+ {n:'Sarah Smith',t:'Principal',c:'Acme Property Group',fit:94,why:'Owner-operator · 220 units · Queens · expanding',sig:'Steinway Ave acquisition (The Real Deal)',rel:'Net new',st:'<span class="badge red">Replied — needs you</span>'},
+ {n:'David Chen',t:'Head of Asset Mgmt',c:'Hudson Yards Residential',fit:91,why:'340 units · Manhattan · ops-tooling buyer',sig:'Hiring 2 property managers',rel:'2nd-degree (via Jake)',st:'<span class="badge blue">Connected · msg Fri 10:04</span>'},
+ {n:'Maria Lopez',t:'Owner',c:'Brooklyn Portfolio Co.',fit:88,why:'85 units · BK · manages in spreadsheets',sig:'Quoted in Brownstoner on rent-stab ops',rel:'Net new',st:'<span class="badge purple">Follow-up 1 sent</span>'},
+ {n:'James Okafor',t:'Principal',c:'Bronx Commons LLC',fit:86,why:'150 units · Bronx · recently refinanced',sig:'Refi announcement (PincusCo)',rel:'In CRM — cold lead 2024',st:'<span class="badge green">Meeting booked ✓</span>'},
+ {n:'Rachel Goldman',t:'Managing Partner',c:'Riverside Equities',fit:84,why:'410 units · UWS · scaling team',sig:'Posted about staffing pain on LinkedIn',rel:'Net new',st:'<span class="badge li">Request sent · day 3</span>'},
+ {n:'Tom Nguyen',t:'Owner',c:'Astoria Holdings',fit:81,why:'95 units · Queens · self-managed',sig:'New building permit filed',rel:'Net new',st:'<span class="badge gray">Queued · visit tomorrow</span>'}
+];
+const cinProspects=[
+ {n:'Anna Whitfield',t:'VP Property Operations',c:'Beacon PM',e:'anna.w@beaconpm.com',fit:95,why:'2,400 units managed · NE region · tooling RFP rumored',rel:'Net new · email verified ✓'},
+ {n:'Tom Rivera',t:'Director of Ops',c:'Keystone Residential',e:'trivera@keystoneres.com',fit:92,why:'1,100 units · PA · churned from competitor',rel:'CRM: webinar attendee 2025'},
+ {n:'Grace Kim',t:'VP Operations',c:'Harborline Management',e:'gkim@harborline.com',fit:89,why:'3,000 units · MA · hiring ops analysts',rel:'Net new · email verified ✓'},
+ {n:'Luis Romero',t:'Director, Property Ops',c:'Summit Living',e:'l.romero@summitliving.com',fit:87,why:'800 units · NJ · spreadsheet-heavy stack',rel:'Net new · email verified ✓'},
+ {n:'Priya Patel',t:'VP Property Management',c:'Northgate Communities',e:'ppatel@northgate.co',fit:85,why:'1,900 units · CT · expanding portfolio',rel:'CRM: past demo no-show'}
+];
+function fitBadge(f){return `<span class="badge ${f>=90?'green':f>=85?'blue':'gray'}">${f}</span>`}
+function renderProspects(){
+  document.getElementById('cli-prospects').innerHTML=cliProspects.map((p,i)=>`<tr id="cli-p-${i}">
+    <td><input type="checkbox" checked style="width:auto;accent-color:var(--brand)"></td>
+    <td><div class="p-name" style="font-weight:700">${p.n}</div><div style="font-size:11.5px;color:var(--ink3)">${p.t} · ${p.c}</div></td>
+    <td>${fitBadge(p.fit)}</td><td style="font-size:12px;color:var(--ink2)">${p.why}</td><td style="font-size:12px;color:var(--ink2)">${p.sig}</td><td style="font-size:12px">${p.rel}</td><td>${p.st}</td>
+    <td style="text-align:right;white-space:nowrap"><button class="btn ghost sm" onclick="excludeP('cli',${i},'${p.n}')">Exclude</button><button class="btn ghost sm" onclick="toast('Eve will propose a replacement for ${p.n}')">Replace</button></td></tr>`).join('');
+  document.getElementById('cin-prospects').innerHTML=cinProspects.map((p,i)=>`<tr id="cin-p-${i}">
+    <td><input type="checkbox" checked style="width:auto;accent-color:var(--brand)"></td>
+    <td><div class="p-name" style="font-weight:700">${p.n}</div><div style="font-size:11.5px;color:var(--ink3)">${p.t} · ${p.c}</div></td>
+    <td style="font-size:12px">${p.e}</td><td>${fitBadge(p.fit)}</td><td style="font-size:12px;color:var(--ink2)">${p.why}</td><td style="font-size:12px">${p.rel}</td>
+    <td style="text-align:right;white-space:nowrap"><button class="btn ghost sm" onclick="excludeP('cin',${i},'${p.n}')">Exclude</button><button class="btn ghost sm" onclick="toast('Eve will propose a replacement for ${p.n}')">Replace</button></td></tr>`).join('');
+  document.getElementById('ali-prospects').innerHTML=[
+    ['1','Marcus Bell · Principal, BayState Commercial',93,'<span class="badge red">Escalated — pricing</span>','Awaiting reply approval'],
+    ['2','Elena Rossi · MD, Beacon Hill Brokerage',91,'<span class="badge green">Replied ✓ paused</span>','Eve responded (routine) · convo open'],
+    ['3','Sam Torres · Owner, Harborview CRE',89,'<span class="badge blue">Connected</span>','First message — tomorrow 10:20 AM'],
+    ['4','Nina Adams · Managing Partner, Backbay Partners',87,'<span class="badge li">Request sent</span>','Waiting on accept (day 3 of 21)'],
+    ['5','Owen Clarke · Principal, Fenway Realty Group',85,'<span class="badge gray">Queued</span>','Profile visit — tomorrow']
+  ].map(r=>`<tr><td>${r[0]}</td><td style="font-weight:600">${r[1]}</td><td>${fitBadge(r[2])}</td><td>${r[3]}</td><td style="font-size:12px;color:var(--ink2)">${r[4]}</td><td style="text-align:right"><button class="btn ghost sm" onclick="toast('Prospect excluded — Eve logged the reason and won\\'t re-add them')">Exclude</button></td></tr>`).join('');
+}
+const excluded={cli:0,cin:0};
+function excludeP(flow,i,name){
+  const row=document.getElementById(flow+'-p-'+i);
+  if(row.classList.contains('excluded')){row.classList.remove('excluded');excluded[flow]--;updCount(flow);toast(name+' restored to the list');return}
+  modal(`<div class="modal-h">Exclude ${name}<button class="x" onclick="closeModal()">✕</button></div>
+  <div class="modal-b"><label class="fl">Why isn't this prospect relevant? Eve learns from this to improve the rest of the list.</label>
+  <textarea rows="3" id="excl-reason" placeholder="e.g. Too small, wrong borough, competitor's customer…"></textarea></div>
+  <div class="modal-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="closeModal();document.getElementById('${flow}-p-${i}').classList.add('excluded');excluded['${flow}']++;updCount('${flow}');toast('${name} excluded — Eve will apply this feedback to the remaining list')">Exclude & teach Eve</button></div>`);
+}
+function updCount(flow){
+  const total=flow==='cli'?40:60;
+  document.getElementById(flow+'-pcount').textContent=(total-excluded[flow])+' prospects · '+excluded[flow]+' excluded';
+}
+
+/* ================= MESSAGE STYLE TABS ================= */
+const cliMsgs=[
+ {who:'Sarah Smith · Principal, Acme Property Group',sig:'Steinway Ave acquisition',conn:'Hi Sarah — saw Acme just picked up the two buildings on Steinway. Managing 220+ units across Queens with a lean team is no joke. I work with NYC multifamily owners on exactly that. Would love to connect.',first:'Thanks for connecting, Sarah. One thing that might be relevant: Riverside PM (14 NYC portfolios) cut ops cost 23% in two quarters with us — mostly by killing the spreadsheet-and-email loop between super, PM and owner. If that\'s a pain at Acme too, worth a 20-min look? cal.com/outpost/intro',fu:'Hi Sarah — no rush at all. One more data point in case it helps: owners your size usually see payback in the first quarter. If the timing\'s wrong, happy to circle back post-summer.'},
+ {who:'David Chen · Head of Asset Mgmt, Hudson Yards Residential',sig:'Hiring 2 property managers',conn:'Hi David — noticed Hudson Yards Res. is bringing on two PMs. Scaling the team usually means scaling the process pain too. I work with NYC operators on that exact problem. Would be glad to connect.',first:'Appreciate the connect, David. Quick thought: before the new PMs start, it\'s the cheapest moment to fix the workflow they\'ll inherit. Riverside PM cut ops cost 23% doing exactly that. Worth a 20-min look? cal.com/outpost/intro',fu:'Hi David — following up once. If onboarding the new PMs is eating your week, this is exactly what we shorten. If not now, no worries at all.'},
+ {who:'Maria Lopez · Owner, Brooklyn Portfolio Co.',sig:'Brownstoner quote on rent-stab ops',conn:'Hi Maria — your point in Brownstoner about rent-stab compliance eating ops time really landed. I work with BK owners on cutting that overhead. Would love to connect.',first:'Thanks for connecting, Maria. That compliance overhead you described is exactly what we automate — Riverside PM cut ops cost 23% across 14 portfolios. Open to a 20-min look? cal.com/outpost/intro',fu:'Hi Maria — one last note: happy to share the rent-stab compliance checklist we built with other BK owners, no strings. Useful either way?'}
+];
+const cinMsgs=[
+ {who:'Anna Whitfield · VP Property Operations, Beacon PM',subj:'anna — ops costs at beacon pm',body:'Hi Anna,\n\nSaw Beacon crossed 2,400 units under management this spring — congrats. At that scale, most ops teams we meet are drowning in the spreadsheet-email loop between site staff and the office.\n\nRiverside PM (similar footprint) cut ops cost 23% in two quarters after switching to Outpost.\n\nWorth a 30-min demo to see if the math works for Beacon? cal.com/outpost/demo\n\nJake Morrison\nOutpost · (212) 555-0147'},
+ {who:'Tom Rivera · Director of Ops, Keystone Residential',subj:'tom — the tool switch question',body:'Hi Tom,\n\nYou joined our webinar on maintenance workflows last fall — this is the follow-through, not a cold email.\n\nSince then we shipped the two things attendees asked for most: owner-facing reporting and a mobile flow your site techs will actually use.\n\nKeystone\'s 1,100 units are right in the sweet spot where Riverside PM saw a 23% ops-cost drop.\n\n30 minutes to see it live? cal.com/outpost/demo\n\nJake Morrison\nOutpost · (212) 555-0147'}
+];
+function msgCard(flow,m){
+  const inner=flow==='cli'
+   ?`<div class="msg-meta"><span class="t">Connection request</span><span class="badge gray">≤300 chars ✓</span></div><div class="msg-bubble">${m.conn}</div>
+     <div class="msg-meta"><span class="t">First message after connection</span><span class="badge purple">proof point + CTA + booking link</span></div><div class="msg-bubble">${m.first}</div>
+     <div class="msg-meta"><span class="t">Follow-up</span></div><div class="msg-bubble">${m.fu}</div>`
+   :`<div class="msg-meta"><span class="t">Subject</span></div><div class="msg-bubble" style="font-weight:700">${m.subj}</div>
+     <div class="msg-meta"><span class="t">Email body</span><span class="badge purple">opener → value prop → evidence → CTA → signature</span></div><div class="msg-bubble">${m.body}</div>`;
+  return `<div class="card"><div class="card-h"><h3>${m.who}</h3><span class="badge blue">signal: ${m.sig||'CRM history + scale'}</span>
+    <div style="margin-left:auto;display:flex;gap:7px"><button class="btn sm" onclick="toast('Inline editor opened — your edit becomes part of the approved style')">✎ Edit</button><button class="btn sm" onclick="openComment('this example')">💬 Comment</button><button class="btn green sm" onclick="toast('Example approved')">✓ Approve example</button></div></div>
+    <div class="card-b">${inner}</div></div>`;
+}
+function msgTab(flow,i,el){
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  document.getElementById(flow+'-msg-body').innerHTML=msgCard(flow,(flow==='cli'?cliMsgs:cinMsgs)[i]);
+}
+
+/* ================= REPLY CARDS ================= */
+function replyCard(id,av,who,ch,reason,theirs,eves){
+  return `<div class="card" id="rc-${id}"><div class="card-h"><h3 style="display:flex;gap:9px;align-items:center"><span class="avatar ${av[1]}">${av[0]}</span>${who}</h3><span class="badge ${ch==='LinkedIn'?'li':'amber'}">${ch}</span><span class="badge red">${reason}</span><span style="margin-left:auto" class="badge amber" id="rc-st-${id}">Needs your decision</span></div>
+  <div class="card-b">
+    <div class="msg-meta"><span class="t">Their reply</span></div><div class="msg-bubble">${theirs}</div>
+    <div class="msg-meta"><span class="t">Eve's suggested response</span></div><div class="msg-bubble" style="border-color:#ded9fb;background:var(--brand-bg)" id="rc-msg-${id}">${eves}</div>
+    <textarea id="rc-edit-${id}" rows="4" style="display:none;margin-bottom:10px">${eves}</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn green sm" onclick="replyAct(${id},'✓ Sent','Response approved and sent')">✓ Approve & send</button>
+      <button class="btn sm" onclick="replyEdit(${id})" id="rc-editbtn-${id}">✎ Edit & send</button>
+      <button class="btn sm" onclick="replyAct(${id},'Rejected','Response rejected — Eve will hold until you provide direction')">Reject</button>
+      <button class="btn sm" onclick="replyAct(${id},'👤 Yours','You took over — Eve stops responding in this conversation')">👤 Take over conversation</button>
+    </div>
+  </div></div>`;
+}
+function replyAct(id,label,msg){const b=document.getElementById('rc-st-'+id);b.textContent=label;b.className='badge '+(label==='Rejected'?'red':label==='👤 Yours'?'blue':'green');toast(msg)}
+function replyEdit(id){
+  const ta=document.getElementById('rc-edit-'+id),bub=document.getElementById('rc-msg-'+id),btn=document.getElementById('rc-editbtn-'+id);
+  if(ta.style.display==='none'){ta.style.display='block';bub.style.display='none';btn.textContent='📤 Send edited version'}
+  else{bub.textContent=ta.value;bub.style.display='block';ta.style.display='none';btn.textContent='✎ Edit & send';replyAct(id,'✓ Sent (edited)','Your edited response was sent — Eve noted the changes')}
+}
+document.getElementById('cli-replies').innerHTML=
+ replyCard(1,['SS','b'],'Sarah Smith · Principal, Acme Property Group','LinkedIn','Pricing question',
+  '"This looks interesting. What would it cost for a portfolio like ours? And do you do annual discounts?"',
+  '"Great question, Sarah — for ~220 units you\'d be at $1,400/mo, and annual billing brings it to $1,190/mo. Happy to walk through exact numbers on a quick call: cal.com/outpost/intro"')
+ +replyCard(2,['RG','g'],'Rachel Goldman · Managing Partner, Riverside Equities','LinkedIn','Objection',
+  '"We tried a tool like this in 2023 and the team never adopted it. Why would this be different?"',
+  '"Fair concern — adoption is where these projects die. That\'s why we onboard your site staff ourselves and you don\'t pay until week 4. Riverside PM\'s techs were at 92% daily usage by month two. Worth 20 minutes to pressure-test it? cal.com/outpost/intro"');
+document.getElementById('cin-replies').innerHTML=
+ replyCard(3,['AW','b'],'Anna Whitfield · VP Property Operations, Beacon PM','Email','Pricing question',
+  '"Thanks Jake — before we book anything, can you send pricing for ~2,400 units? Procurement will ask."',
+  '"Of course, Anna. At 2,400 units you\'d be in our Portfolio tier — $4,800/mo, everything included. I\'ll send the one-pager for procurement, and here\'s my calendar if a walkthrough helps: cal.com/outpost/demo"')
+ +replyCard(4,['TR','g'],'Tom Rivera · Director of Ops, Keystone Residential','Email','Custom request',
+  '"Interesting timing. We\'d need SSO and an API into our Yardi setup — is that something you support or roadmap?"',
+  '"Good questions, Tom. SSO ships out of the box; the Yardi integration is live for read, write is in beta. Rather than promise specifics over email, can I get our solutions engineer on a 30-min call with you? cal.com/outpost/demo"');
+document.getElementById('ain-replies').innerHTML=
+ replyCard(5,['GK','p'],'Grace Kim · VP Operations, Harborline Management','Email','Sensitive / negative',
+  '"Please stop emailing me. We had a terrible experience with your company in 2022 and I\'m surprised you\'d reach out again."',
+  'Eve recommends: <b>do not send an automated reply.</b> Suggested human note: "Grace, you\'re completely right to flag this — I\'m sorry, that shouldn\'t have happened. I\'ve removed you from all outreach permanently. If you ever want to hear how things have changed, that\'s entirely your call." <i>Prospect suppressed pending your decision.</i>')
+ +replyCard(6,['LR','b'],'Luis Romero · Director, Summit Living','Email','Detailed product question',
+  '"Does the maintenance module handle multi-property vendor dispatch with per-property rate cards? That\'s our blocker."',
+  '"Great question, Luis — yes on multi-property dispatch; per-property rate cards shipped in May. There\'s nuance in how rates cascade, so a 20-min screen-share would answer it properly: cal.com/outpost/demo"');
+
+/* ================= AUTOPILOT TABS / SLACK ================= */
+function apTab(view,i,el){
+  document.querySelectorAll('#view-'+view+' .tabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  for(let k=0;k<6;k++){const b=document.getElementById(view+'-b'+k);if(b)b.style.display=k===i?'block':'none'}
+  window.scrollTo({top:0});
+}
+function slackCh(i){
+  document.getElementById('sch-0').classList.toggle('active',i===0);
+  document.getElementById('sch-1').classList.toggle('active',i===1);
+  document.getElementById('slack-p0').style.display=i===0?'flex':'none';
+  document.getElementById('slack-p1').style.display=i===1?'flex':'none';
+}
+
+/* ================= SUPER ADMIN ================= */
+const saTitles=['LinkedIn campaign — first batch · Outpost · NYC Multifamily Owners','Inbox campaign — first batch · Outpost · NYC Multifamily Owners','Reply review · Sarah Smith (Acme) · pricing'];
+let saClaimed=false;
+function openSA(i){
+  nav('sa');
+  document.getElementById('sa-queue').style.display='none';
+  document.getElementById('sa-detail').style.display='block';
+  document.getElementById('sa-d-title').textContent=saTitles[i];
+  const note=document.getElementById('sa-content-note');
+  if(i===1)note.innerHTML='Reviewing: <b>first batch — 25 emails from sales@company.com</b> · prospects, sequence & personalized emails. Deliverability: <span class="badge green">no warnings</span>. Nothing sends until approved.';
+  else if(i===2)note.innerHTML='Reviewing: <b>Eve\'s prepared reply to Sarah Smith\'s pricing question</b>. Pricing is not preapproved → likely client escalation. Nothing sends until approved.';
+  else note.innerHTML='Reviewing: <b>first batch — 40 prospects, LinkedIn sequence & personalized messages</b>. Scheduled start today 2:00 PM. Nothing sends until approved.';
+  window.scrollTo({top:0});
+}
+function closeSA(){document.getElementById('sa-detail').style.display='none';document.getElementById('sa-queue').style.display='block'}
+function saTab(i,el){
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  for(let k=0;k<5;k++)document.getElementById('sa-t'+k).style.display=k===i?'block':'none';
+}
+function setFlow(stage){
+  const stages=['Pending','Claimed','Approved / Edited / Rejected','Scheduled','Completed'];
+  document.querySelectorAll('#sa-flow .sf').forEach((s,i)=>s.classList.toggle('on',i<=stage));
+}
+function audit(ev,actor,detail){
+  const now=new Date();const t=now.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+  document.getElementById('sa-audit').insertAdjacentHTML('beforeend',`<tr><td>${t}</td><td>${ev}</td><td>${actor}</td><td>${detail}</td></tr>`);
+}
+function claimReview(){
+  saClaimed=true;setFlow(1);
+  const bar=document.getElementById('sa-claim-bar');bar.classList.add('approved');
+  document.getElementById('sa-claim-msg').innerHTML='✓ <b>Claimed by Olesia</b> · other reviewers can see this is taken · duplicate work prevented';
+  document.getElementById('sa-claim-btns').innerHTML='<button class="btn sm" onclick="toast(\'Review released back to the queue\')">Release</button><button class="btn sm" onclick="toast(\'Review reassigned to Daniel\')">Reassign</button>';
+  document.querySelectorAll('#sa-actions .btn').forEach(b=>b.disabled=false);
+  document.getElementById('sa-act-note').textContent='claimed by you — actions enabled';
+  const s=document.getElementById('slk-status-0');if(s)s.innerHTML='✓ Claimed by <b>Olesia</b>';
+  const sb=document.getElementById('sa-badge-0');if(sb){sb.textContent='Claimed · Olesia';sb.className='badge blue'}
+  audit('Claimed','Olesia','Review claimed via Super Admin');
+  toast('Review claimed — you own this review now');
+}
+function claimFromSlack(i){
+  if(i===0){document.getElementById('slk-status-0').innerHTML='✓ Claimed by <b>Olesia</b>';document.getElementById('slk-claim-0').textContent='Claimed ✓'}
+  toast('Claimed — open Super Admin to review the full content');
+}
+function saDecision(status,msg){
+  setFlow(status==='Rejected'?2:3);
+  audit(status,'Olesia',msg);
+  const sb=document.getElementById('sa-badge-0');if(sb){sb.textContent=status;sb.className='badge '+(status==='Rejected'?'red':'green')}
+  toast(msg);
+  if(status==='Approved')setTimeout(()=>{setFlow(4);audit('Completed','Eve','Batch executing on schedule · send status logged per prospect');toast('Status: Scheduled → Completed. Eve is executing the approved batch.')},1800);
+}
+/* edit message + learning scope */
+let editTarget=null;
+function editMsg(i){
+  if(!saClaimed){toast('Claim the review first to enable editing');return}
+  editTarget=i;
+  const cur=document.getElementById('sa-msg-'+i).textContent.trim();
+  modal(`<div class="modal-h">Edit message<button class="x" onclick="closeModal()">✕</button></div>
+  <div class="modal-b">
+    <label class="fl">Message</label><textarea id="edit-ta" rows="5">${cur}</textarea>
+    <label class="fl" style="margin-top:12px">Reason for the change (stored for the audit trail & Eve's learning)</label>
+    <input type="text" id="edit-reason" placeholder="e.g. Too salesy for this persona — softened the CTA">
+    <label class="fl" style="margin-top:14px">Where should Eve apply this learning?</label>
+    <label class="radio-card sel"><input type="radio" name="scope" checked value="Apply only to this message"><span><b>Apply only to this message</b><span>One-off fix, Eve learns nothing broader</span></span></label>
+    <label class="radio-card"><input type="radio" name="scope" value="Apply to this prospect"><span><b>Apply to this prospect</b><span>All future messages to Sarah Smith use this style</span></span></label>
+    <label class="radio-card"><input type="radio" name="scope" value="Apply to this campaign"><span><b>Apply to this campaign</b><span>Eve rewrites remaining campaign messages accordingly</span></span></label>
+    <label class="radio-card"><input type="radio" name="scope" value="Apply to all future campaigns for this client"><span><b>Apply to all future campaigns for this client</b><span>Becomes a permanent style rule for Outpost</span></span></label>
+  </div>
+  <div class="modal-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveEdit()">Save edit & set learning scope</button></div>`);
+  document.querySelectorAll('.radio-card input').forEach(r=>r.addEventListener('change',()=>{document.querySelectorAll('.radio-card').forEach(c=>c.classList.remove('sel'));r.closest('.radio-card').classList.add('sel')}));
+}
+function saveEdit(){
+  const val=document.getElementById('edit-ta').value;
+  const scope=document.querySelector('input[name=scope]:checked').value;
+  const reason=document.getElementById('edit-reason').value||'(no reason given)';
+  document.getElementById('sa-msg-'+editTarget).textContent=val;
+  closeModal();setFlow(2);
+  audit('Edited','Olesia',`Original + edited version stored · Reason: ${reason} · Learning scope: ${scope}`);
+  toast('Edit saved · learning rule created: '+scope);
+}
+function escalateClient(){
+  modal(`<div class="modal-h">Escalate to client<button class="x" onclick="closeModal()">✕</button></div>
+  <div class="modal-b">
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:12px">Commercial decisions belong to the client. Olesia (Outpost) will receive a Slack notification containing the prospect's question and Eve's suggested response.</p>
+    <label class="fl">Note to the client (optional)</label><textarea rows="3" placeholder="e.g. Sarah asked about annual discounts — pricing isn't preapproved, over to you."></textarea>
+  </div>
+  <div class="modal-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="closeModal();audit('Escalated to client','Olesia','Slack notification sent to #outpost-eve with question + suggested response');toast('Escalated — the client was notified in Slack')">Escalate</button></div>`);
+}
+
+/* ================= JOURNEY SIDEBAR ================= */
+function jumpCS(k){
+  nav('cs');
+  for(let i=1;i<=k;i++){const m=document.getElementById('cs-m'+i);if(m)m.style.display='flex'}
+  setTimeout(()=>{
+    const el=k===0?document.querySelector('#cs-msgs .sm-row'):document.getElementById('cs-m'+k);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+  },120);
+}
+function aliTab(i){apTab('ali',i,document.querySelectorAll('#view-ali .tabs .tab')[i])}
+function ainTab(i){apTab('ain',i,document.querySelectorAll('#view-ain .tabs .tab')[i])}
+const journey=[
+ {sec:'Copilot · ① Slack — propose & approve'},
+ {t:'Eve proposes the campaign (summary + samples)',fn:()=>jumpCS(0)},
+ {t:'Prospect preview & approval',fn:()=>jumpCS(1)},
+ {t:'Sequence & message style approval',fn:()=>jumpCS(2)},
+ {t:'Launch — pause / resume anytime',fn:()=>jumpCS(3)},
+ {t:'Reply needs your decision',fn:()=>jumpCS(4)},
+ {t:'Daily results report',fn:()=>jumpCS(5)},
+ {sec:'Copilot · ② Web app — LinkedIn deep dive'},
+ {t:'Campaign proposal in detail',fn:()=>{nav('cli');goStep('cli',1)}},
+ {t:'Full prospect list, filters & exclusions',fn:()=>{nav('cli');goStep('cli',2)}},
+ {t:'Sequence steps, timing & safety limits',fn:()=>{nav('cli');goStep('cli',3)}},
+ {t:'All messages & style',fn:()=>{nav('cli');goStep('cli',4)}},
+ {t:'Detailed status & activity history',fn:()=>{nav('cli');goStep('cli',5)}},
+ {t:'Reply management',fn:()=>{nav('cli');goStep('cli',6)}},
+ {t:'Analytics & reporting',fn:()=>{nav('cli');goStep('cli',7)}},
+ {sec:'Copilot · ② Web app — Inbox deep dive'},
+ {t:'Proposal & prospect verification',fn:()=>{nav('cin');goStep('cin',1)}},
+ {t:'Verified prospect list',fn:()=>{nav('cin');goStep('cin',2)}},
+ {t:'Email sequence, schedule & style',fn:()=>{nav('cin');goStep('cin',3)}},
+ {t:'Execution & reply management',fn:()=>{nav('cin');goStep('cin',5)}},
+ {t:'Daily reporting',fn:()=>{nav('cin');goStep('cin',7)}},
+ {sec:'Autopilot · LinkedIn'},
+ {t:'Autopilot permission',fn:()=>{nav('ali');aliTab(0)}},
+ {t:'Auto-created campaign plan',fn:()=>{nav('ali');aliTab(1)}},
+ {t:'Automatic prospect selection & checks',fn:()=>{nav('ali');aliTab(2)}},
+ {t:'Autonomous execution & account safety',fn:()=>{nav('ali');aliTab(3)}},
+ {t:'Reply handling & escalation',fn:()=>{nav('ali');aliTab(4)}},
+ {t:'Client visibility & daily reports',fn:()=>{nav('ali');aliTab(5)}},
+ {sec:'Autopilot · Inbox'},
+ {t:'Autopilot permission',fn:()=>{nav('ain');ainTab(0)}},
+ {t:'Auto plan & prospect validation',fn:()=>{nav('ain');ainTab(2)}},
+ {t:'Execution & mailbox health',fn:()=>{nav('ain');ainTab(3)}},
+ {t:'Reply handling & escalation',fn:()=>{nav('ain');ainTab(4)}},
+ {t:'Visibility & daily reports',fn:()=>{nav('ain');ainTab(5)}},
+ {sec:'Human in the loop (Eve team)'},
+ {t:'Internal Slack review channel',fn:()=>{nav('slack');slackCh(0)}},
+ {t:'Review queue & MVP policies',fn:()=>{nav('sa');closeSA()}},
+ {t:'Claim & review in Super Admin',fn:()=>{openSA(0)}},
+ {t:'Edit a message + learning scope',fn:()=>{openSA(0);if(!saClaimed)claimReview();setTimeout(()=>editMsg(0),500)}},
+ {t:'Escalate to client',fn:()=>{openSA(0);if(!saClaimed)claimReview();setTimeout(()=>escalateClient(),500)}},
+ {t:'Audit trail',fn:()=>{openSA(0);saTab(4,document.querySelectorAll('#sa-detail .tabs .tab')[4])}}
+];
+function renderJourney(){
+  let n=0;
+  document.getElementById('journey').innerHTML=journey.map((it,idx)=>it.sec
+    ?`<div class="j-sec">${it.sec}</div>`
+    :`<div class="jstep${idx===1?' active':''}" id="jstep-${idx}" onclick="runStep(${idx})"><span class="num">${++n}</span><span>${it.t}</span></div>`).join('');
+}
+function runStep(idx){
+  document.querySelectorAll('.jstep').forEach((j)=>{
+    const i=parseInt(j.id.split('-')[1]);
+    j.classList.toggle('active',i===idx);
+    j.classList.toggle('done',i<idx&&!j.classList.contains('active'));
+  });
+  journey[idx].fn();
+}
+
+renderJourney();
+renderProspects();
+msgTab('cli',0,document.querySelector('#cli-msg-tabs .tab'));
+document.getElementById('cin-msg-body').innerHTML=msgCard('cin',cinMsgs[0]);
+
+</script>
+</body>
+</html>
